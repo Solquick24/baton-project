@@ -7,5 +7,5 @@
     "types": ["node"],
     "allowImportingTsExtensions": true
   },
-  "include": ["vite.config.ts", "playwright.config.ts", "dev/**/*.ts", "tests/**/*.ts"]
+  "include": ["vite.config.ts", "playwright*.config.ts", "dev/**/*.ts", "tests/**/*.ts", "tests-api/**/*.ts"]
 }

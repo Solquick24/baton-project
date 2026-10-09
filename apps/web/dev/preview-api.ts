@@ -44,10 +44,6 @@ export function previewApi(): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const url = new URL(req.url ?? '/', 'http://localhost');
-        if (url.pathname === '/__preview/accounts' && req.method === 'GET') {
-          res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.setHeader('Cache-Control', 'no-store');
-          res.end(JSON.stringify({ demoPassword: accounts.demoPassword })); return;
-        }
         if (!url.pathname.startsWith('/api/')) return next();
         const send = (status: number, value: unknown) => { res.statusCode = status; res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.setHeader('Cache-Control', 'no-store'); res.end(JSON.stringify(value)); };
         try {
