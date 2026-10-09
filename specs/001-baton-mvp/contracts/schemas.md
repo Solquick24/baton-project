@@ -1,6 +1,6 @@
 # 계약 스키마: 블록 · 응답 · 작업의 정확한 형태
 
-**상태**: 2026-10-09 명세 보완 기본안. 팀 검토 전이며 바뀌면 이 파일과 `fixtures/`를 함께 고친다.
+**상태**: 2026-10-09 명세 보완 기본안에 FE 연동 계약을 반영했다(이슈 #5). API·공유 Zod 코드는 미구현이며 실제 BE 담당자 리뷰는 별도다. 블록 형태가 바뀌면 이 파일과 `fixtures/`를 함께 고친다.
 **구현 위치**: 아래 타입을 `packages/contracts/src/`에 Zod 스키마로 옮긴다(T008). 모든 객체 스키마는 `.strict()`로 알 수 없는 키를 거부한다.
 **검증 자료**: `fixtures/seed/records.json`과 `fixtures/expected/**.json`이 이 형태를 그대로 따른다. 스키마와 fixture가 다르면 스키마를 기준으로 fixture를 고친다.
 
@@ -225,8 +225,8 @@ type AlertRef =
 
 - 비교 함수(순수 함수, AI 없음): 같은 `drugKey`끼리 `dose` 문자열 비교, `timing`은 정렬한 집합 비교. 차이가 있으면 Alert 1건. 어느 쪽이 맞는지 판단하는 문구를 만들지 않는다.
 - 실행 시점: (a) `npm run seed`에서 시드 관찰 메모 vs 시드 약봉투, (b) `structure` 작업이 `ready`로 끝난 직후 `full.medDetails` vs 같은 진료의 약봉투.
-- 처리(`POST …/alerts/{aid}/resolve`, 환자·대표 보호자):
-  - `edit_note` — 본문 `{ fact: MedFact, text?: string }`. 관찰 메모의 새 버전을 저장하고(원본·수정 이력 보존) 다시 비교한다. 차이가 없어지면 `resolved`, 남으면 `open`.
+- 처리(`POST …/alerts/{aid}/resolve`, 현재 full인 환자·대표 보호자):
+  - `edit_note` — observation_vs_prescription에만 허용한다. record_vs_prescription이면 400 bad_request / unsupported_action이며 기록 입력을 수정해 재정리한다. 본문 `{ fact: MedFact, text?: string }`. 관찰 메모의 새 버전을 저장하고(원본·수정 이력 보존) 다시 비교한다. 차이가 없어지면 `resolved`, 남으면 `open`.
   - `reupload` — 1단계는 안내만 기록한다. 상태 `open` 유지.
   - `confirm_hospital` — `awaiting_confirmation`. `resolved`로 바꾸지 않는다.
 - 상태가 `resolved`가 아니면 다음 브리핑 생성 입력에 포함하고, 브리핑의 해당 변경 항목은 `needsCheck=true`가 된다. 이미 저장된 과거 블록은 다시 쓰지 않는다.
@@ -240,7 +240,7 @@ interface Job {
   kind: 'transcribe' | 'merge_questions' | 'briefing' | 'structure';
   visitId: Id;
   status: 'queued' | 'running' | 'succeeded' | 'failed';
-  attempt: number;                               // 같은 (visitId, kind, inputVersion)의 몇 번째 시도인지
+  attempt: number;                               // 같은 중복 키의 몇 번째 시도인지(전사는 uploadId)
   mode: Mode | null;
   resultVersion: number | null;                  // 결과 블록 세트 version. transcribe는 null
   resultState: BlockSetState | null;             // ready / blocked
@@ -251,7 +251,8 @@ interface Job {
 
 - AI 생성(merge·briefing·structure)과 전사는 **항상 202 + jobId**로 시작한다. 프론트는 2초마다 `GET /jobs/{jobId}`를 부르고 `succeeded`·`failed`에서 멈춘다.
 - 재시도는 별도 경로 없이 같은 생성 요청을 다시 보낸다.
-  - 같은 `(visitId, kind, inputVersion)`에 `queued`·`running` 작업이 있으면 그 jobId를 돌려준다.
+  - 생성 작업은 `(visitId, kind, inputVersion)`, 전사는 `(visitId, kind, uploadId)`로 중복을 판단한다. 전사는 jobs에 uploadId를 저장한다.
+  - 같은 중복 키에 `queued`·`running` 작업이 있으면 그 jobId를 돌려준다.
   - `succeeded` 작업이 있으면 새로 만들지 않고 그 jobId를 돌려준다(중복 생성 금지).
   - 마지막이 `failed`면 `attempt+1`로 새 작업을 만든다.
 - 서버 시작 시 `running`으로 남은 작업은 `failed`(`internal`)로 바꾼다.
@@ -262,15 +263,17 @@ interface Job {
 ```ts
 interface ErrorResponse {
   error: {
-    code: 'unauthorized' | 'forbidden' | 'not_found' | 'bad_request' | 'conflict' | 'upstream_error';
-    reason?: 'stale_input' | 'blocked' | 'not_ready' | 'not_author' | 'recording_not_allowed';
+    code: 'unauthorized' | 'forbidden' | 'not_found' | 'bad_request' | 'conflict' | 'upstream_error' | 'internal_error';
+    reason?: 'stale_input' | 'blocked' | 'not_ready' | 'not_author' | 'recording_not_allowed'
+      | 'idempotency_conflict' | 'file_too_large' | 'unsupported_media_type' | 'unsupported_action';
     message: string;                             // 한국어 짧은 안내. 원문·내부 경로·다른 범위 개수 금지
     requestId: string;
   };
 }
 ```
 
-401 인증 실패 · 403 행동 권한 없음 · 404 없음 또는 허용 범위 밖 · 400 입력 오류 · 409 버전 충돌·공유 보류 · 502 외부 처리 오류.
+401 인증 실패 · 403 행동 권한 없음 · 404 없음 또는 허용 범위 밖 · 400 입력 오류 · 409 버전 충돌·공유 보류 · 502 외부 처리 오류 · 500 내부 오류.
+음성 20MB 초과는 413 bad_request / file_too_large, 지원하지 않는 MIME은 415 bad_request / unsupported_media_type. 모든 오류는 위 본문으로 정규화한다.
 
 ## 8. API 요청·응답(1단계)
 
@@ -308,18 +311,29 @@ type HomeRes = {
 type TimelineRes = { items: VisitView[] };       // 공유본만. dept 필터 필수 적용
 
 // GET /api/patients/{pid}/visits/{vid}?view=published|draft  (기본 published)
-type VisitView = {
-  meta: VisitMeta;
-  record?: {                                     // 보여줄 기록이 없으면 키 자체가 없음
-    view: 'published' | 'draft';
-    version: number;
-    mode: Mode;
-    state?: BlockSetState;                       // draft일 때만
-    shareable?: boolean;                         // draft일 때만: state=ready && inputVersion 일치 && 공유 권한
-    issues?: ValidationIssue[];                  // draft일 때만, 호출자 허용 kind의 issue만
-    blocks: { schedule?: RecordScheduleBlock; companion?: RecordCompanionBlock; full?: RecordFullBlock };
-  };
+type RecordBlocks = {
+  schedule?: RecordScheduleBlock;
+  companion?: RecordCompanionBlock;
+  full?: RecordFullBlock;
 };
+type RecordView = {
+  version: number;
+  mode: Mode;
+  blocks: RecordBlocks;
+} & (
+  | { view: 'published' }
+  | {
+      view: 'draft';
+      inputVersion: number;                      // 검토본이 사용한 입력 버전
+      stale: boolean;                            // 현재 recordInputVersion과 다름
+      state: BlockSetState;
+      shareable: boolean;                        // ready && 입력 일치 && 현행 공유 권한
+      issues: ValidationIssue[];                 // 허용 kind만, 없으면 []
+    }
+);
+type VisitView = { meta: VisitMeta; record?: RecordView }; // 보여줄 기록이 없으면 record 키 없음
+// view=published에는 inputVersion/stale/state/shareable/issues 키가 없다.
+// draft의 blocked 세트는 낮은 블록을 반환하지 않는다. companion 검토자는 blocks={}와 안전한 상태만 받는다.
 // view=draft는 (초안 작성자로서 현재 companion 이상) 또는 (환자 · 위임 켜진 대표)만. 그 외 403.
 
 // POST /api/patients/{pid}/visits/{vid}/questions        (companion 이상)
@@ -333,6 +347,7 @@ type QuestionsRes = {
   questionsInputVersion: number;
   merged?: {                                     // 통합 결과가 없으면 키 없음
     version: number; mode: Mode; stale: boolean; // stale = 통합 후 질문이 추가됨
+    state?: 'ready' | 'blocked';                 // full 호출자에게만 필수
     blocks: { companion?: QuestionsCompanionBlock; full?: QuestionsFullBlock };
   };
 };
@@ -342,14 +357,21 @@ type QuestionsRes = {
 // GET  …/briefing          (companion 이상, schedule은 404, 없으면 404)
 type BriefingRes = {
   version: number; mode: Mode; stale: boolean;   // stale = 브리핑 이후 질문 통합 버전이 바뀜
+  state?: 'ready' | 'blocked';                    // full 호출자에게만 필수
   blocks: { companion?: BriefingCompanionBlock; full?: BriefingFullBlock };
   questions: QuestionsCompanionBlock['mergedQuestions']; // briefing.questions id로 찾은 통합 질문(companion 이상)
 };
+
+// GET …/record-input → 200 RecordInputRes (현재 companion 이상, 그 외 404)
+type RecordInputRes = { recordInputVersion: number; canUploadAudio: boolean };
+// canUploadAudio = 현재 입력 권한 && recordingAllowed. 원문·업로드 목록·초안 포인터 없음.
+// 기록 진입·notes 저장·transcribe 성공·stale_input 후 다시 읽는다.
 
 // POST …/audio   multipart(file), audio/mpeg·mp4·x-m4a·wav·webm, 20MB 이하
 //   companion 이상 + patients.recordingAllowed=true, 아니면 403 recording_not_allowed → 201 { uploadId }
 // POST …/transcribe { uploadId }       → 202 { jobId }. 성공 시 transcripts 저장 + recordInputVersion+1
 // POST …/notes      { text }           → 201 { noteId, recordInputVersion }   (메모 원문은 full 전용)
+// notes.text는 trim 후 1~2000자. 빈 값·초과는 400, 저장하지 않고 버전도 증가시키지 않는다.
 // POST …/structure  { inputVersion }   → 202 { jobId } | 409 stale_input
 // POST …/share      { draftVersion, inputVersion, idempotencyKey }
 type ShareRes = { publishedVersion: number; sharedAt: IsoDateTime; alreadyPublished: boolean };
@@ -360,12 +382,16 @@ type ShareRes = { publishedVersion: number; sharedAt: IsoDateTime; alreadyPublis
 
 // GET /api/patients/{pid}/sources/{uploadId}   (full만) → 파일 스트림. storagePath는 응답하지 않음
 
-// GET  /api/patients/{pid}/alerts                    (full만, 그 외 404) → { alerts: Alert[] }
-// POST /api/patients/{pid}/alerts/{aid}/resolve       (환자·대표 보호자)
+// GET  /api/patients/{pid}/alerts                    (full만, 그 외 404)
+type AlertsRes = { alerts: Alert[]; canResolve: boolean };
+// canResolve = 현재 full && (환자 또는 대표 보호자). 위임은 scope 관리에만 필요.
+// POST resolve도 같은 권한과 patient·alert 소속 검사. 낮은 범위는 상세 응답을 받지 못한다.
+// POST /api/patients/{pid}/alerts/{aid}/resolve       (현재 full인 환자·대표 보호자)
 type ResolveReq =
   | { action: 'edit_note'; fact: MedFact; text?: string }
   | { action: 'reupload'; note?: string }
   | { action: 'confirm_hospital'; note?: string };
+type ResolveRes = { alert: Alert };              // 200, 처리 후 재비교 상태와 이력을 포함
 
 // GET /api/patients/{pid}/members                     (환자 · 위임 켜진 대표만, 그 외 403)
 type MembersRes = { members: Array<{ userId: Id; name: string; relation: string; role: Role; scope: Scope; active: boolean }> };
@@ -393,6 +419,19 @@ type HospitalRes = {
   notice: string;                                // '가상 병원 · 참고용 정보'
 };
 ```
+
+
+### 8.1 HTTP와 조회 선택 규칙
+
+- login·모든 GET·PUT scope·share·resolve 성공은 200, questions·audio·notes 등록은 201, 생성·전사는 재사용 여부와 무관하게 202 `{ jobId }`다. 응답을 data 키로 감싸지 않는다.
+- home의 dept 생략은 `depts`의 첫 항목을 선택한다. depts는 환자 visits의 진료과를 중복 제거해 문자열 오름차순으로 정렬한다. 진료가 없으면 depts=[], nextVisit=null, recent=[]다. 명시한 dept가 목록에 없으면 400 bad_request.
+- timeline의 dept는 필수다. 누락·빈 값·목록에 없는 값은 400 bad_request. timeline은 공유된 record가 있는 진료만 반환하며, 공유본이 없는 개별 visit 조회는 meta만 반환한다. 초안 존재를 일반 가족 응답에 표시하지 않는다.
+- questions·briefing의 포인터는 최신 ready 또는 blocked 완료 세트를 가리킨다. generating·failed는 이전 완료 포인터를 덮지 않는다. 이전 세트로 자동 대체해 최신 결과처럼 보여주지 않는다.
+- 최신 questions가 blocked이면 companion의 GET questions는 originals와 questionsInputVersion만 반환한다(merged 키 없음). full은 merged.state=blocked와 blocks.full만 받는다. fromQuestionIds로 비공개 원 질문 ID가 드러나지 않도록 companion 통합 항목은 공개 질문 ID만 참조해야 한다.
+- 최신 briefing이 blocked이면 companion의 GET briefing은 404 not_found(보류 원인 비노출), full은 state=blocked, blocks.full, questions=[]를 받는다. full 응답에서도 blocked 낮은 블록을 보내지 않는다. 최신 questions가 ready가 아니면 briefing 생성은 409 not_ready다.
+- share는 검토한 draftVersion·그 초안의 inputVersion·UUID idempotencyKey를 보낸다. 최신 입력 버전을 초안 버전 대신 보내지 않는다. 서버는 요청·초안·현재 입력 버전을 모두 비교한다.
+- 공유 멱등 키는 `(patientId, actorId, idempotencyKey)`이며 성공 본문과 visitId·draftVersion·inputVersion을 DB가 유지되는 동안 저장한다. 같은 키의 다른 본문은 409 conflict / idempotency_conflict. 성공 재전송과 같은 초안 재공유는 현행 권한을 확인한 뒤 200 alreadyPublished=true이며 publish 로그를 추가하지 않는다. 실패 요청은 성공 멱등 결과로 저장하지 않는다. 공유와 멱등 결과 저장은 같은 트랜잭션이다.
+- 재생성은 입력 변경 후에 수행한다. blocked 성공 작업을 같은 입력으로 재전송하면 기존 jobId를 재사용한다. Job.resultState는 transcribe에서 null이며 전사 성공 후 record-input을 다시 조회한다.
 
 ## 9. 응답 키 규칙 요약
 

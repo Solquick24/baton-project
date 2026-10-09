@@ -24,7 +24,8 @@
 | prescriptions | id,patientId,visitId,uploadId,source,items(JSON),text | 약봉투·처방 값. 1단계는 source='seed'. items=MedFact[]. full 전용 |
 | observations | id,patientId,dept,authorId,text,fact(JSON),date,revision,supersedesId | 가족 관찰 메모. 1단계 시드만. 원문·상세는 full. edit_note는 새 revision 행을 만들고 원본 보존 |
 | alerts | id,patientId,visitId,dept,kind,references(JSON),differences(JSON),summary,status,history(JSON) | status=open/awaiting_confirmation/resolved; 전체 full 전용 |
-| jobs | id,patientId,visitId,requestedBy,kind,inputVersion,status,attempt,mode,resultVersion,resultState,errorCode,createdAt,updatedAt | status=queued/running/succeeded/failed. 원문·결과 내용 저장 금지(블록 세트 version만) |
+| jobs | id,patientId,visitId,requestedBy,kind,inputVersion,uploadId,status,attempt,mode,resultVersion,resultState,errorCode,createdAt,updatedAt | status=queued/running/succeeded/failed. 원문·결과 내용 저장 금지(블록 세트 version만) |
+| share_requests | patientId,actorId,idempotencyKey,visitId,draftVersion,inputVersion,publishedVersion,sharedAt | UNIQUE(patientId,actorId,idempotencyKey). 성공 요청만, DB 수명 동안 보존. 공유 트랜잭션에 포함 |
 | share_logs | id,patientId,targetUserId,actorId,action,oldScope,newScope,visitId,version,at | action=start/scope_change/stop/publish. publish는 targetUserId=null. 환자·위임 대표만 조회 |
 | uploads | id,patientId,visitId,uploaderId,storagePath,mediaType,size,createdAt | 공개 static 밖. 원본 읽기는 full, 업로드 권한과 읽기 권한 분리 |
 | documents | id,patientId,visitId,uploadId,extractedFields,editedFields | 2단계 |
@@ -44,6 +45,7 @@ SQL 바인딩·foreign key(`PRAGMA foreign_keys=ON`)·트랜잭션을 사용한�
 
 - 모든 섹션의 입력은 같은 patientId·dept로 제한한다. 진료과 미확인 기록·비공개 메모·다른 환자 자료는 입력에 넣지 않는다.
 - blocked 세트: questions·briefing은 full 블록만 전체 내용 계정에 보이고 companion/schedule은 아무에게도 응답하지 않는다. record는 공유할 수 없다.
+- questions·briefing 포인터는 최신 ready/blocked 완료 세트만 가리킨다. generating/failed는 이전 완료 포인터를 유지한다. blocked 최신본을 낮은 범위에 반환하거나 이전 ready를 최신으로 대체하지 않는다.
 - 이전 세트는 지우지 않는다. 포인터(questionsVersion·briefingVersion·recordDraftVersion·recordPublishedVersion)만 바꾼다.
 
 ## Block payloads
@@ -75,6 +77,8 @@ null은 미확인 값이며 needsCheck=true다. full의 sourceRefs는 항목 ID�
 - 공유: record 세트 ready + 현행 공유 권한 + 세트 inputVersion = visits.recordInputVersion → recordPublishedVersion 갱신 + publish 로그 + status=done을 한 트랜잭션으로 저장.
 - 미해결 일반 불일치·missing_source는 needsCheck 유지로 공유 가능; blocked는 공유하기로 우회 불가(409 blocked).
 - recordInputVersion 증가(메모 추가·전사 완료) 시 이전 draft는 stale이 된다. 이전 publishedVersion은 보존하고, 새 공유 확정 전에는 기존 공유본만 가족에게 전달한다.
+- 생성 중복 키는 (visitId,kind,inputVersion), 전사 중복 키는 (visitId,kind,uploadId)다.
+- share_requests와 publish는 같은 트랜잭션이며 같은 키의 다른 입력은 409 idempotency_conflict다.
 - scope 변경과 scope_change 로그를 함께 저장한다. 같은 값으로의 변경·같은 요청 재전송은 로그·공유를 중복 생성하지 않는다.
 - 비공개 메모·위임·stop은 2단계. stop은 active=false와 stop 로그를 함께 저장한다.
 
