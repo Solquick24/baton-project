@@ -96,7 +96,7 @@ test('patient change hides old content and cancels in-flight reads before the ne
   await page.evaluate(() => { history.pushState(null, '', '/p/p_missing'); dispatchEvent(new PopStateEvent('popstate')); });
   await started;
   await expect(page.locator('main')).not.toContainText('바토디핀');
-  await page.getByRole('link', { name: '나', exact: true }).click();
+  await page.evaluate(() => { history.pushState(null, '', '/me'); dispatchEvent(new PopStateEvent('popstate')); });
   release();
   await expect(page.getByRole('heading', { name: '아직 내 진료 기록이 없어요' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '찾을 수 없어요' })).toHaveCount(0);

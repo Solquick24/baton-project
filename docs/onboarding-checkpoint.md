@@ -19,9 +19,9 @@
 |---|---|
 | `npm run typecheck` | 전체 워크스페이스 및 tools 통과 |
 | `npm run build` | 전체 타입검사 + 웹 production 빌드 통과 |
-| `npm run test` | API 247 통과, 0 실패(22 파일) |
+| `npm run test --workspace @baton/api -- --maxWorkers=1` | API 247 통과, 0 실패(22 파일) |
 | `WEB_PORT=5276 npm run test:web` | preview 21 통과, 0 실패 |
-| `npm run test:e2e` | 실제 fixture API E2E 33 통과, 0 실패 |
+| `npm run test:e2e` | 실제 fixture API E2E 34 통과, 0 실패 |
 | 현재 원본 작업 폴더의 웹 typecheck/build | 기존 미커밋 화면/브랜드 변경과 함께 통과 |
 | 현재 원본 작업 폴더의 온보딩 브라우저 검사 | 7 통과, 0 실패 |
 
@@ -34,3 +34,5 @@
 LLM/STT는 fixture이며 preview와 실제 로컬 API를 각각 검사했다. 온보딩 자체는 정적 안내다. 외부 OpenAI/AWS 호출·실제 모바일 기기·스크린리더 사용자 검증은 미실시다. 브라우저 390×844 및 375×667/844×390, 아주 큰 글씨·고대비·reduced motion, 저장소 실패·재방문·스와이프·키보드·포커스를 검사했다. 기존 미완료 T048~T051 및 Tier C 완료 표시는 변경하지 않았다.
 
 별도 최신 devlop 기반 worktree에서 온보딩만 커밋/PR로 분리했다. 원본 작업 폴더에도 온보딩을 적용했으며 진행 중인 다른 화면/브랜드 변경은 보존한다. PR/병합 결과는 이슈 #41과 연결 PR 본문에서 확인한다. main 반영·배포 없음.
+
+PR 생성 중 최신 devlop ac422ec에 #43 미확인 복약 표시와 #44 빠른 로그인 수정이 병합되어 이를 보존 통합했다. 로그인 부분은 최신 구현에 사용법 버튼을 추가하고 결정 표는 양쪽 행을 보존했다. 통합 후 전체 타입/빌드·preview 21·실제 API E2E 34를 재검증했다. 동시 API 검사에서 2건이 5초 제한에 걸려 제품/시간 제한을 바꾸지 않고 작업자 1개로 전체를 재검사했다.
