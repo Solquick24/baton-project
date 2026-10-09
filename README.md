@@ -2,11 +2,17 @@
 
 가족이 번갈아 동행해도 진료 맥락이 끊기지 않도록 진료 전·중·후 기록을 이어주는 프로젝트다.
 
-현재는 **Phase 1, 백엔드·공통 기반(T008–T019), Phase 3 백엔드(T021–T025), 프론트 첫 화면 흐름**이 구현된 상태다. 실제 API에서 환자 목록·홈·타임라인·진료 조회·질문 등록/통합·브리핑 생성/조회를 제공하며, T010의 `--pregenerate`는 실제 fixture provider와 같은 생성·검증·저장 파이프라인을 사용한다. 프론트 화면 시연은 기존 개발용 응답을 사용한다. T020·T026–T029 실제 API 통합 검증과 후속 진료 정리·공유는 미완료이므로 Phase 2·3 전체 완료가 아니다. 이번 구현은 fixture로 검증했으며 AWS 자원 생성·IAM 변경·배포를 하지 않았다. 앞선 Bedrock 접근 실패는 [AWS 준비 기록](docs/aws-setup.md)에 정리했다.
+현재 작업 브랜치에서는 **기존 Phase 3·4·5 백엔드와 프론트의 실제 API 연결**을 검증했다. 로그인·홈·질문 통합·브리핑·범위 관리·진료 입력·정리·검토·공유·불일치 처리를 로컬 API로 사용한다. API 245건, 실제 API 브라우저 25건, 기존 preview 14건과 전체 타입 검사·빌드가 통과했다. OpenAI 키·모델이 없어 실제 외부 호출은 미실시이며 STT는 fixture로 검증했다. T048~T051·Tier C 전체 완료를 뜻하지 않는다. 이슈 #32의 커밋 체크포인트 이후 사용자가 devlop 대상 PR 생성·병합을 요청했다. 실제 반영 단계는 이슈/PR 기록을 확인한다. main 반영은 이번 요청에서 제외한다.
+
+- [최신 API 통합 결과·실행 방법·OpenAI/STT 구분·남은 설정](docs/api-integration-checkpoint.md)
 
 - [Phase 1 체크포인트와 실제 검증 결과](docs/phase1-checkpoint.md)
 - [백엔드 기반 체크포인트와 T020 인수인계](docs/backend-foundation-checkpoint.md)
+- [T020 실제 API 세션 체크포인트](docs/frontend-session-checkpoint.md)
 - [Phase 3 백엔드 체크포인트와 실제 API 인수인계](docs/phase3-backend-checkpoint.md)
+- [Phase 4 백엔드 T030~T032 검증·인수인계](docs/phase4-backend-checkpoint.md): 범위 변경·공유 로그·full 원문 스트림을 구현·검증하고 사용자 검토·게시 승인을 받았다. [이슈 #29](https://github.com/Solquick24/baton-project/issues/29)에서 `devlop` 반영 결과를 확인한다. 당시 미완료였던 T033~T036의 후속 통합은 최신 이슈 #32 체크포인트를 따른다.
+
+- [Phase 5 백엔드 T037~T044 최신 검증](docs/phase5-backend-checkpoint.md) · [실제 API 요청/응답·오류·버전·폴링·파일·캐시 인수인계](docs/phase5-api-handoff.md). 당시 미완료였던 프론트 통합의 후속 결과는 이슈 #32를 따른다. 외부 AI 실제 성공은 여전히 미검증이다.
 
 ## 문서
 
@@ -64,8 +70,8 @@ npm run dev
 ```
 
 웹은 http://127.0.0.1:5173, API health는 http://127.0.0.1:3001/api/health다.
-브라우저의 /api 요청은 Vite가 로컬 API로 프록시한다. 실제 로그인은 기본 시드 투입 후 사용할 수 있다. 환자 목록·홈 등 후속 API는 아직 없으므로 전체 화면 시연에는 아래 프론트 개발용 모드를 사용한다.
-기본 LLM/STT 모드는 fixture다. dev·테스트·빌드는 AWS를 호출하지 않는다.
+브라우저의 /api 요청은 Vite가 로컬 API로 프록시한다. 실제 로그인·환자/진료 조회·질문/브리핑 API는 기본 시드 투입 후 사용할 수 있다. 이번 작업 브랜치의 실제 API 통합 결과는 위 체크포인트를 따른다. 아래 개발용 모드는 기존 진료 전 화면의 별도 시연용이다.
+기본 LLM/STT 모드는 fixture다. 기본 시연·테스트·빌드는 외부 AI를 호출하지 않는다. 사용자 결정으로 텍스트의 live 기본 provider는 OpenAI Responses(`LLM_PROVIDER=openai`)이며 Bedrock도 선택 가능하다. [설정·검증·남은 live 확인](docs/openai-provider-checkpoint.md)을 참고한다. 전사 provider는 변경하지 않는다.
 
 ```bash
 npm run typecheck
@@ -76,9 +82,9 @@ npm run test:e2e
 ```
 
 `npm run seed`는 설정된 로컬 DB의 기본 가상 시드를 트랜잭션으로 다시 만든다. 로그인 API를 쓰려면 먼저 실행한다.
-`--pregenerate`는 T023·T024 의존성이 미구현이므로 DB 변경 전에 exit 1로 중단한다(T010 미완료).
+`--pregenerate`는 실제 fixture 질문 통합·브리핑 파이프라인으로 저장 전 검증과 저장을 수행한다. 기본 DB를 보존할 검증에는 `--database /별도/임시경로/baton.sqlite`를 지정한다. OpenAI를 선택해도 사전 생성은 fixture다.
 `npm run check:ai`는 별도 수동 실행 명령이며 Bedrock 연결 확인 호출 1회와 Transcribe 목록·기존 S3 버킷 접근을 검사한다. 검사 실패는 종료 코드 1로 보고한다.
-최종 구성은 로컬 서버·SQLite·시드 로그인, AI만 AWS 사용이다. 배포는 하지 않는다.
+최종 구성은 로컬 서버·SQLite·시드 로그인, 텍스트 OpenAI/Bedrock 선택과 기존 전사 provider다. 이전 'AI만 AWS' 방향의 변경 근거는 이번 사용자 결정이며 docs/decisions.md에 기록했다. 배포는 하지 않는다.
 정리 결과는 검토 후 공유하기로 확정하며 원문·인용은 full에만 제공한다.
 
 ### 프론트 화면 시연
@@ -100,7 +106,7 @@ npm run test:web
 
 ## 다음 구현 단계
 
-백엔드 기반 체크포인트에서 멈춘 상태다. 프론트 T020은 별도 담당이며 T010의 pregenerate는 T023·T024 구현 뒤 연결해야 한다. Phase 2 전체 완료는 아니다.
+백엔드 T021~T025·T010 사전 생성과 T030~T032를 검증했다. T020 실제 API 세션 검증도 완료했다. 프론트 T026~T029 및 T033~T036 실제 화면 수용 검증은 남은 작업이다. Phase 3~4 전체 완료는 아니다.
 Tier A(T001–T049)를 먼저 수행하고 Tier B와 마지막 결과 기록을 이어간다.
 선택 2단계·화면만인 Tier C(T052–T064)는 사람이 명시적으로 요청할 때만 진행한다.
 새 checkout에서는 다음 값을 지정해 Spec Kit가 main에서도 feature를 찾게 한다.

@@ -17,9 +17,13 @@
 
 ## 1. 지금 상태와 목표
 
+- 최신 이슈 #32 작업 브랜치의 실제 API 화면 통합·검증·종료 범위는 [통합 체크포인트](docs/api-integration-checkpoint.md)를 우선 확인한다. T020·T026~T029·T033~T036·T045~T047을 fixture API/브라우저로 검증했고 OpenAI key/model 미설정으로 실제 호출은 미실시다. STT fixture, T048~T051·Tier C 미완료 유지. 아래 이전 체크포인트의 미완료 문장은 당시 기록이다. 최초 커밋 체크포인트 이후 사용자가 devlop 대상 PR 생성과 병합을 명시 요청했다. 검증한 작업 브랜치만 push하고 PR 검사·충돌 상태를 확인해 devlop에 병합한다. main 반영은 이번 범위가 아니다.
+
 - 바통은 가족이 번갈아 진료에 동행해도 맥락이 끊기지 않게 하는 모바일 웹 MVP다. **해커톤 당일(약 5시간·4명) 로컬 시연용**이다.
-- Phase 1(T001–T007), T008–T019 백엔드·공통 기반과 Phase 3 백엔드 T021–T025를 구현했다. T010의 --pregenerate도 fixture provider와 질문·브리핑 파이프라인으로 검증했다. 실제 API는 health·로그인·jobs·환자 목록·홈·타임라인·진료 조회·질문 등록/통합·브리핑 생성/조회다. 프론트의 기존 화면 시연은 개발용 응답을 사용하며 T020·T026–T029 실제 통합 검증과 후속 진료 기능은 미완료다. Phase 2·3 전체 완료가 아니다. docs/phase3-backend-checkpoint.md, docs/backend-foundation-checkpoint.md와 docs/frontend-plan.md를 함께 확인한다.
+- Phase 1(T001–T007), T008–T020 백엔드·공통 기반과 Phase 3 백엔드 T021–T025를 구현했다. T010의 --pregenerate도 fixture provider와 질문·브리핑 파이프라인으로 검증했다. 실제 API는 health·로그인·jobs·환자 목록·홈·타임라인·진료 조회·질문 등록/통합·브리핑 생성/조회다. T020 실제 JWT 세션·요청 취소·캐시 정리는 실제 API로 검증했다. T026–T029 전체 화면 수용 검증과 후속 진료 기능은 미완료다. Phase 3 전체 완료가 아니다. docs/frontend-session-checkpoint.md도 확인한다. docs/phase3-backend-checkpoint.md, docs/backend-foundation-checkpoint.md와 docs/frontend-plan.md를 함께 확인한다.
 - 목표: `specs/001-baton-mvp/tasks.md`의 **Tier A 작업**을 끝내 두 시연 경로(이어받기·범위 변경)를 로컬에서 2회 연속 완주하는 것.
+- T030~T032의 범위 관리·공유 로그·full 원문 API가 devlop에 병합됐다. [Phase 4 백엔드 체크포인트](docs/phase4-backend-checkpoint.md)를 따른다. T033~T036과 Phase 4 전체 통합은 미완료다. 당시의 사전 검토·게시 보류는 Phase 4 작업에 대한 지시이며 이후 요청의 명시적 커밋·push·PR 승인을 막지 않는다.
+- Phase 5 백엔드 T037~T044는 [최신 체크포인트](docs/phase5-backend-checkpoint.md)와 [실제 API 인수인계](docs/phase5-api-handoff.md)를 따른다. 업로드·전사·메모·정리·검토·공유·불일치 제품 API의 fixture 검증은 완료했다. 화면 통합(T045~T047 포함)과 외부 AI 실제 호출 검증은 미완료이며 Phase 5 전체 완료가 아니다. 사용자 담당은 이번 요청에서 백엔드다.
 
 ## 2. 읽는 순서
 
@@ -39,7 +43,7 @@
 
 헌장 원칙 I~V > spec.md > schemas.md·screens.md·seed-story.md > plan.md·data-model.md·api.md > tasks.md > 최종 기획안.
 
-- 헌장의 '기본 기술 방향'(Cognito·Lambda·DynamoDB·S3)은 이번 데모에서 plan.md의 승인 예외(로컬 Fastify·SQLite·시드 JWT, AI만 AWS)로 대체됐다. 그 부분은 plan.md를 따른다.
+- 헌장의 '기본 기술 방향'(Cognito·Lambda·DynamoDB·S3)은 이번 데모에서 로컬 Fastify·SQLite·시드 JWT의 사용자 승인 예외로 대체됐다. 이후 2026-10-09 사용자가 텍스트 생성은 OpenAI API로 변경하기로 명시 결정했다. 이전 plan.md의 'AI만 AWS' 방향에서 텍스트에 한정한 추가 예외이며 [변경 근거·검증](docs/openai-provider-checkpoint.md)과 docs/decisions.md를 따른다. STT는 변경하지 않는다.
 - 확정되지 않은 사항을 결정의 근거로 사용하지 않는다.
 - 문서끼리 맞지 않거나 문서에 없는 결정이 필요하면 **더 좁게 공개하는 쪽**(정보가 덜 나가는 쪽)을 고르고, `docs/decisions.md` 맨 아래 '구현 중 결정' 표에 한 줄을 남긴다. 명세 파일 자체는 고치지 않는다.
 
@@ -56,7 +60,7 @@
 
 ## 5. 절대 규칙(위반하면 완료가 아니다)
 
-1. **배포·AWS 자원 생성 금지.** SAM·CDK·Amplify·CloudFormation·새 버킷·IAM 변경을 하지 않는다. AWS는 Bedrock·Transcribe 호출과 기존 staging 버킷 사용만.
+1. **배포·AWS 자원 생성 금지.** SAM·CDK·Amplify·CloudFormation·새 버킷·IAM 변경을 하지 않는다. 텍스트는 사용자 결정에 따라 OpenAI Responses를 기본 provider로 선택하고 Bedrock 선택지도 보존한다. AWS 사용은 Bedrock·Transcribe 호출과 기존 staging 버킷 범위만.
 2. **가상 자료만.** 실존 인물·병원·약·질환을 만들지 않는다. 모든 화면에 `가상 데이터` 배지.
 3. **조회·범위 변경에서 AI 호출 0회.** GET 경로와 PUT scope는 저장된 블록만 고른다.
 4. **허용 블록만 SELECT.** 범위→kind 표(`ALLOWED_KINDS`)는 `apps/api/src/auth/block-policy.ts` 한 곳. 전체를 읽고 키를 지우는 방식 금지. 응답에 금지 블록 **키 자체가 없어야** 한다.
@@ -107,6 +111,7 @@
 `apps/api/.env.example`·`apps/web/.env.example`에 이름과 기본값이 있다. 상대 경로는 **apps/api 폴더 기준**으로 해석한다(`config.ts`가 `import.meta.url`로 계산). 핵심 값:
 
 - `LLM_MODE`·`STT_MODE` = `fixture`(기본) | `live`. 테스트는 항상 fixture.
+- `LLM_PROVIDER=openai`(기본) | `bedrock`는 live 텍스트 provider 선택이다. `OPENAI_API_KEY`·`OPENAI_MODEL`은 백엔드 전용이며 OpenAI live에서 필수다. 기본 시연 fixture는 키 없이 동작한다. 실제 연결 확인은 fallback=false로 별도 수행하며 설정만으로 성공이라 보고하지 않는다.
 - `LIVE_FALLBACK_TO_FIXTURE=true`면 live 호출이 실패할 때 같은 입력의 fixture를 쓰고 `mode='fixture'`로 저장·표시한다.
 - `DEMO_TODAY=2026-03-12` — 서버의 '오늘'(다음 진료 판단). 로그 시각은 실제 시각.
 - `ENABLE_TEST_ENDPOINTS=true`일 때만 `GET /api/__test/ai-calls`(provider 호출 횟수)를 등록한다. e2e에서만 켠다.

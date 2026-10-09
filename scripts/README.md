@@ -13,3 +13,5 @@
 `python3 scripts/inspect-dataset.py '<ZIP 경로>' --report '<보고서 경로>'`로 실행한다.
 원본을 추출하거나 ZIP 안의 스크립트를 실행하지 않으며 DB·AWS·활성 fixture를 변경하지 않는다.
 검사 실패 시 종료 코드 1을 반환한다. [활용 기준과 실제 검사 결과](../docs/dataset-integration.md)를 참고한다.
+
+`LLM_PROVIDER=openai LLM_MODE=live LIVE_FALLBACK_TO_FIXTURE=false node --import tsx scripts/check-openai.ts`는 명시적인 수동 점검이다. `apps/api/.env`의 키·모델을 사용하고 최소 가상 질문 한 개만 Responses에 보낸다. 스키마 형식 재시도는 최대 1회이며 fixture 대체·DB 저장·AWS 호출은 없다. 저장 전 질문 안전 검증까지 통과해야 exit 0이고 원문/키는 출력하지 않는다. dev/test/build에서 자동 실행하지 않는다. 이번 작업의 실제 호출은 키·모델 미설정으로 미실시이며 [체크포인트](../docs/openai-provider-checkpoint.md)에 기록했다.

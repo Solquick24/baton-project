@@ -1,6 +1,11 @@
 import type { BatonDatabase } from '../../adapters/sqlite/database.js';
 
 export const normalizeRestricted = (text: string) => text.normalize('NFKC').toLowerCase().replace(/\s/gu, '');
+export function stringValues(value: unknown): string[] {
+  if (typeof value === 'string') return [value];
+  if (Array.isArray(value)) return value.flatMap(stringValues);
+  return value && typeof value === 'object' ? Object.values(value).flatMap(stringValues) : [];
+}
 export function fullRestrictedValues(full: unknown): string[] {
   if (!full || typeof full !== 'object') return [];
   const row = full as Record<string, unknown>, values: string[] = [];
