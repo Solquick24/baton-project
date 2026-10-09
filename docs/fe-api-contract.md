@@ -1,6 +1,6 @@
 # 바통 FE API 연동 기준
 
-실제 구현 상태(2026-10-09): T021–T025의 질문·브리핑·환자/진료 조회에 더해 full 불일치 목록·처리 API를 fixture 모드에서 검증했다. 기존 경로는 [Phase 3 체크포인트](phase3-backend-checkpoint.md), 새 alerts 경로와 미구현 정리/공유 경로·선행 의존성은 [Phase 5 독립 백엔드 체크포인트](phase5-backend-checkpoint.md)를 따른다. 아래 계획 당시 준비 수준과 구분한다. T020·T026–T029·T045–T047 실제 화면 통합 및 Phase 5 전체는 미완료다.
+실제 구현 상태(2026-10-09): Phase 3 질문·브리핑·환자/진료 조회, Phase 4 범위·로그·원문, Phase 5 T037~T044의 업로드·전사·메모·정리·검토·공유·불일치 제품 API를 fixture/모의 응답으로 직접 검증했다. [Phase 3](phase3-backend-checkpoint.md)·[Phase 4](phase4-backend-checkpoint.md)·[Phase 5 최신 결과](phase5-backend-checkpoint.md)와 [Phase 5 실제 API 인수인계](phase5-api-handoff.md)를 따른다. 아래 계획 당시 준비 수준과 구분한다. T020·T026~T029·T033~T036·T045~T047 화면 통합, 외부 AI 실제 호출 및 Phase 5 전체는 미완료다.
 
 FE 리드와 BE 담당자가 화면 구현 전에 사용할 요청·응답과 예외 처리 기준이다. 사용자 진행 요청에 따라 입력 버전 조회·행동 권한·보류 결과·HTTP 예외를 API 계약에 반영했다(이슈 #5). Phase 1의 health handler·공유 health 스키마는 있으나 진료 API handler와 공유 진료 계약은 아직 없으며 실제 BE 담당자의 리뷰는 별도로 필요하다.
 

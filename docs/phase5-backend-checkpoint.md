@@ -1,4 +1,59 @@
-# Phase 5 독립 백엔드 체크포인트
+# Phase 5 백엔드 체크포인트
+
+## 최신 결과 — Phase 3·4 병합 뒤 T037~T044 마무리 (2026-10-09)
+
+**백엔드 T037~T044 완료, 화면 통합 미완료, 외부 AI 실제 호출 미검증.** 아래 과거 독립 구현 기록은 당시의 상태이며 보존한다. 현재 실제 API·미완료 항목은 이 절과 [인수인계](phase5-api-handoff.md)를 따른다. Phase 5 전체 완료를 뜻하지 않는다.
+
+- 시작은 `devlop=97dfc7a`, 미커밋 변경 없음. 원격에는 `devlop`이 있고 `develop`은 없다. 기존 이슈 #17·브랜치 `feat/17-phase5-backend`·draft PR #22(OPEN, 미병합)를 재사용했다. 기존 `7a7b452`를 보존하고 `origin/devlop=97dfc7a`를 `0d9eb52`로 병합했다. API 등록과 decisions 충돌은 기존 alerts/record, Phase 4 members/sources, OpenAI provider/설정을 모두 유지해 해결했다. 제출 전 fetch에서도 devlop은 동일하다.
+- Phase 3 PR #16·OpenAI PR #27·Phase 4 PR #30의 병합 코드를 검토했다. T021~T025·T010, T030~T032는 buildApp 등록 경로·코드·직접 inject 회귀로 확인했다. 문서의 완료 체크나 `/probe` 성공만으로 선행을 인정하지 않았다.
+- T031의 현재 권한/위임·scope/log 트랜잭션과 T032의 등록 파일/소속/realpath/비동기 후 권한 재검사를 재사용했다. 파일·권한·공유 테이블을 별도로 만들지 않았다. T032의 macOS `/var`→`/private/var` 절대 경로 별칭 결함은 기존 제품 API 테스트의 404로 재현했고, configured/canonical root 검사와 최종 realpath 경계를 유지하는 최소 수정으로 해결했다. 외부 경로·심볼릭 링크 탈출 거부 회귀도 통과했다.
+
+| ID | 검증된 구현 |
+|---|---|
+| T037 | 기존 record 안전성·fixture 정확한 validation 기대값·스키마/근거/혼입/의료 판단·null 보정 검사를 유지. structure 제품 POST를 통해 기존 worker를 실행하고 모의 OpenAI 혼입 결과의 blocked·share 거부도 확인 |
+| T038 | 과거 skip 공유 3건을 활성화. 제품 로그인→질문 통합/브리핑→업로드→전사→메모→정리 job→draft→share→역할별 조회 통과. 비공개·blocked·stale·실패·현재 권한·멱등·원자 롤백·불일치/일반 확인 필요를 구분 |
+| T039 | UUID 비공개 파일·단일 multipart/file·허용 MIME·20MB·소속·recordingAllowed. 전사 job은 기존 파일 어댑터로 읽고 strict segment 검증 후 transcript/recordInputVersion/job 완료 원자 저장. trim 1~2000자 메모는 새 행+버전 증가. 기존 Amazon Transcribe ko-KR batch/staging 연결 및 fixture fallback을 SDK 모의로 검증 |
+| T040·T041 | 기존 generateRecord/validatedLLM/validateRecord를 재사용. 세 블록·server-owned transcript·근거/혼입 검사·동일 input/version 저장·blocked/failed 처리 유지. 일반 불명확 값은 null+needsCheck이고 검증 실패를 ready로 저장하지 않음 |
+| T042 | public record-input/structure와 기본 runner handler 등록. 생성 세 블록·검토본·alerts·job 성공은 기존 단일 트랜잭션. 현재 작성자(companion 이상) 또는 환자/위임 대표만 자기 허용 kind draft 조회 |
+| T043 | strict POST share. 최신 draft/input/current input 일치·현재 관계/검토 권한·ready 검사. 공개 포인터/status=done/T031 publish 로그/성공 멱등 결과 immediate 트랜잭션. 같은 키/같은 초안 재공유는 로그 없이 200, 다른 본문은 409 idempotency_conflict. 권한 철회·오래된 입력·초안·blocked는 재전송으로 우회 불가 |
+| T044 | 코드 비교·관찰 revision/재비교·record vs prescription·full 상세/상태/이력 유지. 새 record의 일반 불일치는 needsCheck로 공유 가능하고 공유 뒤 full 조회 가능. confirm_hospital은 awaiting_confirmation, reupload는 open, record edit_note는 unsupported_action |
+
+### 실제 실행 결과
+
+Node 22.22.0/npm 10.9.8, 고정 패키지 유지. fixture·메모리 SQLite·임시 전용 파일 DB와 자체 생성한 가상 바이트만 사용했다. 개발 DB·실제 `.env`·업로드는 수정하지 않았다. 테스트 setup은 fetch와 AWS SDK send를 차단하고 transport/SDK 모의가 필요한 테스트만 명시적으로 주입한다.
+
+| 검사 | 결과 |
+|---|---|
+| 구현 전 새 제품 API red | 8 테스트 전부 예상 실패: 업로드/메모 등 미등록 404. 기존 Phase 3 생성은 이때에도 통과 |
+| Transcribe adapter 구현 전 | 모듈 부재로 suite load 실패(실행된 테스트 0). 이를 6건 실패/통과로 계산하지 않음 |
+| `npm run test` | **21 파일 / 244 통과 / 0 실패 / 0 skipped**. Phase 3 질문·브리핑·조회·pregenerate, Phase 4 members/sources, Bedrock/fixture/OpenAI, Phase 5 안전성·공유·불일치 포함 |
+| `npm run typecheck` | API·web·contracts·도구 통과. 최종 `npm run build`에서도 전체 재검사 통과 |
+| `npm run build` | 전체 타입 검사 + Vite 산출물 생성 통과 |
+| `npm run test -- --run tests/pregenerate.test.ts` | 최종 CLI 보강 뒤 **3 통과**. `node --import tsx scripts/seed.ts --pregenerate --database <임시 DB>` 실제 실행·재오픈·제품 GET questions/briefing 및 허용 키 검증. fixture 직접 삽입으로 생성 성공을 대신하지 않음 |
+| `npm run test:web` | 기존 개발용 응답 preview **14 통과**. sandbox의 포트 listen EPERM 뒤 승인 환경 재실행 |
+| `npm run test:e2e` | 기존 실제 로컬 API/Vite health **1 통과**. 진료 화면의 실제 API 연결 수용 검증으로 계산하지 않음 |
+| GET·scope | Phase 3 GET 10회, Phase 4 scope 3회×조회 10회, 새 공유본 scope 3회×visit/home/timeline 조회 10회에서 LLM/STT 추가 호출 **0**. 같은 JWT의 다음 조회에 권한 반영 |
+
+처음 전체 회귀에서는 fixture STT 인스턴스 호환 테스트 3건과 macOS 원문 절대 경로 1건이 실패했다. fixture STT 선택 구조를 보존하고 경로 결함을 수정했다. 추가 테스트에서 seed의 과거 전사 3행까지 세던 기대값과 OpenAI 모의 envelope 누락을 바로잡았다. 최종 결과는 위와 같으며 실패를 숨기거나 skip으로 돌리지 않았다.
+
+### 저장·모드·공개와 한계
+
+- record 생성은 자동 publish하지 않는다. 전사/메모 입력 변경과 새 draft/blocked/failed 동안 기존 published 포인터·본문은 보존된다. 가족 일반 GET에는 새 draft 존재·입력 버전·scope/숨긴 개수·full 키가 없다. 허용 kind는 기존 SQL 정책으로만 SELECT한다.
+- 전사 중 입력이 바뀌면 stale_input으로 실패하고 transcript/버전 추가 저장이 없다. 현재 녹음 허용·관계·행동 권한은 시작·파일 대기 후·저장 전에 재확인한다. queued/running/succeeded는 동일 job, failed만 attempt+1이다. 파일 업로드 자체는 record 입력 버전을 올리지 않고 전사 완료가 한 번 올린다.
+- 성공 키 재전송도 현재 권한과 최신 검토본/입력을 먼저 확인한다. 새로운 입력 또는 draft가 생긴 뒤 과거 공유 요청은 stale_input이다. 과거 공유본은 그대로 남지만 이를 최신 검토본으로 다시 publish하지 않는다. 이 보수적 선택은 decisions에 기록했다.
+- 실제 mode는 fixture이며 `mode=live` 사례는 OpenAI transport 또는 Transcribe SDK를 주입한 **모의 응답**이다. 실제 OpenAI·AWS 호출, 새 AWS 자원/IAM/배포는 **0회**다. 기존 Bedrock AccessDenied 기록을 유지한다.
+- Transcribe adapter는 기존 staging 버킷만 설정으로 받아 `baton-staging/{patientId}/{jobId}/{uploadId}`에 전용 객체를 쓰고 결과를 같은 prefix의 result.json으로 회수한다. 성공/실패에서 입력·출력 객체와 전사 job 정리를 시도하고 정리 실패도 live 성공으로 처리하지 않는다. timeout 중 원격 작업이 아직 실행 중이거나 정리 권한이 없으면 잔여 객체/작업이 남을 수 있다. 실제 정리·버킷/모델 권한은 미검증이며 변경하지 않았다. 공식 [batch 시작](https://docs.aws.amazon.com/transcribe/latest/APIReference/API_StartTranscriptionJob.html)·[조회](https://docs.aws.amazon.com/transcribe/latest/APIReference/API_GetTranscriptionJob.html)·[출력](https://docs.aws.amazon.com/transcribe/latest/dg/how-input.html)을 확인했다.
+- STT_MODE=live에서 bucket 누락/처리 실패는 stt_unavailable, fallback=true면 검증한 fixture와 mode=fixture다. fallback=false면 실패를 유지한다. 실제 음성·인식 정확도는 검사하지 않았다. 출력 구간 id는 ts_01…이며 전체 문단만 있는 응답은 하나의 구간/시간 null로 보존한다.
+- 문자열·근거 ID/인용·명확한 값 앵커 검증이 재서술·부정/인과·의미적 정확성이나 의료 안전성을 완전히 보장하지 않는다. 임의 live 결과의 안전성 보장으로 보고하지 않는다.
+- 공통 계약·DB schema·권한 표/JWT·패키지/lockfile·seed/fixture JSON·apps/web은 보존했다. 관련 구현은 기존 구조에 `records/service.ts`, `handlers/records.ts`, `workers/transcribe.ts`, `adapters/ai/transcribe.ts`로 추가했으며 같은 역할의 공통 repository/타입을 중복 작성하지 않았다.
+
+### 남은 작업과 제출 단계
+
+백엔드 T037~T044의 구현·fixture API 직접 검증은 완료했다. **T020·T026~T029·T033~T036·T045~T047 화면 연결/캐시 갱신/버튼·전환/실제 진료 흐름 E2E는 별도 담당의 후속 작업**이다. Tier B·C는 진행하지 않았다. 외부 AI 계정/모델·음성 실제 성공 검증도 미실시다.
+
+[실제 API·요청/응답·오류·폴링·버전/멱등·파일 인증·캐시 조건](phase5-api-handoff.md)을 전달한다. 작업 브랜치만 push하고 기존 [PR #22](https://github.com/Solquick24/baton-project/pull/22)를 devlop 대상으로 갱신한다. 이슈 #17과 #13에는 기존 댓글을 보존한 새 결과 댓글을 남긴다. devlop/main 직접 push·자동 머지는 하지 않는다. GitHub 반영 결과/커밋 링크는 해당 PR·댓글에서 확인한다.
+
+## 과거 독립 구현 기록 (보존)
 
 2026-10-09. 작업 이슈 [#17](https://github.com/Solquick24/baton-project/issues/17), 전체 분담 [#13](https://github.com/Solquick24/baton-project/issues/13). 사용자가 이번 요청의 담당을 **백엔드**로 지정하고 Phase 순차 진행의 예외를 허용했다. AGENTS.md의 과거 FE 리드 설명보다 이번 요청을 우선했다. Phase 4를 대신 구현하지 않았다.
 

@@ -31,9 +31,8 @@ it('deduplicates jobs, retains existing published data during re-generation and 
   expect(await ctx.structure()).toMatchObject({ status: 'succeeded', attempt: 2, resultVersion: 2 });
   expect((await ctx.request('u_c', ctx.base)).json()).toEqual(published);
 });
-// Red run confirmed 404 before/after independent implementation. Re-enable only with
-// actual T031/T039/T042/T043 routes; T038 remains incomplete, these are not successes.
-describe.skip('T043 HTTP acceptance, blocked by actual T031/T039/T042 foundations', () => {
+// Historical red: three real share 404 failures. The production route is now registered.
+describe('T043 HTTP acceptance', () => {
   it('publishes once and reuses the successful share without duplicate logs', async () => {
     ctx = await phase5(); expect((await ctx.structure()).status).toBe('succeeded');
     const payload = { draftVersion: 1, inputVersion: 1, idempotencyKey: '00000000-0000-4000-8000-000000000001' };

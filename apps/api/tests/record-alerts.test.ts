@@ -32,7 +32,6 @@ it('compares grounded record facts, protects unpublished alerts/counts and rejec
   expect(draft.blocks.companion.medChanges[0].needsCheck).toBe(true); expect(draft.shareable).toBe(true);
   expect((await ctx.structure()).resultVersion).toBe(1);
   expect(ctx.db.prepare("SELECT count(*) n FROM alerts WHERE kind='record_vs_prescription'").get()).toEqual({ n: 1 });
-  // Existing shared state precondition, not a substitute for pending T043 acceptance tests.
-  ctx.db.prepare("UPDATE visits SET recordPublishedVersion=1,status='done' WHERE id='v_im_03'").run();
+  expect((await ctx.request('u_b', `${ctx.base}/share`, 'POST', { draftVersion: 1, inputVersion: 1, idempotencyKey: '00000000-0000-4000-8000-000000000044' })).statusCode).toBe(200);
   expect((await ctx.request('u_a', '/api/patients/p_01/alerts')).json().alerts).toHaveLength(2);
 });

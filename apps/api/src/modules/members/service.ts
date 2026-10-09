@@ -6,6 +6,11 @@ import { assertAction, requireMembership } from '../../auth/permissions.js';
 import { ApiError } from '../../shared/errors.js';
 
 type MemberRow = Omit<z.infer<typeof memberSchema>, 'active'> & { active: number };
+/** Called inside the record share transaction after current draft authorization. */
+export function appendPublishLog(db: BatonDatabase, actorId: string, patientId: string, visitId: string, version: number, at: string) {
+  db.prepare(`INSERT INTO share_logs (id,patientId,targetUserId,actorId,action,oldScope,newScope,visitId,version,at)
+    VALUES (?,?,NULL,?,'publish',NULL,NULL,?,?,?)`).run(randomUUID(), patientId, actorId, visitId, version, at);
+}
 const memberColumns = 'm.userId,u.name,m.relation,m.role,m.scope,m.active';
 function manager(db: BatonDatabase, actorId: string, patientId: string) {
   assertAction(requireMembership(db, actorId, patientId), 'manage_scopes');

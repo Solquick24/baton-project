@@ -13,9 +13,7 @@ export async function phase5(provider?: LLMProvider) {
   db.prepare('INSERT INTO transcripts VALUES (?,?,?,?,?,?,?)').run('tr_phase5', 'p_01', 'v_im_03', null, 'fixture', JSON.stringify(transcription.segments), new Date().toISOString());
   db.prepare("UPDATE visits SET recordInputVersion=1 WHERE id='v_im_03'").run();
   const generate = vi.fn((provider ?? validatedLLM(new FixtureLLM(fixturesDir))).generate);
-  const app = await buildApp({ db, llm: { generate }, jobHandlers: {
-    structure: async (job) => (await import('../src/ai/pipelines/structure.js')).generateRecord(db, { generate }, job),
-  } });
+  const app = await buildApp({ db, llm: { generate } });
   await app.ready(); await app.baton.runner.stop();
   const base = '/api/patients/p_01/visits/v_im_03';
   const request = (user: string, url: string, method: 'GET' | 'POST' = 'GET', payload?: unknown) => app.inject({ method, url,
@@ -27,7 +25,9 @@ export async function phase5(provider?: LLMProvider) {
   }
   async function structure() {
     const v = db.prepare("SELECT recordInputVersion FROM visits WHERE id='v_im_03'").get() as { recordInputVersion: number };
-    const result = app.baton.jobs.enqueue('u_b', 'p_01', 'v_im_03', 'structure', v.recordInputVersion);
+    const res = await request('u_b', `${base}/structure`, 'POST', { inputVersion: v.recordInputVersion });
+    if (res.statusCode !== 202) throw new Error('Product structure request failed');
+    const result = res.json() as { jobId: string };
     await app.baton.runner.runNext();
     return (await request('u_b', `/api/jobs/${result.jobId}`)).json();
   }
