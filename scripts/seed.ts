@@ -3,11 +3,12 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
-import { idSchema as id, dateSchema, dateTimeSchema, timeSchema, roleSchema, scopeSchema, medFactSchema, seedRecordSchema, inputVersionSchema, versionSchema, type MedFact } from '@baton/contracts';
+import { idSchema as id, dateSchema, dateTimeSchema, timeSchema, roleSchema, scopeSchema, medFactSchema, seedRecordSchema, inputVersionSchema, versionSchema } from '@baton/contracts';
 import { openDatabase, type BatonDatabase } from '../apps/api/src/adapters/sqlite/database.js';
 import { loadApiEnv, readConfig } from '../apps/api/src/shared/config.js';
 import { hashPassword } from '../apps/api/src/shared/password.js';
 import { pregenerateDatabase } from './pregenerate.js';
+import { compareMedicationFacts, comparisonSummary } from '../apps/api/src/modules/alerts/comparison.js';
 
 const str = z.string();
 const root = <S extends z.ZodRawShape>(shape: S) => z.strictObject({ _note: str, ...shape });
@@ -34,8 +35,6 @@ function insert(db: BatonDatabase, table: string, row: Record<string, unknown>) 
   const values = Object.values(row).map((v) => typeof v === 'boolean' ? Number(v) : v !== null && typeof v === 'object' ? JSON.stringify(v) : v);
   db.prepare(`INSERT INTO "${table}" (${columns.map((c) => `"${c}"`).join(',')}) VALUES (${columns.map(() => '?').join(',')})`).run(...values);
 }
-const timings: Record<string, string> = { morning: '아침', lunch: '점심', evening: '저녁', bedtime: '취침 전' };
-const timingText = (fact: MedFact) => fact.timing === null ? null : [...new Set(fact.timing)].sort().map((t) => timings[t]).join('·');
 
 type SeedResult = { users: number; visits: number; records: number; alerts: number };
 export function seedDatabase(db: BatonDatabase, options: { fixturesDir: string; pregenerate: true }): Promise<SeedResult & { pregenerated: Awaited<ReturnType<typeof pregenerateDatabase>> }>;
@@ -82,15 +81,11 @@ export function seedDatabase(db: BatonDatabase, options: { fixturesDir: string; 
       }).sort((a, b) => b.v.date.localeCompare(a.v.date));
       const match = candidates[0];
       if (!match) continue;
-      const differences: Array<{ field: 'dose' | 'timing'; left: string | null; right: string | null }> = [];
-      if (o.fact.dose !== match.fact.dose) differences.push({ field: 'dose', left: o.fact.dose, right: match.fact.dose });
-      const left = timingText(o.fact), right = timingText(match.fact);
-      if (left !== right) differences.push({ field: 'timing', left, right });
+      const differences = compareMedicationFacts(o.fact, match.fact);
       if (!differences.length) continue;
-      const description = differences.map((d) => `${d.field === 'dose' ? '복용량' : '복용 시간'}이 다릅니다(가족 메모: ${d.left ?? '미확인'} / 약봉투: ${d.right ?? '미확인'})`).join(' · ');
       insert(db, 'alerts', { id: randomUUID(), patientId: o.patientId, visitId: match.v.id, dept: o.dept, kind: 'observation_vs_prescription',
         references: [{ type: 'observation', id: o.id, quote: o.text, fact: o.fact }, { type: 'prescription', id: match.p.id, quote: match.p.text, fact: match.fact }],
-        differences, summary: `${o.fact.drugName} ${description}`, status: 'open', history: [{ action: 'detected', by: null, at: new Date().toISOString(), note: null }],
+        differences, summary: comparisonSummary(o.fact.drugName, differences, '가족 메모'), status: 'open', history: [{ action: 'detected', by: null, at: new Date().toISOString(), note: null }],
       });
       alertCount++;
     }

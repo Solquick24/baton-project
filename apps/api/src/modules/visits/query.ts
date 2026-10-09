@@ -4,6 +4,7 @@ import { readVisit } from '../../adapters/sqlite/visit-repository.js';
 import { requireMembership, canManageScopes } from '../../auth/permissions.js';
 import { allowedKinds } from '../../auth/block-policy.js';
 import { ApiError } from '../../shared/errors.js';
+import { countOpenAlerts } from '../alerts/service.js';
 
 export function myPatients(db: BatonDatabase, userId: string) {
   const rows = db.prepare('SELECT p.id,p.name,p.userId FROM patients p JOIN members m ON m.patientId=p.id WHERE m.userId=? AND m.active=1 ORDER BY p.id').all(userId) as Array<{ id: string; name: string; userId: string }>;
@@ -41,7 +42,7 @@ export function home(db: BatonDatabase, userId: string, patientId: string, today
     } : {}),
   } : null;
   return homeResponseSchema.parse({ patient, me: { role: membership.role, canManageScopes: canManageScopes(membership) }, depts, nextVisit,
-    ...(kinds.includes('full') ? { openAlertCount: dept === undefined ? 0 : (db.prepare("SELECT count(*) n FROM alerts a JOIN visits v ON v.id=a.visitId AND v.patientId=a.patientId WHERE a.patientId=? AND a.dept=? AND v.dept=? AND a.status<>'resolved'").get(patientId, dept, dept) as { n: number }).n } : {}),
+    ...(kinds.includes('full') ? { openAlertCount: dept === undefined ? 0 : countOpenAlerts(db, membership, dept) } : {}),
     recent: dept === undefined ? [] : published(db, userId, patientId, dept, 5),
   });
 }
