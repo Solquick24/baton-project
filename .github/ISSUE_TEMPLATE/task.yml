@@ -1,0 +1,22 @@
+name: 개발 작업
+description: 이슈를 먼저 만들고 이슈별 브랜치에서 개발합니다.
+body:
+  - type: textarea
+    id: purpose
+    attributes:
+      label: 해결할 문제와 작업 범위
+      description: 구현할 내용과 이번 작업에 포함하지 않는 내용을 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: 확정 근거와 관련 작업
+      description: 명세·화면·API 계약·시드와 관련 작업 ID를 연결해 주세요. 미확정 사항은 구분해 주세요.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 완료 조건과 검증 방법
+      placeholder: "- [ ] 구현 결과 확인\n- [ ] 해당 범위 검사 실행\n- [ ] devlop 대상 PR 작성"
+    validations:
+      required: true

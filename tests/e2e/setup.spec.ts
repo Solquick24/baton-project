@@ -7,10 +7,11 @@ test('mobile entry point connects to the real local API through the Vite proxy',
   await page.goto('/');
   await expect(page).toHaveTitle('바통 · 진료 동행 노트');
   await expect(page.getByText('가상 데이터', { exact: true })).toBeVisible();
-  await expect(page.getByRole('status')).toHaveText('서비스에 연결했어요.');
+  await expect(page.getByRole('heading', { name: '로그인' })).toBeVisible();
   await page.goto('/login');
-  await expect(page.getByRole('status')).toHaveText('서비스에 연결했어요.');
+  await expect(page.getByRole('heading', { name: '로그인' })).toBeVisible();
+  await expect(page.getByTestId('quick-login-b')).toHaveCount(0);
   await page.goto('/unknown-route');
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/login$/);
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 });

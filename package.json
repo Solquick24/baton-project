@@ -11,7 +11,12 @@
     "typecheck": "npm run typecheck --workspaces && tsc --noEmit -p tsconfig.tools.json",
     "build": "npm run typecheck && npm run build --workspace @baton/web",
     "test": "npm run test --workspace @baton/api",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "dev:preview": "npm run dev:preview --workspace @baton/web",
+    "dev:web": "npm run dev --workspace @baton/web",
+    "typecheck:web": "npm run typecheck --workspace @baton/web",
+    "build:web": "npm run build --workspace @baton/web",
+    "test:web": "playwright test --config apps/web/playwright.config.ts"
   },
   "devDependencies": {
     "@playwright/test": "1.64.0",
