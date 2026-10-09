@@ -5,6 +5,7 @@ React + TypeScript + Vite 모바일 웹이다. 실제 API 연결의 최신 결�
 - `src/app/App.tsx`: 로그인·홈·질문·브리핑·타임라인·라우팅·기존 화면 보기 설정.
 - `src/features/{settings,visit,alerts}`: 실제 공개 범위·입력/전사·정리/검토/공유·불일치 연결.
 - `src/components/ui.tsx`: 허용 블록 표시·full 인증 원문 다운로드와 blob 정리.
+- `src/components/brand.tsx`, `public/brand`: A1 대표 아이콘과 A2~A4 상황별 캐릭터. [브랜드 사용 기준·화면 캡처](BRAND.md).
 - `src/lib/use-action.ts`: 화면 변경 시 mutation/폴링 취소.
 - `src/app/session.tsx`: 실제 JWT 세션·조회 수명·전환/탭 복귀의 무효화. `invalidate()` 또는 `baton:invalidate` 이벤트는 scope 변경 후 재조회에 사용한다.
 - `src/lib/api.ts`: API 요청·401 세션 해제·2초 작업 폴링과 취소.

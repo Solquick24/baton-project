@@ -7,6 +7,7 @@ import { Card, Check, Saved, State, Sources, Items, RecordCard, useVisitBase, Vi
 import { SharingPage, SharingSettings } from '../features/settings/SharingPage';
 import { VisitPage, ReviewPage } from '../features/visit/VisitPage';
 import { AlertsPage } from '../features/alerts/AlertsPage';
+import { BatonIcon, BatonMascot } from '../components/brand';
 
 type Display = { font: 'normal' | 'large' | 'extra-large'; contrast: boolean };
 const DisplayContext = createContext<{ value: Display; set: (value: Display) => void }>({ value: { font: 'normal', contrast: false }, set: () => {} });
@@ -55,8 +56,8 @@ function Login() {
     catch (err) { if (!controller.current.signal.aborted) setError(err instanceof Error ? err.message : '로그인하지 못했어요.'); }
     finally { if (!controller.current.signal.aborted) setBusy(false); }
   }
-  return <main id="main" className="login shell"><div className="brand"><span className="brand-icon" aria-hidden="true">▤</span><div>바통<small>진료 동행 노트</small></div></div><span className="badge">가상 데이터</span>
-    <h1>로그인</h1><p className="muted">함께 돌보는 마음,<br />다음 진료까지 이어가요.</p>
+  return <main id="main" className="login shell"><div className="brand"><BatonIcon /><div>바통<small>진료 동행 노트</small></div></div><span className="badge">가상 데이터</span>
+    <h1>로그인</h1><div className="mascot-copy"><p className="muted">함께 돌보는 마음,<br />다음 진료까지 이어가요.</p><BatonMascot pose="welcome" /></div>
     <form onSubmit={submit} className="stack"><label>이메일<input data-testid="login-email" type="email" autoComplete="username" required value={email} onChange={e => setEmail(e.target.value)} /></label>
       <label>비밀번호<input data-testid="login-password" type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} /></label>
       {error && <p role="alert" className="error">{error}</p>}<button className="primary" data-testid="login-submit" disabled={busy}>{busy ? '로그인 중…' : '로그인'}</button></form>
@@ -72,7 +73,7 @@ function Workspace() {
   const location = useLocation();
   const pid = /^\/p\/([^/]+)/.exec(location.pathname)?.[1] ?? patients.data?.self.patientId ?? patients.data?.linked[0]?.patientId;
   const title = location.pathname.endsWith('/questions') ? '가족 질문' : location.pathname.endsWith('/briefing') ? '진료 전 브리핑' : location.pathname.endsWith('/timeline') ? '타임라인' : location.pathname === '/settings' ? '설정' : '진료 동행 노트';
-  return <div className="shell"><header><Link className="wordmark" to={pid ? `/p/${pid}` : '/me'}>바통</Link><span className="badge">가상 데이터</span></header><main id="main">
+  return <div className="shell"><header><Link className="wordmark" to={pid ? `/p/${pid}` : '/me'}><BatonIcon />바통</Link><span className="badge">가상 데이터</span></header><main id="main">
     <div className="page-heading"><h1>{title}</h1>{title === '진료 전 브리핑' && <span className="badge">30초 읽기</span>}</div>
     {notice && <p role="status" className="warning card">{notice}</p>}
     {patients.data ? <><div className="chips owners" aria-label="기록 주인"><NavLink to="/me">나</NavLink>{patients.data.linked.map(p => <NavLink key={p.patientId} to={`/p/${p.patientId}`}>{p.name}</NavLink>)}{patients.data.self.patientId && <NavLink to={`/p/${patients.data.self.patientId}`}>내 기록</NavLink>}</div>
@@ -87,7 +88,7 @@ function Home() {
   if (!r.data) return <State error={r.error} retry={r.reload} />;
   const d = r.data; const next = d.nextVisit; const base = `/p/${pid}/visits/${next?.meta.id}`;
   return <div className="stack"><DeptChips depts={d.depts} dept={dept || d.depts[0] || ''} set={setDept} /><h2>{d.patient.name}님의 기록</h2>
-    {next ? <Card className="next" testid="next-visit-card"><span className="eyebrow">다음 진료 · {next.meta.dept}</span><h2>{next.meta.date.replaceAll('-', '.')} <span>{next.meta.time}</span></h2><p>{next.meta.hospital.name}<br />이번 동행 · {next.meta.companion?.name ?? '미정'}</p>
+    {next ? <Card className="next" testid="next-visit-card"><div className="mascot-copy"><div><span className="eyebrow">다음 진료 · {next.meta.dept}</span><h2>{next.meta.date.replaceAll('-', '.')} <span>{next.meta.time}</span></h2><p>{next.meta.hospital.name}<br />이번 동행 · {next.meta.companion?.name ?? '미정'}</p></div><BatonMascot pose="prepare" /></div>
       {'briefingReady' in next && <><Link className="button light" data-testid="briefing-link" to={`${base}/briefing`}>진료 전 브리핑 보기 <span aria-hidden="true">→</span></Link><Link className="button light" data-testid="record-link" to={`${base}/record`}>진료 기록하기</Link></>}</Card> : <Card><p>예정된 진료가 없어요.</p></Card>}
     {typeof d.openAlertCount === 'number' && d.openAlertCount > 0 && <Card className="warning" testid="alert-card"><h2>! 확인이 필요한 기록 {d.openAlertCount}건</h2><Link className="button" data-testid="alerts-link" to={`/p/${pid}/alerts`}>서로 다른 기록 확인하기</Link></Card>}
     {next && typeof next.questionCount === 'number' && <Card><h2>가족이 남긴 질문 {next.questionCount}개</h2><p className="muted">함께 궁금한 내용을 모아 두었어요.</p><Link className="button" data-testid="questions-link" to={`${base}/questions`}>가족 질문 확인하기 →</Link></Card>}
@@ -100,7 +101,7 @@ function Timeline() {
   const home = useResource<HomeRes>(`/patients/${pid}/home${dept ? `?dept=${encodeURIComponent(dept)}` : ''}`);
   const r = useResource<TimelineResponse>(home.data?.depts.length ? `/patients/${pid}/timeline?dept=${encodeURIComponent(dept || home.data.depts[0]!)}` : null);
   if (!home.data) return <State error={home.error} retry={home.reload} />;
-  if (!home.data.depts.length) return <Card><p>공유된 기록이 없어요.</p></Card>;
+  if (!home.data.depts.length) return <Card><div className="mascot-copy"><p>공유된 기록이 없어요.</p><BatonMascot pose="prepare" /></div></Card>;
   return <div className="stack">{home.data && <DeptChips depts={home.data.depts} dept={dept || home.data.depts[0] || ''} set={setDept} />}{r.data ? r.data.items.length ? <div className="timeline stack">{r.data.items.map(v => <RecordCard key={v.meta.id} value={v} testid={`timeline-card-${v.meta.id}`} />)}</div> : <Card><p>공유된 기록이 없어요.</p></Card> : <State error={r.error} retry={r.reload} />}</div>;
 }
 
@@ -125,7 +126,7 @@ function Questions() {
   }
   if (!r.data) return <State error={r.error} retry={r.reload} />;
   const d = r.data; const merged = d.merged?.blocks.companion?.mergedQuestions;
-  return <div className="stack"><Link className="back" to={`/p/${base.pid}`}>← 가족 기록</Link><VisitContext path={base.api} /><p className="muted">진료 때 함께 물어볼 내용을 모아요.</p>
+  return <div className="stack"><Link className="back" to={`/p/${base.pid}`}>← 가족 기록</Link><VisitContext path={base.api} /><div className="mascot-copy"><p className="muted">진료 때 함께 물어볼 내용을 모아요.</p><BatonMascot pose="prepare" /></div>
     <Card><form onSubmit={e => { e.preventDefault(); void act('add'); }}><label>질문 남기기<textarea data-testid="question-input" maxLength={200} required value={text} onChange={e => setText(e.target.value)} placeholder="궁금한 내용을 적어 주세요" /></label><p className="footnote">{text.length}/200자</p><button data-testid="question-submit" disabled={busy || !text.trim()}>질문 등록</button></form></Card>
     <h2>가족이 남긴 질문 {d.originals.length}개</h2>{d.originals.map((q, i) => <Card key={q.id}><span className="badge">질문 {i + 1} · {q.author.name}</span><p>{q.text}</p><small>{q.createdAt}</small></Card>)}
     <button className="primary" data-testid="merge-button" disabled={busy} onClick={() => void act('merge')}>AI로 질문 정리하기</button>
@@ -147,6 +148,7 @@ function Briefing() {
     {d.blocks.companion && <><Card testid="briefing-changes"><h2>바뀐 점</h2>{d.blocks.companion.briefing.changes.map(c => <div className="change" key={c.id} data-testid={`change-${c.id}`}><p>{c.text} <Check yes={c.needsCheck} /></p>{full && <details><summary>이유와 원문 보기</summary>{full.briefing.changeReasons.filter(v => v.changeId === c.id).map(v => <p key={v.id}>{v.text ?? '기록에 없어요'} <Check yes={v.needsCheck} /></p>)}<Sources refs={full.sourceRefs} itemId={c.id} /></details>}</div>)}</Card>
     <Card testid="briefing-questions"><h2>오늘 물어볼 질문</h2><ol className="questions-list">{d.questions.map(q => <li key={q.id}><p>{q.text}</p>{q.addedByAI && <span className="badge">AI가 추가</span>}<Check yes={q.needsCheck} /></li>)}</ol></Card></>}
     {full && <><Card testid="briefing-watch"><h2>지켜볼 증상</h2><Items values={full.briefing.watch} /></Card><Card testid="briefing-tests"><h2>먼저 받을 검사</h2><Items values={full.briefing.tests} /></Card><Card testid="briefing-prep"><h2>준비사항</h2>{full.briefing.prep.map(p => <p key={p.id}><strong>{p.label}</strong><br />{p.text ?? '기록에 없어요'} <Check yes={p.needsCheck} /></p>)}</Card></>}
+    {d.blocks.companion && <div className="mascot-copy"><p className="muted">이전 기록과 오늘의 질문을 함께 챙겨요.</p><BatonMascot pose="handoff" /></div>}
     <Link className="button" to={`${base.path}/questions`}>가족 질문 다시 보기</Link><Link className="button primary" data-testid="record-link" to={`${base.path}/record`}>진료 기록 시작</Link>
   </div>;
 }
