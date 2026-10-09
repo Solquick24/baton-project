@@ -4,6 +4,8 @@
 
 ## 담당 범위와 참고 문서
 
+- 최신 이슈 #32 작업 브랜치의 실제 API 화면 통합·검증·종료 범위는 [통합 체크포인트](../../docs/api-integration-checkpoint.md)를 우선 확인한다. T020·T026~T029·T033~T036·T045~T047을 fixture API/브라우저로 검증했고 OpenAI key/model 미설정으로 실제 호출은 미실시다. STT fixture, T048~T051·Tier C 미완료 유지. 아래 이전 체크포인트의 미완료 문장은 당시 기록이다. 이번 통합은 사용자 요청대로 커밋 후 중지하며 push/PR/병합은 하지 않는다.
+
 - 기본 수정 범위는 이 앱의 `src/`, `tests/`, API 설정·안내 문서다. 프론트가 연동할 endpoint·응답·오류·버전·모드와 실제 구현 여부를 인수인계한다.
 - 루트의 읽는 순서를 따른 뒤 [백엔드 기반 기록](../../docs/backend-foundation-checkpoint.md), [최신 Phase 3 기록](../../docs/phase3-backend-checkpoint.md), [FE 연동 기준](../../docs/fe-api-contract.md)을 확인한다. 이전 기록의 미구현 상태는 최신 코드·검증 기록과 대조한다.
 - Phase 4·5 제품 API는 [Phase 4 기록](../../docs/phase4-backend-checkpoint.md), [Phase 5 최신 결과](../../docs/phase5-backend-checkpoint.md), [실제 요청/응답·폴링·버전·파일·캐시 인수인계](../../docs/phase5-api-handoff.md)를 확인한다. 백엔드 직접 API 검증과 프론트 preview/health/실제 화면 통합을 구분한다.

@@ -1,5 +1,7 @@
 # Phase 5 실제 백엔드 API 인수인계
 
+> 최신 연결 상태: 이슈 #32 작업 브랜치에서 T020·T026~T029·T033~T036·T045~T047의 실제 API 화면 통합을 검증했다. [최신 통합 체크포인트](api-integration-checkpoint.md)의 실제 수치·미검증 외부 AI·STT fixture·커밋 단계·T048~T051 제외를 따른다. 아래 과거 미완료 상태는 당시 기록으로 보존한다.
+
 2026-10-09, 이슈 #17 / PR #22. 모든 경로는 buildApp에 등록돼 Fastify inject로 검증했다. **백엔드 fixture 검증 완료 / 화면 통합 미완료 / 실제 외부 AI 미검증**이다. 권한·공통 JSON은 기존 [schemas](../specs/001-baton-mvp/contracts/schemas.md)를 유지한다.
 
 `P=/api/patients/{pid}`, `V=P/visits/{vid}`. 로그인 이후 `Authorization: Bearer <accessToken>`을 보낸다. JSON 포장(data) 없음. scope는 JWT/일반 응답에서 추출하지 않는다.
