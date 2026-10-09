@@ -47,6 +47,24 @@ it.each(['questions', 'briefing', 'record'] as const)('sends stateless strict Re
   expect(JSON.stringify(body.input)).not.toMatch(/v_os_01|rx_os_01|ob_03|가상록소정/);
   expect(JSON.stringify(provider)).not.toContain(key);
 });
+it.each(['questions', 'briefing'] as const)('provides resolvable %s source identities and original quotes without unrelated department data', async (purpose) => {
+  const raw = expected(files[purpose]);
+  const transport = vi.fn(async () => reply(completed(JSON.stringify(raw))));
+  const provider = new OpenAILLM(key, model, { fetch: transport });
+  await validatedLLM(provider).generate(await request(purpose));
+  const [, init] = transport.mock.calls[0] as unknown as [string, RequestInit];
+  const body = JSON.parse(init.body as string);
+  const content: string = body.input[0].content;
+  const sent = JSON.parse(content.slice(content.indexOf('{')));
+  const refs = purpose === 'questions' ? raw.full.basisRefs : raw.full.sourceRefs;
+  for (const ref of refs) {
+    const entry = sent.sourceCatalog.find((candidate: { source: unknown }) => JSON.stringify(candidate.source) === JSON.stringify(ref.source));
+    expect(entry, 'every expected source must be available to the model').toBeDefined();
+    if (ref.quote !== null) expect(entry.quoteOptions.some((quote: string) => quote.includes(ref.quote))).toBe(true);
+  }
+  expect(JSON.stringify(sent.sourceCatalog)).not.toMatch(/v_os_01|rx_os_01|ob_03|가상록소정/);
+  expect(sent.sourceCatalog.some((entry: { source: { type: string } }) => entry.source.type === 'transcript')).toBe(false);
+});
 it.each(['questions', 'briefing', 'record'] as const)('keeps %s schema required/nullable meaning instead of inventing null optional keys', (purpose) => {
   const original = z.toJSONSchema(generatedSchemas[purpose]);
   const wire = openaiOutputSchema(purpose) as any;
