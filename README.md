@@ -6,7 +6,12 @@
 
 ## 문서
 
+- [대회 참가 규정과 제출 참고사항](docs/devday-guide.md)
+- [사전 작업과 가져온 자료 공개](docs/prework-disclosure.md)
+- [대회 저장소 마이그레이션 기록](docs/repository-migration.md)
 - [프로젝트 헌장](.specify/memory/constitution.md)
+- [제품 요구사항 문서(PRD)](docs/PRD.md)
+- [Track 2 제출안 본문 기록](docs/references/track2-submission.md)
 - [최종 기획안](docs/baton_planning_최종.md) · [변경 검토](docs/planning-review.md)
 - [이전 기획안](docs/baton_planning_2026-10-09_04-15-10_KST.md)
 - [MVP 명세](specs/001-baton-mvp/spec.md)
