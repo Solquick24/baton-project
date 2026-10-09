@@ -1,5 +1,9 @@
 import { test, expect, type Page, type APIRequestContext } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('baton.onboarding', JSON.stringify({ version: 1, completedAt: Date.now(), lastVisitedAt: Date.now() })));
+});
+
 async function login(page: Page, account: string) {
   await page.goto('/login'); await page.getByTestId(`quick-login-${account}`).click(); await page.getByTestId('login-submit').click();
   await expect(page.getByTestId('next-visit-card')).toBeVisible();
