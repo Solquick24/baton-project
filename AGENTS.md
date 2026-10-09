@@ -18,7 +18,7 @@
 ## 1. 지금 상태와 목표
 
 - 바통은 가족이 번갈아 진료에 동행해도 맥락이 끊기지 않게 하는 모바일 웹 MVP다. **해커톤 당일(약 5시간·4명) 로컬 시연용**이다.
-- Phase 1(T001–T007), T008–T019 백엔드·공통 기반과 Phase 3 백엔드 T021–T025를 구현했다. T010의 --pregenerate도 fixture provider와 질문·브리핑 파이프라인으로 검증했다. 실제 API는 health·로그인·jobs·환자 목록·홈·타임라인·진료 조회·질문 등록/통합·브리핑 생성/조회다. 프론트의 기존 화면 시연은 개발용 응답을 사용하며 T020·T026–T029 실제 통합 검증과 후속 진료 기능은 미완료다. Phase 2·3 전체 완료가 아니다. docs/phase3-backend-checkpoint.md, docs/backend-foundation-checkpoint.md와 docs/frontend-plan.md를 함께 확인한다.
+- Phase 1(T001–T007), T008–T020 백엔드·공통 기반과 Phase 3 백엔드 T021–T025를 구현했다. T010의 --pregenerate도 fixture provider와 질문·브리핑 파이프라인으로 검증했다. 실제 API는 health·로그인·jobs·환자 목록·홈·타임라인·진료 조회·질문 등록/통합·브리핑 생성/조회다. T020 실제 JWT 세션·요청 취소·캐시 정리는 실제 API로 검증했다. T026–T029 전체 화면 수용 검증과 후속 진료 기능은 미완료다. Phase 3 전체 완료가 아니다. docs/frontend-session-checkpoint.md도 확인한다. docs/phase3-backend-checkpoint.md, docs/backend-foundation-checkpoint.md와 docs/frontend-plan.md를 함께 확인한다.
 - 목표: `specs/001-baton-mvp/tasks.md`의 **Tier A 작업**을 끝내 두 시연 경로(이어받기·범위 변경)를 로컬에서 2회 연속 완주하는 것.
 - T030~T032의 범위 관리·공유 로그·full 원문 API가 devlop에 병합됐다. [Phase 4 백엔드 체크포인트](docs/phase4-backend-checkpoint.md)를 따른다. T033~T036과 Phase 4 전체 통합은 미완료다. 당시의 사전 검토·게시 보류는 Phase 4 작업에 대한 지시이며 이후 요청의 명시적 커밋·push·PR 승인을 막지 않는다.
 - Phase 5 백엔드 T037~T044는 [최신 체크포인트](docs/phase5-backend-checkpoint.md)와 [실제 API 인수인계](docs/phase5-api-handoff.md)를 따른다. 업로드·전사·메모·정리·검토·공유·불일치 제품 API의 fixture 검증은 완료했다. 화면 통합(T045~T047 포함)과 외부 AI 실제 호출 검증은 미완료이며 Phase 5 전체 완료가 아니다. 사용자 담당은 이번 요청에서 백엔드다.

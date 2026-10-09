@@ -60,3 +60,7 @@ AWS 호출은 수행하지 않았다. 개발용 어댑터 응답 검사는 실�
 
 작업 중 최신 `origin/devlop`의 Phase 1 실행 기반과 이슈 #5 계약 보완을 통합했다. 기존 health 공유 스키마·API·환경 설정·실행 명령·완료 체크는 보존했다. `npm run build`로 세 workspace와 도구 타입검사·웹 빌드가 통과했고 `npm run test` API 테스트 17건, `npm run test:e2e` 실제 API health·Vite 프록시 브라우저 검사 1건도 통과했다.
 웹 빌드에서 가상 비밀번호·원본 fixture 값·개발용 계정 endpoint 등 8개 표식이 없는 것을 확인했다. 읽기 DTO만 추가했으며 전체 T008 Zod 검증기와 진료 후 작업은 아직 미완료다.
+
+### T020 실제 API 세션 체크포인트
+
+2026-10-09: 이슈 #26의 T020만 실제 API·fixture·메모리 SQLite로 검증했다. 세션/조회 수명을 `src/app/session.tsx`로 옮기고 401·로그아웃·계정/환자/진료 전환 요청 취소·이전 응답 제거·탭 복귀와 명시적 무효화 후 재조회를 완성했다. 전체 typecheck/build 통과, 최종 API 185건·실제 API E2E 10건·preview 14건 통과. 초기 실패·환경·범위·한계는 [T020 체크포인트](frontend-session-checkpoint.md)에 기록했다. 사용자 요청으로 Task 단위에서 멈추며 T026–T029 및 이후 Phase는 미완료로 유지한다.
