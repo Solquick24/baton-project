@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-10-09T02:38:14.665Z",
+  "region": "ap-northeast-2",
+  "modelId": "anthropic.claude-sonnet-5",
+  "checks": {
+    "bedrockConverseToolUse": {
+      "status": "failed",
+      "error": "AccessDeniedException"
+    },
+    "transcribeListJobs": {
+      "status": "passed"
+    },
+    "stagingBucketHead": {
+      "status": "passed"
+    },
+    "fixtureFiles": {
+      "status": "passed"
+    }
+  },
+  "liveReady": false,
+  "fallback": "LLM_MODE=fixture / STT_MODE=fixture. provider와 저장 전 검증은 T018 이후 구현합니다.",
+  "transcriptionSample": "음성 파일이 없어 미실시. ListJobs 성공은 STT 변환 성공을 뜻하지 않습니다."
+}

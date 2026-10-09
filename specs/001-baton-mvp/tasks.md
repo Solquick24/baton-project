@@ -8,7 +8,7 @@ description: "최종 기획안 기반 로컬 MVP 구현 작업"
 **Created**: 2026-10-09
 **Prerequisites**: plan.md·spec.md와 현재 사용자 결정: 로컬 서버·SQLite·시드 로그인, AI만 AWS, 검토 후 공유.
 **Tests**: 명세 SC와 헌장이 요구하는 권한·근거·저장 블록·공유·E2E 검증을 포함한다. 기능 코드는 아직 없다.
-**Organization**: 사용자 이야기별 독립 시연·검증 단위로 나눈다. 모든 체크는 아직 미수행이다.
+**Organization**: 사용자 이야기별 독립 시연·검증 단위로 나눈다. Phase 1(T001–T007) 실행 기반을 구현·검증했다. 이후 작업은 미수행이다.
 
 ## 해커톤 실행 범위 (2026-10-09 보완)
 
@@ -32,7 +32,7 @@ description: "최종 기획안 기반 로컬 MVP 구현 작업"
 
 apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용한다.
 현재 폴더·workspace 뼈대는 이미 만들어졌으므로 재생성 작업은 넣지 않았다.
-아래는 코드 작성 계획이며 이번 문서 작업에서 구현 완료로 체크하지 않는다.
+작업은 실제 검증 후에만 체크한다. Phase 1 결과·seed 명령의 T010 선행 조건·Bedrock 접근 거부는 docs/phase1-checkpoint.md에 기록했다.
 
 ## Phase 1: Setup (Shared Infrastructure)
 
@@ -40,13 +40,13 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 
 **Independent Test / Checkpoint**: web/api/contracts 실제 타입 검사·빌드와 SQLite 바인딩 로딩, 로컬 web/API 시작 확인.
 
-- [ ] T001 package.json, apps/web/package.json, apps/api/package.json, packages/contracts/package.json과 package-lock.json에 React/Vite/TypeScript/Fastify5/JWT/better-sqlite3/Zod/AWS SDK/Vitest/Playwright를 호환성 확인 후 고정하고 SQLite 네이티브 바인딩을 점검한다.
-- [ ] T002 apps/web/index.html, apps/web/src/main.tsx, apps/web/vite.config.ts와 apps/web/src/app/App.tsx에 로컬 프론트 진입점·API 프록시·라우팅 기반을 추가한다. 선행: T001.
-- [ ] T003 apps/api/src/app.ts, apps/api/src/server.ts에 Fastify 조립·로컬 시작·안전한 종료를 추가하고 apps/api/package.json에 실제 dev/build 명령을 정의한다. 선행: T001.
-- [ ] T004 apps/api/src/shared/config.ts에 환경 변수 로딩(`process.loadEnvFile`)·필수값 검증·apps/api 기준 상대 경로 해석을 구현한다. `.env.example` 두 개와 `.gitignore`(apps/api/data/)는 2026-10-09 보완에서 이미 로컬 구조로 교체했다. 선행: T001.
-- [ ] T005 package.json, packages/contracts/package.json, packages/contracts/src/index.ts, tsconfig.base.json과 워크스페이스 tsconfig에 실제 dev/seed/typecheck/build/test/test:e2e·계약 export를 추가하고 입력 없는 가짜 성공 명령을 사용하지 않는다. 선행: T002, T003.
-- [ ] T006 apps/api/vitest.config.ts, playwright.config.ts에 API inject·단위검증·로컬 E2E 도구를 설정하고 테스트는 fixture 모드에서 비용 없이 실행되게 한다. 선행: T005.
-- [ ] T007 scripts/check-ai-access.ts와 docs/decisions.md에 제공 계정의 서울 Bedrock 후보 모델·Transcribe·기존 staging 버킷 접근과 샘플 호출 결과를 기록한다. 새 AWS 자원을 배포하지 않고 실패 시 fixture로 시연함을 명시한다. 선행: T004.
+- [X] T001 package.json, apps/web/package.json, apps/api/package.json, packages/contracts/package.json과 package-lock.json에 React/Vite/TypeScript/Fastify5/JWT/better-sqlite3/Zod/AWS SDK/Vitest/Playwright를 호환성 확인 후 고정하고 SQLite 네이티브 바인딩을 점검한다.
+- [X] T002 apps/web/index.html, apps/web/src/main.tsx, apps/web/vite.config.ts와 apps/web/src/app/App.tsx에 로컬 프론트 진입점·API 프록시·라우팅 기반을 추가한다. 선행: T001.
+- [X] T003 apps/api/src/app.ts, apps/api/src/server.ts에 Fastify 조립·로컬 시작·안전한 종료를 추가하고 apps/api/package.json에 실제 dev/build 명령을 정의한다. 선행: T001.
+- [X] T004 apps/api/src/shared/config.ts에 환경 변수 로딩(`process.loadEnvFile`)·필수값 검증·apps/api 기준 상대 경로 해석을 구현한다. `.env.example` 두 개와 `.gitignore`(apps/api/data/)는 2026-10-09 보완에서 이미 로컬 구조로 교체했다. 선행: T001.
+- [X] T005 package.json, packages/contracts/package.json, packages/contracts/src/index.ts, tsconfig.base.json과 워크스페이스 tsconfig에 실제 dev/seed/typecheck/build/test/test:e2e·계약 export를 추가하고 입력 없는 가짜 성공 명령을 사용하지 않는다. 선행: T002, T003.
+- [X] T006 apps/api/vitest.config.ts, playwright.config.ts에 API inject·단위검증·로컬 E2E 도구를 설정하고 테스트는 fixture 모드에서 비용 없이 실행되게 한다. 선행: T005.
+- [X] T007 scripts/check-ai-access.ts와 docs/decisions.md에 제공 계정의 서울 Bedrock 후보 모델·Transcribe·기존 staging 버킷 접근과 샘플 호출 결과를 기록한다. 새 AWS 자원을 배포하지 않고 실패 시 fixture로 시연함을 명시한다. 선행: T004.
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 

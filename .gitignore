@@ -25,3 +25,8 @@ coverage/
 *.tsbuildinfo
 *.log
 .DS_Store
+*.tmp
+*.swp
+Thumbs.db
+__pycache__/
+*.pyc

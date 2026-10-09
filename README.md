@@ -2,7 +2,9 @@
 
 가족이 번갈아 동행해도 진료 맥락이 끊기지 않도록 진료 전·중·후 기록을 이어주는 프로젝트다.
 
-현재는 **기획·명세·설계·설정 뼈대와 가상 시드·AI 응답 자료 준비** 단계다. 앱·API·AI 기능·테스트는 아직 구현하지 않았다. AWS AI 환경의 준비·검증 결과는 [AWS 준비 기록](docs/aws-setup.md)에 정리했다.
+현재는 **Phase 1(T001–T007) 실행 기반 구현 완료** 단계다. 웹 시작 화면·로컬 API health·환경 설정·빌드·테스트 도구가 실행된다. 로그인·환자 DB·진료 기능·AI provider는 아직 구현하지 않았다. Phase 1에서는 AWS 자원을 생성하지 않았다. 앞선 AWS 환경 준비·검증 결과는 [AWS 준비 기록](docs/aws-setup.md)에 정리했다.
+
+- [Phase 1 체크포인트와 실제 검증 결과](docs/phase1-checkpoint.md)
 
 ## 문서
 
@@ -46,23 +48,37 @@ specs/001-baton-mvp/   명세와 설계 산출물
 .agents/skills/       팀에서 공유하는 Spec Kit 스킬
 ```
 
-## 뼈대 준비
+## 로컬 실행
 
-Node.js 22.12+ / 22.x, npm 10.x를 사용한다. 현재는 외부 런타임 의존성이 없다.
+Node.js 22.22.0(`.nvmrc`) / npm 10.9.8을 사용한다. 의존성은 lockfile에 고정했다.
 
 ```bash
 npm ci --ignore-scripts --no-audit --no-fund
-npm ls --workspaces --depth=0
+cp apps/api/.env.example apps/api/.env
+# apps/api/.env의 JWT_SECRET을 32자 이상의 임의 비밀값으로 채운다.
+npm run dev
 ```
 
-이 명령은 로컬 workspace를 연결할 뿐 앱을 실행하지 않는다.
-React·TypeScript·Vite·AWS SDK·테스트 도구와 실제 dev/build/test 명령은 기능 구현 때 추가한다.
+웹은 http://127.0.0.1:5173, API health는 http://127.0.0.1:3001/api/health다.
+브라우저의 /api 요청은 Vite가 로컬 API로 프록시한다. 로그인 화면은 아직 시작 화면만 제공한다.
+기본 LLM/STT 모드는 fixture다. dev·테스트·빌드는 AWS를 호출하지 않는다.
+
+```bash
+npm run typecheck
+npm run build
+npm run test
+npx playwright install chromium  # 최초 1회
+npm run test:e2e
+```
+
+`npm run seed`는 Phase 2(T009·T010) 전에는 오류로 종료하고 DB를 변경하지 않는다.
+`npm run check:ai`는 별도 수동 실행 명령이며 Bedrock 연결 확인 호출 1회와 Transcribe 목록·기존 S3 버킷 접근을 검사한다. 검사 실패는 종료 코드 1로 보고한다.
 최종 구성은 로컬 서버·SQLite·시드 로그인, AI만 AWS 사용이다. 배포는 하지 않는다.
 정리 결과는 검토 후 공유하기로 확정하며 원문·인용은 full에만 제공한다.
 
 ## 다음 구현 단계
 
-생성한 `tasks.md`의 Setup/Foundation부터 해커톤 당일 구현한다.
+Phase 1 체크포인트에서 멈춘 상태다. 다음 구현은 `tasks.md`의 Phase 2(T008–T020, Foundation)다.
 Tier A(T001–T049)를 먼저 수행하고 Tier B와 마지막 결과 기록을 이어간다.
 선택 2단계·화면만인 Tier C(T052–T064)는 사람이 명시적으로 요청할 때만 진행한다.
 새 checkout에서는 다음 값을 지정해 Spec Kit가 main에서도 feature를 찾게 한다.
