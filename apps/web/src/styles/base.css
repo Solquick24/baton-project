@@ -1,0 +1,16 @@
+:root { font-family: system-ui, -apple-system, sans-serif; color: #173b37; background: #f5f7f3; font-synthesis: none; font-size: 18px; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+.app-shell { max-width: 640px; min-height: 100dvh; margin: auto; padding: 28px 24px; }
+header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.brand { color: #00695c; text-decoration: none; font-size: 30px; font-weight: 800; min-height: 48px; display: flex; align-items: center; gap: 12px; }
+.brand span { font-size: 11px; letter-spacing: 2px; }
+.demo-badge { border: 1px solid #aec6bb; border-radius: 20px; padding: 7px 11px; font-size: 12px; white-space: nowrap; }
+.welcome { margin-top: 90px; }
+.eyebrow { color: #00695c; font-size: 14px; font-weight: 600; }
+h1 { font-size: clamp(27px, 6.6vw, 38px); line-height: 1.4; letter-spacing: -.04em; }
+p { line-height: 1.8; overflow-wrap: anywhere; }
+.notice { padding: 20px; background: #e7eee5; border-radius: 16px; margin-top: 40px; }
+.connection { color: #466963; font-size: 14px; }
+a:focus-visible { outline: 3px solid #00695c; outline-offset: 4px; }
+@media (max-width: 360px) { .app-shell { padding: 20px; } .brand span { display: none; } }

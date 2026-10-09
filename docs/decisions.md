@@ -65,3 +65,10 @@ Codex가 추측하지 않고 바로 구현할 수 있도록 문서에 없던 결
 |---|---|---|---|
 | 2026-10-09 | 샘플 데이터셋 연결(T010·T037·T038·T065 참고, 작업 미완료) | v2.1 ZIP은 참고 자료로 분리하고 현행 가상 4계정·3범위·시드/fixture를 유지. 실제 약·MIMIC·raw mock·private notes는 직접 가져오지 않음. 14 PNG와 추출 20건을 구분 | 원본의 실제 제품·2범위·6진료가 현행 계약과 다름. 더 좁게 공개하는 원칙 적용. 연결표·25건 무결성 검사 결과는 docs/dataset-integration.md에 기록 |
 | 2026-10-09 | AWS 환경 재점검(T007 일부, 작업 미완료) | 최신 `0fe3573`의 기존 S3 재사용·LLM/STT fixture 기본값 적용. 앞선 사용자 승인으로 준비한 임시 버킷을 재사용하고 추가 AWS 자원은 생성하지 않음. Sonnet 5 Converse tool-use 접근 확인은 계정 제한으로 실패 | AGENTS.md·현행 .env.example의 범위 준수. 명세 파일은 원격 최신본을 유지. 실제 값은 Git 제외 .env·infra/local-ai.outputs.json, 상세는 docs/aws-setup.md에 기록 |
+| 2026-10-09 | T001 | Node 22.22.0/npm 10.9.8과 AGENTS.md의 패키지 버전을 그대로 고정. npm ci --ignore-scripts 후 macOS arm64에서 better-sqlite3 실제 SQL·트랜잭션 테스트 통과 | 지정 버전 호환성을 현재 컴퓨터에서 확인. 시스템 기본 Node 24 대신 작업 폴더 전용 Node 22 사용 |
+| 2026-10-09 | T002–T005 | 웹은 시작 안내·라우터·실제 health 연결만, API는 /api/health만 제공. 공유 계약은 health부터 TS 소스로 export | Phase 1만 수행하라는 사용자 지시. T008 이후의 환자·권한 스키마와 사용자 기능을 선행 구현하지 않음 |
+| 2026-10-09 | T005 | seed 명령은 연결하되 T009·T010 전에는 종료 코드 1로 명확히 거부하고 DB를 변경하지 않음. API/contracts build는 tsc --noEmit, 웹은 Vite 실제 산출물 | 시드 DB 투입은 Phase 2의 T010. Phase 1에서 가짜 성공이나 빈 DB 초기화로 완료를 주장하지 않음 |
+| 2026-10-09 | T006 | Vitest는 fixture·메모리 DB를 강제하고 SDK send를 차단. Playwright는 3101/5174 별도 포트·전용 data/e2e 경로, 서버 재사용 금지. 현재 e2e는 health·라우팅만 검증 | 로컬 live 설정·기존 개발 서버가 비용이나 거짓 테스트 성공을 만들지 않도록 격리. e2e 시드 준비는 T010 이후 연결 |
+| 2026-10-09 | T007 | baton 계정의 서울 anthropic.claude-sonnet-5 연결 확인 요청 2회 모두 AccessDeniedException. Transcribe ListTranscriptionJobs와 기존 baton-transcribe-staging-201240241312-apne2 HeadBucket 성공. 기본 LLM/STT fixture 유지 | 최종 접근 결과는 references/phase1-ai-access.json. IAM 변경·자원 생성·업로드·전사 작업 생성 없음. 실제 음성이 없어 STT 변환은 미검증. Bedrock tool use·출력 검증도 성공으로 계산하지 않음 |
+
+Phase 1 체크포인트 결과와 범위는 [phase1-checkpoint.md](phase1-checkpoint.md)에 기록했다.
