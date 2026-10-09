@@ -18,6 +18,9 @@ const environmentSchema = z.object({
     return !Number.isNaN(date.valueOf()) && date.toISOString().slice(0, 10) === value;
   }).default('2026-03-12'),
   LLM_MODE: z.enum(['fixture', 'live']).default('fixture'),
+  LLM_PROVIDER: z.enum(['openai', 'bedrock']).default('openai'),
+  OPENAI_API_KEY: z.string().trim().default(''),
+  OPENAI_MODEL: z.string().trim().default(''),
   STT_MODE: z.enum(['fixture', 'live']).default('fixture'),
   LIVE_FALLBACK_TO_FIXTURE: booleanSetting('true'),
   ENABLE_TEST_ENDPOINTS: booleanSetting('false'),
@@ -41,6 +44,10 @@ export function readConfig(environment: NodeJS.ProcessEnv = process.env) {
     throw new Error(`환경 설정을 확인해 주세요: ${keys.join(', ')}`);
   }
   const values = parsed.data;
+  if (values.LLM_MODE === 'live' && values.LLM_PROVIDER === 'openai') {
+    const missing = (['OPENAI_API_KEY', 'OPENAI_MODEL'] as const).filter((key) => !values[key]);
+    if (missing.length) throw new Error(`OpenAI live 환경 설정을 확인해 주세요: ${missing.join(', ')}`);
+  }
   const localPath = (value: string) => isAbsolute(value) ? value : resolve(apiDirectory, value);
   return {
     port: values.API_PORT,
@@ -50,6 +57,9 @@ export function readConfig(environment: NodeJS.ProcessEnv = process.env) {
     fixturesDir: localPath(values.FIXTURES_DIR),
     demoToday: values.DEMO_TODAY,
     llmMode: values.LLM_MODE,
+    llmProvider: values.LLM_PROVIDER,
+    openaiApiKey: values.OPENAI_API_KEY,
+    openaiModel: values.OPENAI_MODEL,
     sttMode: values.STT_MODE,
     liveFallbackToFixture: values.LIVE_FALLBACK_TO_FIXTURE,
     enableTestEndpoints: values.ENABLE_TEST_ENDPOINTS,
