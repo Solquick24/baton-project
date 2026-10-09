@@ -7,6 +7,7 @@
 - [Phase 1 체크포인트와 실제 검증 결과](docs/phase1-checkpoint.md)
 - [백엔드 기반 체크포인트와 T020 인수인계](docs/backend-foundation-checkpoint.md)
 - [Phase 3 백엔드 체크포인트와 실제 API 인수인계](docs/phase3-backend-checkpoint.md)
+- [Phase 4 백엔드 T030~T032 검증·인수인계](docs/phase4-backend-checkpoint.md): 범위 변경·공유 로그·full 원문 스트림을 구현·검증하고 사용자 검토·게시 승인을 받았다. [이슈 #29](https://github.com/Solquick24/baton-project/issues/29)에서 `devlop` 반영 결과를 확인한다. T033~T036과 Phase 4 전체 통합은 미완료다.
 
 ## 문서
 
@@ -100,7 +101,7 @@ npm run test:web
 
 ## 다음 구현 단계
 
-백엔드 기반 체크포인트에서 멈춘 상태다. 프론트 T020은 별도 담당이며 T010의 pregenerate는 T023·T024 구현 뒤 연결해야 한다. Phase 2 전체 완료는 아니다.
+백엔드 T021~T025·T010 사전 생성과 T030~T032를 검증했다. 프론트 T020·T026~T029 및 T033~T036 실제 통합은 별도 담당의 남은 작업이다. Phase 2~4 전체 완료는 아니다.
 Tier A(T001–T049)를 먼저 수행하고 Tier B와 마지막 결과 기록을 이어간다.
 선택 2단계·화면만인 Tier C(T052–T064)는 사람이 명시적으로 요청할 때만 진행한다.
 새 checkout에서는 다음 값을 지정해 Spec Kit가 main에서도 feature를 찾게 한다.

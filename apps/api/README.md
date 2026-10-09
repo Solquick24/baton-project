@@ -1,6 +1,6 @@
 # API workspace
 
-Fastify·SQLite·시드 JWT·현재 권한·provider/jobs 기반과 Phase 3 질문·브리핑·환자/진료 조회 API를 제공한다. `npm run seed` 뒤 API를 시작한다. `apps/api/.env`의 JWT_SECRET은 32자 이상이어야 한다. 실제 API 목록은 [Phase 3 체크포인트](../../docs/phase3-backend-checkpoint.md), 기반은 [백엔드 기록](../../docs/backend-foundation-checkpoint.md)을 참고한다. OpenAI 선택이 미병합 Phase 5 record/공유 API를 완성하지는 않는다.
+Fastify·SQLite·시드 JWT·현재 권한·provider/jobs 기반과 Phase 3 질문·브리핑·환자/진료 조회 API를 제공한다. `npm run seed` 뒤 API를 시작한다. 범위 변경·공유 로그·full 원문 스트림(T030~T032)은 로컬 검증 및 사용자 검토·게시 승인을 받았다. `apps/api/.env`의 JWT_SECRET은 32자 이상이어야 한다. 실제 API 목록은 [Phase 3 체크포인트](../../docs/phase3-backend-checkpoint.md)·[Phase 4 백엔드](../../docs/phase4-backend-checkpoint.md), 기반은 [백엔드 기록](../../docs/backend-foundation-checkpoint.md)을 참고한다. OpenAI 선택이 미병합 Phase 5 record/공유 API를 완성하지는 않는다.
 
 - handlers: HTTP routes; 요청 검증→인증·관계·행동 권한→기능 모듈→허용 블록 응답.
 - modules: members·visits·questions·briefing·summaries·alerts·jobs.
