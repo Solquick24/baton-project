@@ -17,6 +17,22 @@ body:
     id: acceptance
     attributes:
       label: 완료 조건과 검증 방법
-      placeholder: "- [ ] 구현 결과 확인\n- [ ] 해당 범위 검사 실행\n- [ ] devlop 대상 PR 작성"
+      placeholder: "- [ ] 구현 결과 확인\n- [ ] 해당 범위 검사 실행\n- [ ] devlop 대상 PR 작성\n- [ ] 실제 검증과 후속 작업 기록\n- [ ] 요청한 반영 단계 확인과 결과 갱신"
     validations:
       required: true
+
+  - type: textarea
+    id: handoff
+    attributes:
+      label: 작업 결과와 팀 공유
+      description: 완료 시 본문 또는 댓글에 갱신합니다. PR·계약 문서 링크, 실제 검증, 후속 작업과 반영 단계를 남겨 주세요.
+      value: |
+        작업 완료 후 아래 항목을 갱신합니다.
+
+        - 변경 요약:
+        - 실제 검증 명령과 결과:
+        - 미실행·실패 검사:
+        - 해당하는 모드와 실제 API의 차이:
+        - 계약·화면·결정 기록 링크:
+        - 관련 PR과 현재 반영 단계:
+        - 남은 구현·리뷰·연동 작업:
