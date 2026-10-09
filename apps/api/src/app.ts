@@ -13,6 +13,8 @@ import { registerJobs } from './handlers/jobs.js';
 import { registerVisits } from './handlers/visits.js';
 import { registerQuestions } from './handlers/questions.js';
 import { registerBriefing } from './handlers/briefing.js';
+import { registerMembers } from './handlers/members.js';
+import { registerSources } from './handlers/sources.js';
 import { previsitHandlers } from './ai/pipelines/index.js';
 import { FixtureLLM, FixtureTranscription } from './adapters/ai/fixture.js';
 import { BedrockLLM } from './adapters/ai/bedrock.js';
@@ -56,6 +58,8 @@ export async function buildApp(options: { config?: AppConfig; logger?: boolean; 
   registerVisits(app, db, config.demoToday);
   registerQuestions(app, db, jobs);
   registerBriefing(app, db, jobs);
+  registerMembers(app, db);
+  registerSources(app, db, config.uploadDir);
   app.get('/api/health', async () => healthResponseSchema.parse({ status: 'ok' }));
   return app;
 }

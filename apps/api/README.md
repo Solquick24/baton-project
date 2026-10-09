@@ -1,6 +1,6 @@
 # API workspace
 
-Fastify 서버·SQLite·기본 시드·JWT 로그인·현재 권한 검사·블록/생성 입력 repository·provider·jobs 기반을 구현했다. `npm run seed` 뒤 API를 시작한다. 실제 경로는 `GET /api/health`, `POST /api/auth/login`, `GET /api/jobs/:jobId`다. `apps/api/.env`의 JWT_SECRET은 32자 이상이어야 한다. 사용자 기능 routes와 생성 파이프라인은 미구현이다. [검증·인터페이스·제약](../../docs/backend-foundation-checkpoint.md)을 참고한다.
+Fastify 서버·SQLite·시드·JWT 로그인·현재 권한 검사・provider・jobs 기반을 구현했다. `npm run seed` 뒤 API를 시작한다. health·로그인·jobs와 환자 목록·홈·타임라인·진료·질문 통합·브리핑 API를 제공한다. 범위 변경·공유 로그·full 원문 스트림(T030~T032)은 로컬 검증 및 사용자 검토·게시 승인을 받았다. `apps/api/.env`의 JWT_SECRET은 32자 이상이어야 한다. [공통 기반](../../docs/backend-foundation-checkpoint.md)·[Phase 3](../../docs/phase3-backend-checkpoint.md)·[Phase 4 백엔드](../../docs/phase4-backend-checkpoint.md)의 실제 API와 미완료 범위를 참고한다.
 
 - handlers: HTTP routes; 요청 검증→인증·관계·행동 권한→기능 모듈→허용 블록 응답.
 - modules: members·visits·questions·briefing·summaries·alerts·jobs.

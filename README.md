@@ -7,6 +7,7 @@
 - [Phase 1 체크포인트와 실제 검증 결과](docs/phase1-checkpoint.md)
 - [백엔드 기반 체크포인트와 T020 인수인계](docs/backend-foundation-checkpoint.md)
 - [Phase 3 백엔드 체크포인트와 실제 API 인수인계](docs/phase3-backend-checkpoint.md)
+- [Phase 4 백엔드 T030~T032 검증·인수인계](docs/phase4-backend-checkpoint.md): 범위 변경·공유 로그·full 원문 스트림을 구현·검증하고 사용자 검토·게시 승인을 받았다. [이슈 #29](https://github.com/Solquick24/baton-project/issues/29)에서 `devlop` 반영 결과를 확인한다. T033~T036과 Phase 4 전체 통합은 미완료다.
 
 ## 문서
 
@@ -76,7 +77,7 @@ npm run test:e2e
 ```
 
 `npm run seed`는 설정된 로컬 DB의 기본 가상 시드를 트랜잭션으로 다시 만든다. 로그인 API를 쓰려면 먼저 실행한다.
-`--pregenerate`는 T023·T024 의존성이 미구현이므로 DB 변경 전에 exit 1로 중단한다(T010 미완료).
+`--pregenerate`는 T023·T024의 실제 fixture 생성·검증·저장 파이프라인으로 질문·브리핑을 사전 생성한다(T010 검증 완료). 자세한 결과는 Phase 3 체크포인트를 참고한다.
 `npm run check:ai`는 별도 수동 실행 명령이며 Bedrock 연결 확인 호출 1회와 Transcribe 목록·기존 S3 버킷 접근을 검사한다. 검사 실패는 종료 코드 1로 보고한다.
 최종 구성은 로컬 서버·SQLite·시드 로그인, AI만 AWS 사용이다. 배포는 하지 않는다.
 정리 결과는 검토 후 공유하기로 확정하며 원문·인용은 full에만 제공한다.
@@ -100,7 +101,7 @@ npm run test:web
 
 ## 다음 구현 단계
 
-백엔드 기반 체크포인트에서 멈춘 상태다. 프론트 T020은 별도 담당이며 T010의 pregenerate는 T023·T024 구현 뒤 연결해야 한다. Phase 2 전체 완료는 아니다.
+백엔드 T021~T025·T010 사전 생성과 T030~T032를 검증했다. 프론트 T020·T026~T029 및 T033~T036 실제 통합은 별도 담당의 남은 작업이다. Phase 2~4 전체 완료는 아니다.
 Tier A(T001–T049)를 먼저 수행하고 Tier B와 마지막 결과 기록을 이어간다.
 선택 2단계·화면만인 Tier C(T052–T064)는 사람이 명시적으로 요청할 때만 진행한다.
 새 checkout에서는 다음 값을 지정해 Spec Kit가 main에서도 feature를 찾게 한다.
