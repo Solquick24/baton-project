@@ -58,7 +58,6 @@ it('seeds hashes, published versions and the exact code-derived alert; reseeds a
     const parsed = alerts.map((a) => ({ ...a, references: JSON.parse(a.references!), differences: JSON.parse(a.differences!) }));
     expect(parsed).toEqual(json('expected/alerts.json').alerts);
     expect(seedDatabase(db, { fixturesDir })).toEqual({ users: 5, visits: 4, records: 3, alerts: 1 });
-    expect(() => seedDatabase(db, { fixturesDir, pregenerate: true })).toThrow('T023');
     expect(db.prepare('SELECT count(*) n FROM users').get()).toEqual({ n: 5 });
   } finally { db.close(); }
 });

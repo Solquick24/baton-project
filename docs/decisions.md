@@ -88,3 +88,12 @@ Phase 1 체크포인트 결과와 범위는 [phase1-checkpoint.md](phase1-checkp
 | 2026-10-09 | T008·T009·T014–T019 최신 devlop 반영 | 구현을 81b862a로 보존한 뒤 1343afe 병합. api.ts에 FE 공통 계약, blocked draft는 낮은 블록 미조회, canResolve는 full 환자/지정 대표에 한정하고 위임과 분리, 전사는 uploadId별 중복, share_requests는 DB 기반만 추가 | 원격 최신 schemas.md 8·8.1 및 data-model 변경을 T008–T019 안에서 반영. 실제 record-input/메모/alerts/공유·생성 handler는 T021 이후라 구현하지 않음 |
 | 2026-10-09 | T009·T019 | 이전 jobs 테이블은 트랜잭션으로 새 구조에 행·상태를 복사. 기존 전사 uploadId는 null로 보존하고 실행을 거부하며 추정하지 않음 | 기존 로컬 작업 데이터 보존과 최신 생성/전사 중복 인덱스 분리. 실제 전사 저장은 T039 의존성 |
 | 2026-10-09 | PR #11 통합·T008 | devlop 6f92b51의 프론트와 백엔드 기반을 함께 보존. FE DTO 이름은 별칭으로 유지하고 VisitView·Job 등 중복 타입은 Zod 추론 타입으로 통일 | 자동 병합된 임시 published 전용 VisitView가 백엔드 draft 계약을 가리거나 Job 결과 상태를 넓히는 문제 방지. 실제 API 연결 완료 범위는 확대하지 않음 |
+| 2026-10-09 | T021–T025·T010, 이슈 #14/분담 #13 | 깨끗한 기존 codex/9-backend-foundation을 보존하고 최신 origin/devlop 2a54ab4에서 feat/14-phase3-backend 생성. apps/web·공유 스키마·fixture·고정 패키지는 그대로 사용 | 사용자 지정 이슈별 브랜치·기존 구현 재사용·프론트 제외 범위 준수 |
+| 2026-10-09 | T023·T024의 최소 안전 선행 | T041 미구현 의존성을 먼저 보고하고 사용자 “Phase 3에 필요한 최소 안전 검증 선행 허용” 답변 후 질문·브리핑 공통 검증만 구현. T041 전체·record는 미완료 | strict 스키마 통과만으로 ready 공개하지 않음. Phase 4 전체로 범위 확대하지 않음 |
+| 2026-10-09 | T022·T023·T024 | 같은 환자 full 제한값·이번 full 출력·모든 공개 문자열(ID 포함)·의료 판단·근거 identity/quote·원 질문 관계 검사. full의 근거 없는 값은 null/needsCheck, non-nullable 공개 문장의 근거 누락은 validation_failed | 더 좁은 공개 원칙. 재서술·의미적 정확성을 완전히 보장하지 않는 휴리스틱 한계 명시 |
+| 2026-10-09 | T016 재사용·T023·T024 | 열린 alert 참조를 실제 동일 환자/과/시점·공유 자료와 대조하고 맞지 않는 alert는 생성 입력에서 제외 | alert JSON의 ID/quote만 믿으면 다른 과·미공유 자료가 섞일 수 있음. 제외된 근거를 요구하는 fixture도 실패 처리 |
+| 2026-10-09 | T023·T024·T019 | 입력·제한값 스냅샷과 현재 권한/버전을 저장 직전 재확인. 블록·최신 포인터·job 성공을 하나의 트랜잭션으로 저장 | 대기 중 입력/권한 변경 및 중간 실패의 부분 저장 방지 |
+| 2026-10-09 | T023·T024 | 최신 ready 또는 blocked로 완료 포인터 갱신, failed/generating은 유지. blocked는 낮은 블록 미조회·full만 조회, ready 질문/브리핑은 즉시 허용 공개 | FE API 보류 계약 준수. record POST share와 구분하며 recordPublishedVersion/status/share 로그를 변경하지 않음 |
+| 2026-10-09 | T024 | stale 브리핑의 질문 문장은 해당 브리핑이 생성된 questions version에서 조회 | 최신 통합 질문으로 과거 브리핑의 의미를 바꾸지 않고 stale로 알림 |
+| 2026-10-09 | T010 | --database로 별도 경로 지정, 실제 fixture provider/기존 jobs/동일 파이프라인으로 pregenerate. 두 결과가 fixture/ready일 때만 성공. 실패 시 기본 시드·이미 성공한 결과·실패 job은 보존 | 직접 fixture 삽입으로 생성 성공을 꾸미지 않음. 임시 DB 생성·저장·API 조회와 개발 DB 해시 불변 확인 |
+| 2026-10-09 | T021·FE 인수인계 | 기존 preview 14개·health E2E 1개 회귀와 실제 API 119개를 구분. 새 공개 질문을 누락하는 고정 fixture는 validation_failed | T020·T026–T029 통합 검증을 완료로 주장하지 않고 실제 API·요청/응답/오류·남은 T032 등을 체크포인트에 전달 |

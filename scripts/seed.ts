@@ -7,6 +7,7 @@ import { idSchema as id, dateSchema, dateTimeSchema, timeSchema, roleSchema, sco
 import { openDatabase, type BatonDatabase } from '../apps/api/src/adapters/sqlite/database.js';
 import { loadApiEnv, readConfig } from '../apps/api/src/shared/config.js';
 import { hashPassword } from '../apps/api/src/shared/password.js';
+import { pregenerateDatabase } from './pregenerate.js';
 
 const str = z.string();
 const root = <S extends z.ZodRawShape>(shape: S) => z.strictObject({ _note: str, ...shape });
@@ -36,12 +37,11 @@ function insert(db: BatonDatabase, table: string, row: Record<string, unknown>) 
 const timings: Record<string, string> = { morning: '아침', lunch: '점심', evening: '저녁', bedtime: '취침 전' };
 const timingText = (fact: MedFact) => fact.timing === null ? null : [...new Set(fact.timing)].sort().map((t) => timings[t]).join('·');
 
-export function assertSeedOptions(options: { pregenerate?: boolean }) {
-  if (options.pregenerate) throw new Error('--pregenerate는 T023(질문 통합)·T024(브리핑) 파이프라인 구현 후 사용할 수 있어요. DB는 변경하지 않았습니다.');
-}
-/** Rebuilds base fixtures atomically. Pregeneration requires T023/T024. */
+type SeedResult = { users: number; visits: number; records: number; alerts: number };
+export function seedDatabase(db: BatonDatabase, options: { fixturesDir: string; pregenerate: true }): Promise<SeedResult & { pregenerated: Awaited<ReturnType<typeof pregenerateDatabase>> }>;
+export function seedDatabase(db: BatonDatabase, options: { fixturesDir: string; pregenerate?: false }): SeedResult;
+/** Base fixtures are atomic; optional asynchronous pregeneration uses the same validated worker as HTTP. */
 export function seedDatabase(db: BatonDatabase, options: { fixturesDir: string; pregenerate?: boolean }) {
-  assertSeedOptions(options);
   const dir = options.fixturesDir;
   const accounts = load(dir, 'accounts.json', root({ demoPassword: str, users: z.array(user) }));
   const patients = load(dir, 'patient.json', root({ patients: z.array(patient), members: z.array(member), shareLogs: z.array(shareLog) }));
@@ -52,7 +52,7 @@ export function seedDatabase(db: BatonDatabase, options: { fixturesDir: string; 
   const prescriptions = load(dir, 'prescriptions.json', root({ prescriptions: z.array(prescription) })).prescriptions;
   const questions = load(dir, 'questions.json', root({ questions: z.array(question) })).questions;
   const passwords = new Map(accounts.users.map((u) => [u.id, hashPassword(accounts.demoPassword)]));
-  return db.transaction(() => {
+  const seeded = db.transaction(() => {
     for (const table of ['visit_blocks', 'block_sets', 'jobs', 'share_requests', 'share_logs', 'transcripts', 'prescriptions', 'questions', 'notes', 'alerts', 'observations', 'uploads', 'visits', 'members', 'patients', 'hospitals', 'users']) db.exec(`DELETE FROM ${table}`);
     for (const u of accounts.users) insert(db, 'users', { ...u, passwordHash: passwords.get(u.id) });
     for (const h of hospitals.hospitals) insert(db, 'hospitals', h);
@@ -96,19 +96,23 @@ export function seedDatabase(db: BatonDatabase, options: { fixturesDir: string; 
     }
     return { users: accounts.users.length, visits: visits.length, records: records.length, alerts: alertCount };
   })();
+  return options.pregenerate ? pregenerateDatabase(db, dir).then((pregenerated) => ({ ...seeded, pregenerated })) : seeded;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try {
     const args = process.argv.slice(2);
-    if (args.some((arg) => arg !== '--pregenerate')) throw new Error('사용할 수 없는 seed 옵션이에요.');
-    assertSeedOptions({ pregenerate: args.includes('--pregenerate') });
+    const pregenerate = args.includes('--pregenerate');
+    const databaseIndex = args.indexOf('--database');
+    const databasePath = databaseIndex === -1 ? undefined : args[databaseIndex + 1];
+    const flags = args.filter((_, index) => databaseIndex === -1 || (index !== databaseIndex && index !== databaseIndex + 1));
+    if (flags.some((arg) => arg !== '--pregenerate') || (databaseIndex !== -1 && (!databasePath || databasePath.startsWith('--')))) throw new Error('사용할 수 없는 seed 옵션이에요.');
     loadApiEnv();
     const config = readConfig();
-    const db = openDatabase(config.sqlitePath);
-    try { console.log('기본 가상 시드 생성 완료:', seedDatabase(db, { fixturesDir: config.fixturesDir })); }
+    const db = openDatabase(databasePath === undefined ? config.sqlitePath : databasePath === ':memory:' ? databasePath : resolve(databasePath));
+    try { console.log('가상 시드 생성 완료:', pregenerate ? await seedDatabase(db, { fixturesDir: config.fixturesDir, pregenerate: true }) : seedDatabase(db, { fixturesDir: config.fixturesDir })); }
     finally { db.close(); }
   } catch (error) {
-    console.error(error instanceof Error && error.message.startsWith('--pregenerate') ? error.message : '기본 시드 생성에 실패했어요. 자료와 DB 설정을 확인해 주세요.');
+    console.error('시드 생성에 실패했어요. 자료·DB 설정·생성 작업 상태를 확인해 주세요.');
     process.exitCode = 1;
   }
 }

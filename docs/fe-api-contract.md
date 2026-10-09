@@ -1,5 +1,7 @@
 # 바통 FE API 연동 기준
 
+실제 구현 상태(2026-10-09): 공유 Zod·로그인·jobs 기반 이후 T021–T025의 질문·브리핑·환자/진료 조회 API를 fixture 모드에서 검증했다. 아래 계획 수립 당시의 준비 수준과 구분하며, 지금 호출 가능한 경로·오류·인수인계는 [Phase 3 백엔드 체크포인트](phase3-backend-checkpoint.md)를 따른다. T020·T026–T029 실제 화면 통합은 미완료다.
+
 FE 리드와 BE 담당자가 화면 구현 전에 사용할 요청·응답과 예외 처리 기준이다. 사용자 진행 요청에 따라 입력 버전 조회·행동 권한·보류 결과·HTTP 예외를 API 계약에 반영했다(이슈 #5). Phase 1의 health handler·공유 health 스키마는 있으나 진료 API handler와 공유 진료 계약은 아직 없으며 실제 BE 담당자의 리뷰는 별도로 필요하다.
 
 기존 기준은 [API 경로와 권한](../specs/001-baton-mvp/contracts/api.md), [정확한 본문 스키마](../specs/001-baton-mvp/contracts/schemas.md), [화면 정의](../specs/001-baton-mvp/screens.md)다. 아래 호출 규칙과 보완 계약은 그 내용을 FE 관점으로 연결한다. 파일 구조는 FE 구현 제안이며 외부 응답의 기준은 schemas.md다. 이번 범위는 Tier A와 병원 안내 Tier B다.
