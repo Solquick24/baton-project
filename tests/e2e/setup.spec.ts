@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('baton.onboarding', JSON.stringify({ version: 1, completedAt: Date.now(), lastVisitedAt: Date.now() })));
+});
+
 test('mobile entry point connects to the real local API through the Vite proxy', async ({ page, request }) => {
   const response = await request.get('/api/health');
   expect(response.status()).toBe(200);

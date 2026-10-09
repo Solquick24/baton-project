@@ -8,6 +8,8 @@ import { SharingPage, SharingSettings } from '../features/settings/SharingPage';
 import { VisitPage, ReviewPage } from '../features/visit/VisitPage';
 import { AlertsPage } from '../features/alerts/AlertsPage';
 
+import { OnboardingProvider, GuideButton } from '../features/onboarding/Onboarding';
+
 type Display = { font: 'normal' | 'large' | 'extra-large'; contrast: boolean };
 const DisplayContext = createContext<{ value: Display; set: (value: Display) => void }>({ value: { font: 'normal', contrast: false }, set: () => {} });
 function initialDisplay(): Display {
@@ -24,12 +26,12 @@ function Application() {
   useEffect(() => { document.documentElement.dataset.font = display.font; document.documentElement.dataset.contrast = String(display.contrast); try { localStorage.setItem('baton.display', JSON.stringify(display)); } catch { /* still usable */ } }, [display]);
   useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
   return <DisplayContext.Provider value={{ value: display, set: setDisplay }}>
-    <a className="skip" href="#main">본문으로 이동</a>
+    <OnboardingProvider><a className="skip" href="#main">본문으로 이동</a>
     <Routes>
       <Route path="/login" element={session ? <Navigate to="/" replace /> : <Login />} />
       <Route path="*" element={session ? <Workspace key={session.accessToken} /> : <Navigate to="/login" replace />} />
     </Routes>
-  </DisplayContext.Provider>;
+  </OnboardingProvider></DisplayContext.Provider>;
 }
 
 function NavIcon({ kind }: { kind: 'home' | 'timeline' | 'settings' }) {
@@ -63,7 +65,7 @@ function Login() {
     <Card className="demo"><h2>가상 계정으로 둘러보기</h2><p className="muted">{import.meta.env.MODE === 'preview' ? '계정을 선택하면 로그인 정보가 채워져요.' : '계정을 선택한 뒤 안내받은 가상 시연 비밀번호를 입력해 주세요.'}</p><div className="quick-grid">{[
       ['patient', '박하늘 · 환자'], ['a', '박지원 · 지난 동행'], ['b', '박지후 · 이번 동행'], ['c', '정다온 · 가족'],
     ].map(([id, label]) => <button key={id} disabled={import.meta.env.MODE === 'preview' && !demoPassword} data-testid={`quick-login-${id}`} onClick={() => { setEmail(`${id}@baton.demo`); if (import.meta.env.MODE === 'preview') setPassword(demoPassword); }}>{label}</button>)}</div></Card>
-    <p className="footnote">모든 인물과 진료 내용은 가상 자료입니다.</p>
+    <GuideButton /><p className="footnote">모든 인물과 진료 내용은 가상 자료입니다.</p>
   </main>;
 }
 function Workspace() {
@@ -152,5 +154,5 @@ function Briefing() {
 }
 function Settings({ pid }: { pid: string | undefined }) {
   const display = useContext(DisplayContext); const { session, setSession } = useContext(Auth);
-  return <div className="stack"><Card><h2>{session?.user.name}님</h2><p className="muted">내 화면 보기 설정</p></Card><Card><fieldset><legend>글씨 크기</legend>{[['normal', '보통'], ['large', '크게'], ['extra-large', '아주 크게']].map(([key, label]) => <label className="choice" key={key}><input data-testid={`font-size-${key}`} type="radio" name="font-size" checked={display.value.font === key} onChange={() => display.set({ ...display.value, font: key as Display['font'] })} />{label}</label>)}</fieldset><label className="choice"><input data-testid="high-contrast" type="checkbox" checked={display.value.contrast} onChange={e => display.set({ ...display.value, contrast: e.target.checked })} />고대비 화면</label></Card><SharingSettings pid={pid} /><Card><button data-testid="logout" onClick={() => setSession(null)}>로그아웃</button></Card></div>;
+  return <div className="stack"><Card><h2>{session?.user.name}님</h2><p className="muted">내 화면 보기 설정</p></Card><Card><fieldset><legend>글씨 크기</legend>{[['normal', '보통'], ['large', '크게'], ['extra-large', '아주 크게']].map(([key, label]) => <label className="choice" key={key}><input data-testid={`font-size-${key}`} type="radio" name="font-size" checked={display.value.font === key} onChange={() => display.set({ ...display.value, font: key as Display['font'] })} />{label}</label>)}</fieldset><label className="choice"><input data-testid="high-contrast" type="checkbox" checked={display.value.contrast} onChange={e => display.set({ ...display.value, contrast: e.target.checked })} />고대비 화면</label></Card><Card><h2>바통 사용 안내</h2><p className="muted">사용법이 기억나지 않을 때, 천천히 다시 둘러보세요.</p><GuideButton /></Card><SharingSettings pid={pid} /><Card><button data-testid="logout" onClick={() => setSession(null)}>로그아웃</button></Card></div>;
 }

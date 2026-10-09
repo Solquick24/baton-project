@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { auth, job, login, record, reset, visit } from './helpers';
+
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('baton.onboarding', JSON.stringify({ version: 1, completedAt: Date.now(), lastVisitedAt: Date.now() })));
+});
 test.beforeEach(async ({ request }) => reset(request));
 
 test('core record upload → transcription → note → structure → review → confirmed share uses real APIs', async ({ page, request }) => {
