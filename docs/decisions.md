@@ -63,6 +63,7 @@ Codex가 추측하지 않고 바로 구현할 수 있도록 문서에 없던 결
 
 | 날짜 | 작업 | 결정 | 이유 |
 |---|---|---|---|
+| 2026-10-09 | FE 첫 이슈 #2(T001·T020·T026–T028·T048–T049 일부, 전체 작업 미완료) | Vite preview 모드에서만 서버 측 개발용 응답을 제공. 새 질문은 실제 검증기 연결 전 환자·A의 full 전용 저장으로 제한하고 B 등록은 거부. 기존 질문·브리핑은 pregenerate 예시로 조회하고, 입력 변경 후 일치하는 fixture가 없으면 실패. 실제 API 모드·빌드에는 어댑터·가상 비밀번호를 포함하지 않음 | 실제 API·DB·JWT·검증기가 없어 완료로 간주할 수 없음. 더 좁은 공개 원칙 적용. 구현·제한은 docs/frontend-plan.md와 apps/web/README.md에 기록 |
 | 2026-10-09 | 샘플 데이터셋 연결(T010·T037·T038·T065 참고, 작업 미완료) | v2.1 ZIP은 참고 자료로 분리하고 현행 가상 4계정·3범위·시드/fixture를 유지. 실제 약·MIMIC·raw mock·private notes는 직접 가져오지 않음. 14 PNG와 추출 20건을 구분 | 원본의 실제 제품·2범위·6진료가 현행 계약과 다름. 더 좁게 공개하는 원칙 적용. 연결표·25건 무결성 검사 결과는 docs/dataset-integration.md에 기록 |
 | 2026-10-09 | AWS 환경 재점검(T007 일부, 작업 미완료) | 최신 `0fe3573`의 기존 S3 재사용·LLM/STT fixture 기본값 적용. 앞선 사용자 승인으로 준비한 임시 버킷을 재사용하고 추가 AWS 자원은 생성하지 않음. Sonnet 5 Converse tool-use 접근 확인은 계정 제한으로 실패 | AGENTS.md·현행 .env.example의 범위 준수. 명세 파일은 원격 최신본을 유지. 실제 값은 Git 제외 .env·infra/local-ai.outputs.json, 상세는 docs/aws-setup.md에 기록 |
 | 2026-10-09 | UI PDF 반영(T026–T029·T033–T034·T036·T045–T051 참고, 작업 미완료) | 사용자 선택에 따라 25쪽 PDF를 화면 정의·계획에 반영. 배치·색감은 PDF를 참고하고, 브리핑 질문을 변경 다음으로 이동·직접 녹음을 가상 파일 업로드로 대체·검토 후 공유 문구 유지. 기존 권한·시드·Tier는 유지 | PDF에 full 전용 내용·후순위 기능·다른 예시 인물이 섞여 있음. 원본·쪽 연결·조정은 docs/wireframe-integration.md, 설정 25·25-2는 PDF 밖 기존 정의를 사용 |
@@ -74,3 +75,25 @@ Codex가 추측하지 않고 바로 구현할 수 있도록 문서에 없던 결
 | 2026-10-09 | T007 | baton 계정의 서울 anthropic.claude-sonnet-5 연결 확인 요청 2회 모두 AccessDeniedException. Transcribe ListTranscriptionJobs와 기존 baton-transcribe-staging-201240241312-apne2 HeadBucket 성공. 기본 LLM/STT fixture 유지 | 최종 접근 결과는 references/phase1-ai-access.json. IAM 변경·자원 생성·업로드·전사 작업 생성 없음. 실제 음성이 없어 STT 변환은 미검증. Bedrock tool use·출력 검증도 성공으로 계산하지 않음 |
 
 Phase 1 체크포인트 결과와 범위는 [phase1-checkpoint.md](phase1-checkpoint.md)에 기록했다.
+
+| 날짜 | 작업 | 결정 | 이유 |
+|---|---|---|---|
+| 2026-10-09 | T008–T019 범위 | 최신 devlop 3343ea1에서 기존 Phase 1 재사용. T020/apps/web·T021 이후·Tier C는 제외 | 사용자 명시 범위, Phase 2 전체 완료로 보고하지 않음 |
+| 2026-10-09 | T010·T013 | 기본 시드/해시/불일치 생성만 구현. --pregenerate는 DB 열기 전 거부하며 T010 미완료 유지. 로그인은 검증된 기본 계정 시드를 사용 | T023·T024 생성 파이프라인은 범위 밖. fixture를 직접 주입한 가짜 생성 성공을 금지하고 로그인에 필요한 선행만 검증 |
+| 2026-10-09 | T015·T016 | 공개 handler 대신 테스트 전용 /probe HTTP 경로에서 실제 인증·블록 repository·생성 input/provider spy를 검사. 내부 생성은 목적별 원본과 같은 과의 이전 공유 기록만 사용 | T025/T031/T032를 선행 구현하지 않으면서 API 권한·금지 kind 미조회·진료과/비공개 입력 격리를 확인 |
+| 2026-10-09 | T017 | 초기 3343ea1의 6종 계약에서는 500을 upstream_error로 정규화했으나 최신 1343afe 반영 후 internal_error로 교체. requestId는 서버 생성, 로그는 method/status/requestId만 | 최신 schemas.md에 500 internal_error와 413/415 이유가 추가됨. 원문/경로/토큰/범위 상세를 노출하지 않고 현행 계약을 따름 |
+| 2026-10-09 | T018 | fixture/live 동일 strict 스키마와 1회 스키마 재시도, failOnAttempts는 job attempt 기준. provider는 저장/공유하지 않으며 의미 안전성은 미완료 T041에 의존 | T041을 범위 밖에서 구현하거나 혼입 fixture를 스키마 통과만으로 ready 처리하지 않음. Bedrock 실제 접근 실패는 그대로 기록 |
+| 2026-10-09 | T019 | handler와 실제 결과가 없는 job은 failed/internal. 완료 전에 현재 입력·권한과 실제 저장 version을 확인. 다른 companion의 중복 jobId 재사용은 404 | 미구현 파이프라인의 허위 완료 방지, jobs 조회 규칙과 현행 권한 준수. 후속 전사 worker는 입력 버전 1회 증가 필요 |
+| 2026-10-09 | T006 재사용·호환 확인 | 기존 Playwright의 DB를 메모리로 설정하고 기존 웹 코드는 그대로 검사 | 사용자 요청의 테스트 fixture·메모리 SQLite 조건 충족, T020 제외. 상세는 backend-foundation-checkpoint.md |
+| 2026-10-09 | T008·T009·T014–T019 최신 devlop 반영 | 구현을 81b862a로 보존한 뒤 1343afe 병합. api.ts에 FE 공통 계약, blocked draft는 낮은 블록 미조회, canResolve는 full 환자/지정 대표에 한정하고 위임과 분리, 전사는 uploadId별 중복, share_requests는 DB 기반만 추가 | 원격 최신 schemas.md 8·8.1 및 data-model 변경을 T008–T019 안에서 반영. 실제 record-input/메모/alerts/공유·생성 handler는 T021 이후라 구현하지 않음 |
+| 2026-10-09 | T009·T019 | 이전 jobs 테이블은 트랜잭션으로 새 구조에 행·상태를 복사. 기존 전사 uploadId는 null로 보존하고 실행을 거부하며 추정하지 않음 | 기존 로컬 작업 데이터 보존과 최신 생성/전사 중복 인덱스 분리. 실제 전사 저장은 T039 의존성 |
+| 2026-10-09 | PR #11 통합·T008 | devlop 6f92b51의 프론트와 백엔드 기반을 함께 보존. FE DTO 이름은 별칭으로 유지하고 VisitView·Job 등 중복 타입은 Zod 추론 타입으로 통일 | 자동 병합된 임시 published 전용 VisitView가 백엔드 draft 계약을 가리거나 Job 결과 상태를 넓히는 문제 방지. 실제 API 연결 완료 범위는 확대하지 않음 |
+| 2026-10-09 | T021–T025·T010, 이슈 #14/분담 #13 | 깨끗한 기존 codex/9-backend-foundation을 보존하고 최신 origin/devlop 2a54ab4에서 feat/14-phase3-backend 생성. apps/web·공유 스키마·fixture·고정 패키지는 그대로 사용 | 사용자 지정 이슈별 브랜치·기존 구현 재사용·프론트 제외 범위 준수 |
+| 2026-10-09 | T023·T024의 최소 안전 선행 | T041 미구현 의존성을 먼저 보고하고 사용자 “Phase 3에 필요한 최소 안전 검증 선행 허용” 답변 후 질문·브리핑 공통 검증만 구현. T041 전체·record는 미완료 | strict 스키마 통과만으로 ready 공개하지 않음. Phase 4 전체로 범위 확대하지 않음 |
+| 2026-10-09 | T022·T023·T024 | 같은 환자 full 제한값·이번 full 출력·모든 공개 문자열(ID 포함)·의료 판단·근거 identity/quote·원 질문 관계 검사. full의 근거 없는 값은 null/needsCheck, non-nullable 공개 문장의 근거 누락은 validation_failed | 더 좁은 공개 원칙. 재서술·의미적 정확성을 완전히 보장하지 않는 휴리스틱 한계 명시 |
+| 2026-10-09 | T016 재사용·T023·T024 | 열린 alert 참조를 실제 동일 환자/과/시점·공유 자료와 대조하고 맞지 않는 alert는 생성 입력에서 제외 | alert JSON의 ID/quote만 믿으면 다른 과·미공유 자료가 섞일 수 있음. 제외된 근거를 요구하는 fixture도 실패 처리 |
+| 2026-10-09 | T023·T024·T019 | 입력·제한값 스냅샷과 현재 권한/버전을 저장 직전 재확인. 블록·최신 포인터·job 성공을 하나의 트랜잭션으로 저장 | 대기 중 입력/권한 변경 및 중간 실패의 부분 저장 방지 |
+| 2026-10-09 | T023·T024 | 최신 ready 또는 blocked로 완료 포인터 갱신, failed/generating은 유지. blocked는 낮은 블록 미조회·full만 조회, ready 질문/브리핑은 즉시 허용 공개 | FE API 보류 계약 준수. record POST share와 구분하며 recordPublishedVersion/status/share 로그를 변경하지 않음 |
+| 2026-10-09 | T024 | stale 브리핑의 질문 문장은 해당 브리핑이 생성된 questions version에서 조회 | 최신 통합 질문으로 과거 브리핑의 의미를 바꾸지 않고 stale로 알림 |
+| 2026-10-09 | T010 | --database로 별도 경로 지정, 실제 fixture provider/기존 jobs/동일 파이프라인으로 pregenerate. 두 결과가 fixture/ready일 때만 성공. 실패 시 기본 시드·이미 성공한 결과·실패 job은 보존 | 직접 fixture 삽입으로 생성 성공을 꾸미지 않음. 임시 DB 생성·저장·API 조회와 개발 DB 해시 불변 확인 |
+| 2026-10-09 | T021·FE 인수인계 | 기존 preview 14개·health E2E 1개 회귀와 실제 API 119개를 구분. 새 공개 질문을 누락하는 고정 fixture는 validation_failed | T020·T026–T029 통합 검증을 완료로 주장하지 않고 실제 API·요청/응답/오류·남은 T032 등을 체크포인트에 전달 |

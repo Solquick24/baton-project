@@ -2,10 +2,23 @@
 
 이 파일은 Codex 같은 코딩 에이전트가 이 저장소에서 작업을 시작하기 전에 읽는 안내다. 사람용 설명은 README.md에 있다.
 
+## 작업 시작 위치와 지침 적용
+
+| 작업 | Codex를 여는 위치 | 함께 읽을 지침 |
+|---|---|---|
+| 프론트 UI·접근성·API 연결 | `apps/web` | 이 파일 + [프론트 지침](apps/web/AGENTS.md) |
+| 백엔드 API·권한·DB·AI·작업 처리 | `apps/api` | 이 파일 + [백엔드 지침](apps/api/AGENTS.md) |
+| 공통 계약·루트 설정·여러 앱 통합 | 저장소 루트 | 이 파일 + 변경하는 앱의 지침 |
+
+- 하위 폴더에서 시작해도 루트 지침을 함께 따른다. 앱별 지침은 담당 범위와 검증 방법을 보완하며 공통 안전 규칙·명세 우선순위·Tier·팀 작업 절차를 완화하지 않는다.
+- 루트에서 앱 코드를 수정할 때도 해당 앱의 `AGENTS.md`를 먼저 읽는다.
+- 이 파일의 경로와 명령은 별도 표시가 없으면 **저장소 루트 기준**이다. 하위 지침의 문서 링크는 해당 파일 기준이다. `apps/web`·`apps/api`에서 루트 명령을 실행할 때는 `npm --prefix ../.. run <명령>`을 사용한다.
+- 시작 폴더는 기본 작업 위치다. 수정 범위는 요청한 이슈를 기준으로 정하고, 공통 파일 변경은 9장의 순차 통합 절차를 따른다.
+
 ## 1. 지금 상태와 목표
 
 - 바통은 가족이 번갈아 진료에 동행해도 맥락이 끊기지 않게 하는 모바일 웹 MVP다. **해커톤 당일(약 5시간·4명) 로컬 시연용**이다.
-- Phase 1(T001–T007)의 로컬 실행·설정·검증 기반이 구현됐다. API는 health만 제공하고 웹은 시작 화면만 있다. DB·로그인·사용자 기능·AI provider는 Phase 2 이후 대상이다. 현재 검증 결과는 docs/phase1-checkpoint.md를 읽는다.
+- Phase 1(T001–T007), T008–T019 백엔드·공통 기반과 Phase 3 백엔드 T021–T025를 구현했다. T010의 --pregenerate도 fixture provider와 질문·브리핑 파이프라인으로 검증했다. 실제 API는 health·로그인·jobs·환자 목록·홈·타임라인·진료 조회·질문 등록/통합·브리핑 생성/조회다. 프론트의 기존 화면 시연은 개발용 응답을 사용하며 T020·T026–T029 실제 통합 검증과 후속 진료 기능은 미완료다. Phase 2·3 전체 완료가 아니다. docs/phase3-backend-checkpoint.md, docs/backend-foundation-checkpoint.md와 docs/frontend-plan.md를 함께 확인한다.
 - 목표: `specs/001-baton-mvp/tasks.md`의 **Tier A 작업**을 끝내 두 시연 경로(이어받기·범위 변경)를 로컬에서 2회 연속 완주하는 것.
 
 ## 2. 읽는 순서
@@ -76,6 +89,8 @@
 
 ### 실행 명령(T005에서 만든다)
 
+프론트 개발용 모드는 `npm run dev:preview`, 실제 API 프록시는 `npm run dev:web`이다. 프론트 검사는 `typecheck:web`·`build:web`·`test:web`으로 실행한다. `npm run dev`는 기존 API·웹 동시 실행을 유지한다.
+
 | 명령 | 내용 |
 |---|---|
 | `npm run dev` | concurrently로 API(`tsx watch apps/api/src/server.ts`, :3001)와 web(Vite, :5173) 동시 실행 |
@@ -98,31 +113,30 @@
 
 ## 7. AI provider 규칙
 
-- `LLMProvider`·`TranscriptionProvider` 인터페이스 뒤에 `bedrock`·`transcribe`(live)와 `fixture` 구현을 둔다. `buildApp({ llm, stt })`로 주입해 테스트에서 spy로 호출 횟수를 센다.
-- fixture provider는 `fixtures/expected/manifest.json`의 규칙으로 파일을 고른다(위에서부터 첫 일치, `whenNoteIncludes`, `failOnAttempts`). 맞는 규칙이 없으면 `ai_unavailable`로 실패한다.
-- **fixture 결과도 live와 똑같이 검증기를 통과해야 저장된다.** fixture라고 검증을 건너뛰지 않는다.
-- Bedrock: `BedrockRuntimeClient({ region: 'ap-northeast-2' })`, `ConverseCommand`, 모델 ID `anthropic.claude-sonnet-5`(AWS 모델 카드상 서울 in-region 지원, Structured outputs 미지원). 블록 세 개를 한 번에 받는 tool 1개(`save_blocks`)로 유도하되 **스키마 준수를 보장으로 취급하지 않는다**. tool 응답이 없거나 형식이 틀리면 1회 재호출, 그래도 실패면 `validation_failed`. Converse tool use 지원 여부는 T007 샘플 호출로 확인하고, 안 되면 'JSON만 출력' 지시 + 텍스트 파싱으로 바꾼 뒤 기록한다. temperature 0.
-- 시스템 프롬프트에 반드시: 정보 정리만, 진단·처방·수치 해석·치료 권고 금지, companion·schedule 문자열에 진단명·검사 수치·변경 사유 금지, 근거 없으면 null.
-- Transcribe: ko-KR 배치, 기존 `TRANSCRIBE_STAGING_BUCKET`에 `baton-staging/{patientId}/{jobId}/{uploadId}`로 임시 업로드, 결과를 회수해 구간 id `ts_01, ts_02 …`로 저장. 버킷 값이 비었거나 실패하면 fixture 전사로 대체하고 `mode='fixture'` 표시.
+provider 구현·fixture 선택·Bedrock·Transcribe 세부 규칙은 [백엔드 지침의 AI provider 규칙](apps/api/AGENTS.md#ai-provider-규칙)에 있다. 루트에서 AI 관련 작업을 시작할 때도 먼저 읽는다.
+fixture와 live는 동일한 검증을 통과해야 저장하며, 조회·범위 변경에서 AI 호출은 0회다. 프론트에는 저장된 결과의 실제 모드를 전달해 표시한다.
 
 ## 8. 테스트 규칙
 
 - 각 사용자 이야기의 테스트 작업(T011·T012·T021·T030·T037·T038)을 먼저 쓰고 실패를 확인한 뒤 구현한다.
 - 권한 테스트는 화면이 아니라 **API 직접 호출**(Fastify inject)로 한다. 응답 검사는 `Object.keys`로 금지 키의 **부재**를 확인한다.
 - 기대값은 `specs/001-baton-mvp/seed-story.md` 4장과 `fixtures/expected/validation.json`·`alerts.json`을 그대로 쓴다.
-- AI 호출 0회 검증: GET 10회 + scope 변경 3회 동안 provider spy 호출 수가 늘지 않아야 한다.
-- 진료과 격리 검증: v_im_03 생성 시 provider가 받은 입력에 `v_os_01`·`ob_03`·`rx_os_01`·`가상록소정`이 없어야 한다.
+- API의 AI 호출 0회·진료과 격리 검증은 [백엔드 지침](apps/api/AGENTS.md#테스트와-완료-기준), UI·접근성·개발용/실제 API 검증은 [프론트 지침](apps/web/AGENTS.md#검증과-완료-기준)을 따른다.
 
 ## 9. 작업 방식
 
-- 새 작업·커밋·push는 `devlop`에서 진행하고, 검증한 변경을 `main`에 병합한다. 세부 순서는 [브랜치 작업 방식](docs/branch-workflow.md)을 따른다.
+- 사용자는 이 프로젝트의 FE 리드다. 프론트 계획·공통 UI·접근성·API 연결과 리뷰 기준을 이 역할에 맞춰 정리한다.
+- 새 작업은 GitHub 이슈를 만들고 최신 `origin/devlop`에서 이슈별 작업 브랜치를 생성해 진행한다. 작업 브랜치를 원격에 push하고 `devlop` 대상으로 PR을 만든 뒤 리뷰·검증 후 병합한다. `main` 반영은 검증한 `devlop → main` PR로 한다. 세부 순서는 [브랜치 작업 방식](docs/branch-workflow.md)을 따른다.
 - 코드·문서·환경 설정 변경에 같은 흐름을 적용한다. 실제 `.env`·인증 정보는 5장 10번에 따라 로컬에 두고, 공유할 환경 설정은 `.env.example`에 반영한다.
 - Phase 순서대로 진행하고 Phase 체크포인트(tasks.md 각 Phase의 Independent Test)를 통과하면 그 작업을 `- [X]`로 표시한다. 통과 못 한 작업은 체크하지 않는다.
 - Phase가 끝날 때마다 `npm run typecheck`와 `npm run test`를 돌리고 커밋한다. 메시지는 팀이 확정한 [커밋 컨벤션](docs/commit-convention.md)을 따른다(예: `Feat: 동행 범위의 저장된 브리핑 조회 추가`).
 - 공통 계약(`packages/contracts`)·`schema.sql`·루트 `package.json`/lockfile 변경은 한 번에 한 작업자만. 병렬 작업 중이면 먼저 merge한다.
 - 시드·fixture JSON을 바꿔야 하면 `fixtures/expected/validation.json`과 seed-story.md 기대값도 같이 고친다.
 - UI는 screens.md의 testid를 그대로 붙인다(e2e가 의존).
+- 변경 요약·실제 검증·계약/문서 링크·남은 한계·후속 작업을 채팅뿐 아니라 관련 이슈와 PR 본문 또는 댓글에 기록한다. PR 제목과 본문은 최종 변경 범위에 맞춰 갱신한다.
+- devlop/main 병합 뒤 이슈·PR에 반영 결과와 PR/커밋 링크를 갱신하고 저장된 본문·병합 상태를 다시 조회해 확인한다. 푸시·PR 생성·각 브랜치 병합을 구분하며 이슈 완료 조건을 충족했을 때만 닫는다.
+- GitHub 작업 양식은 [.github/ISSUE_TEMPLATE/task.yml](.github/ISSUE_TEMPLATE/task.yml)·[.github/pull_request_template.md](.github/pull_request_template.md)를 따른다. CLI로 생성할 때도 같은 항목을 채우며, 본문은 실제 줄바꿈을 보존한 파일을 --body-file로 전달한다.
 
 ## 10. 완료 보고
 
-작업을 마치면 다음을 짧게 보고한다: 완료한 작업 ID, 실행한 명령과 결과(통과·실패 수), live/fixture 중 실제로 쓴 모드, 미완료·건너뛴 작업(Tier C 포함), 구현 중 결정(decisions.md에 남긴 것). 실제로 측정하지 않은 수치는 쓰지 않는다.
+작업을 마치면 다음을 짧게 보고한다: 완료한 작업 ID, 실행한 명령과 결과(통과·실패 수), live/fixture 중 실제로 쓴 모드, 미완료·건너뛴 작업(Tier C 포함), 구현 중 결정(decisions.md에 남긴 것). 실제로 측정하지 않은 수치는 쓰지 않는다. 관련 이슈·PR 링크와 실제 반영 단계도 보고한다. 완료 요약은 최종 응답 전 이슈·PR에도 기록하고 저장 여부를 확인한다.
