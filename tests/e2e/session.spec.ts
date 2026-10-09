@@ -1,7 +1,13 @@
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('baton.onboarding', JSON.stringify({ version: 1, completedAt: Date.now(), lastVisitedAt: Date.now() })));
+});
+
 async function login(page: Page, account: string) {
   await page.goto('/login');
+  await page.getByTestId('login-email').waitFor();
+  if (await page.getByTestId('onboarding-skip').isVisible()) await page.getByTestId('onboarding-skip').click();
   await page.getByTestId('login-email').fill(`${account}@baton.demo`);
   await page.getByTestId('login-password').fill('baton-demo-2026');
   await page.getByTestId('login-submit').click();

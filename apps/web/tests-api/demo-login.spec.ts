@@ -5,6 +5,10 @@ import { openDatabase } from '../../api/src/adapters/sqlite/database.js';
 import { readConfig } from '../../api/src/shared/config.js';
 import { seedDatabase } from '../../../scripts/seed.js';
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('baton.onboarding', JSON.stringify({ version: 1, completedAt: Date.now(), lastVisitedAt: Date.now() })));
+});
+
 let app: Awaited<ReturnType<typeof buildApp>>;
 const db = openDatabase(':memory:');
 test.beforeAll(async () => {
