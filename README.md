@@ -37,13 +37,13 @@
 ## 구조
 
 ```text
-apps/web/             모바일 우선 React/Vite 프론트 자리
-apps/api/             로컬 Fastify·SQLite·JWT·AI·비동기 처리 자리
-packages/contracts/   공유 요청·응답·검증 스키마 자리
+apps/web/             모바일 우선 React/Vite 프론트 폴더
+apps/api/             로컬 Fastify·SQLite·JWT·AI·비동기 처리 폴더
+packages/contracts/   공유 요청·응답·검증 스키마 폴더
 infra/                이전 AWS 배포 예시 보존, 현재 구현 대상 제외
-fixtures/             가상 시드·음성·문서·정답 자료 자리
-scripts/              환경 점검·시드·평가 스크립트 자리
-tests/e2e/            핵심 데모 검증 자리
+fixtures/             가상 시드·음성·문서·정답 자료 폴더
+scripts/              환경 점검·시드·평가 스크립트 폴더
+tests/e2e/            핵심 데모 검증 폴더
 specs/001-baton-mvp/   명세와 설계 산출물
 .specify/             Spec Kit 헌장·설정·템플릿·스크립트
 .agents/skills/       팀에서 공유하는 Spec Kit 스킬
