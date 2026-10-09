@@ -30,7 +30,7 @@ export function Meta({ value }: { value: VisitMeta }) { return <p className="met
 export function RecordCard({ value, testid, compact = false }: { value: VisitView; testid: string; compact?: boolean }) {
   const blocks = value.record?.blocks;
   const { pid } = useParams();
-  const companion = blocks?.companion && <><h3>약의 바뀐 점</h3>{blocks.companion.medChanges.map(m => <p key={m.id}><strong>{m.drug}</strong><br />{m.from ?? '기록에 없어요'} → {m.to ?? '기록에 없어요'} <Check yes={m.needsCheck} />{m.caution && <small>{m.caution}</small>}</p>)}<details><summary>쉬운 말 요약 보기</summary><Items values={blocks.companion.easySummary} /></details></>;
+  const companion = blocks?.companion && <><h3>약의 바뀐 점</h3>{blocks.companion.medChanges.map(m => <p key={m.id}><strong>{m.drug}</strong><br />{m.from ?? '기록에 없어요'} → {m.to ?? '기록에 없어요'} <Check yes={m.needsCheck} />{m.caution && <small>{m.caution}</small>}</p>)}<details><summary>쉬운 말 요약 보기</summary><Items values={blocks.companion.easySummary} /></details>{value.record?.view === 'published' && pid && <Link className="button" to={`/p/${pid}/visits/${value.meta.id}/summary`}>쉬운 진료 요약</Link>}</>;
   return <Card testid={testid}><h2>{value.meta.dept} 진료</h2><Meta value={value.meta} />{value.record && <Saved mode={value.record.mode} />}
     {compact && companion ? <details className="recent-details"><summary>진료 기록 펼치기 <Check yes={Boolean(blocks?.companion?.medChanges.some(m => m.needsCheck) || blocks?.companion?.easySummary.some(item => item.needsCheck))} /></summary>{companion}</details> : companion}
     {blocks?.schedule?.nextSchedule.map(s => <p key={s.id} className="schedule">다음 일정 · {s.date ?? '기록에 없어요'} {s.time} <Check yes={s.needsCheck} /></p>)}

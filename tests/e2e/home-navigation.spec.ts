@@ -1,7 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { auth, login, reset } from './helpers';
 
-test.beforeEach(async ({ request }) => reset(request));
+test.beforeEach(async ({ request, page }) => {
+  await reset(request);
+  await page.addInitScript(() => localStorage.setItem('baton.onboarding', JSON.stringify({ version: 1, completedAt: Date.now(), lastVisitedAt: Date.now() })));
+});
 
 test('unprepared briefing leads to questions without generating during navigation', async ({ page, request }, info) => {
   await reset(request, false);
@@ -33,8 +36,8 @@ test('ready home identifies the owner once, shows briefing and keeps history exp
   await page.getByTestId('briefing-link').click();
   await expect(page.getByTestId('briefing-changes')).toBeVisible();
   const box = await page.getByTestId('briefing-questions').boundingBox();
-  const nav = await page.locator('.bottom-nav').boundingBox();
-  expect(box!.y + box!.height).toBeLessThanOrEqual(nav!.y);
+  await expect(page.locator('.bottom-nav')).toHaveCount(0);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(844);
 });
 
 test('schedule response has no preparation or record actions and navigation calls no AI', async ({ page, request }, info) => {

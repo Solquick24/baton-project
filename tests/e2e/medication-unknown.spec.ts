@@ -1,6 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { login, reset } from './helpers';
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('baton.onboarding', JSON.stringify({ version: 1, completedAt: Date.now(), lastVisitedAt: Date.now() })));
+});
+
 test('unknown medication values remain unknown instead of claiming treatment started or stopped', async ({ page, request }) => {
   await reset(request);
   await page.route('**/api/patients/p_01/home*', async route => {
