@@ -1,12 +1,15 @@
 import { useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import type { Item, Mode, SourceRef, VisitMeta, VisitView } from '@baton/contracts';
 import { ApiError, request } from '../lib/api';
 import { SessionContext, useResource } from '../app/session';
 
 export function State({ error, retry }: { error?: Error | undefined; retry: () => void }) {
-  return <section className="card state" aria-live="polite"><h2>{error ? error instanceof ApiError && error.status === 404 ? '찾을 수 없어요' : '불러오지 못했어요' : '불러오는 중…'}</h2>
-    {error && <><p>{error.message}</p><button onClick={retry}>다시 시도</button><Link className="text-link" to="/me">홈으로</Link></>}
+  const { pathname } = useLocation();
+  const pid = /^\/p\/([^/]+)/.exec(pathname)?.[1];
+  const missing = error instanceof ApiError && error.status === 404;
+  return <section className="card state" aria-live="polite"><h2>{error ? missing ? '찾을 수 없어요' : '불러오지 못했어요' : '불러오는 중…'}</h2>
+    {error && <><p>{missing ? '주소를 확인하거나 홈에서 다시 선택해 주세요.' : error.message}</p><button onClick={retry}>다시 시도</button><Link className="text-link" to={pid ? `/p/${pid}` : '/'}>홈으로</Link></>}
   </section>;
 }
 
@@ -24,11 +27,12 @@ export function Sources({ refs, itemId, testid }: { refs: SourceRef[]; itemId: s
 
 export function Meta({ value }: { value: VisitMeta }) { return <p className="meta">{value.date.replaceAll('-', '.')} {value.time} · {value.dept}<br />{value.hospital.name} · 동행 {value.companion?.name ?? '미정'}</p>; }
 
-export function RecordCard({ value, testid }: { value: VisitView; testid: string }) {
+export function RecordCard({ value, testid, compact = false }: { value: VisitView; testid: string; compact?: boolean }) {
   const blocks = value.record?.blocks;
   const { pid } = useParams();
+  const companion = blocks?.companion && <><h3>약의 바뀐 점</h3>{blocks.companion.medChanges.map(m => <p key={m.id}><strong>{m.drug}</strong><br />{m.from ?? '기록에 없어요'} → {m.to ?? '기록에 없어요'} <Check yes={m.needsCheck} />{m.caution && <small>{m.caution}</small>}</p>)}<details><summary>쉬운 말 요약 보기</summary><Items values={blocks.companion.easySummary} /></details></>;
   return <Card testid={testid}><h2>{value.meta.dept} 진료</h2><Meta value={value.meta} />{value.record && <Saved mode={value.record.mode} />}
-    {blocks?.companion && <><h3>약의 바뀐 점</h3>{blocks.companion.medChanges.map(m => <p key={m.id}><strong>{m.drug}</strong><br />{m.from ?? '기록에 없어요'} → {m.to ?? '기록에 없어요'} <Check yes={m.needsCheck} />{m.caution && <small>{m.caution}</small>}</p>)}<details><summary>쉬운 말 요약 보기</summary><Items values={blocks.companion.easySummary} /></details></>}
+    {compact && companion ? <details className="recent-details"><summary>진료 기록 펼치기 <Check yes={Boolean(blocks?.companion?.medChanges.some(m => m.needsCheck) || blocks?.companion?.easySummary.some(item => item.needsCheck))} /></summary>{companion}</details> : companion}
     {blocks?.schedule?.nextSchedule.map(s => <p key={s.id} className="schedule">다음 일정 · {s.date ?? '기록에 없어요'} {s.time} <Check yes={s.needsCheck} /></p>)}
     {blocks?.full && <details data-testid={value.record?.view === 'draft' ? 'draft-full-section' : undefined}><summary>진료 내용과 근거 보기</summary><span className="badge warning">민감 정보</span><h3>진단</h3><Items values={blocks.full.diagnosis} /><h3>검사</h3>{blocks.full.labResults.map(l => <p key={l.id}>{l.name} · {l.value ?? '기록에 없어요'}{l.unit} <Check yes={l.needsCheck} /></p>)}<h3>주요 설명</h3><Items values={blocks.full.doctorExplanation} /><h3>약 변경 이유</h3><Items values={blocks.full.medReasons} /><h3>질문 답변</h3><Items values={blocks.full.answers} />{blocks.full.sourceRefs.map((ref, i) => <blockquote key={i}>{ref.quote ?? '기록에 없어요'}</blockquote>)}
       {blocks.full.transcript && <><h3>전사 원문</h3><Saved mode={blocks.full.transcript.mode} />{blocks.full.transcript.segments.map(s => <p key={s.id}>{s.text}</p>)}{pid && blocks.full.transcript.uploadId && <SourceFile pid={pid} uploadId={blocks.full.transcript.uploadId} />}</>}

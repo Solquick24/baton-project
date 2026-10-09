@@ -14,7 +14,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .light { background:var(--paper); color:var(--teal); justify-content:space-between; }
 .shell { width:100%; max-width:520px; margin:auto; padding:0 20px 110px; min-height:100dvh; }
 header { display:flex; align-items:center; justify-content:space-between; min-height:60px; gap:12px; }
-.wordmark { text-decoration:none; font-weight:700; font-size:1.2rem; }
+.wordmark { display:flex; align-items:center; justify-content:center; min-width:48px; min-height:48px; text-decoration:none; font-weight:700; font-size:1.2rem; }
 h1,h2,h3,p { margin:0; overflow-wrap:anywhere; }
 h1 { font-size:1.4rem; letter-spacing:-.04em; }
 h2 { font-size:1.05rem; letter-spacing:-.03em; }
@@ -39,6 +39,14 @@ small,.footnote { display:block; color:var(--muted); font-size:.8rem; }
 .eyebrow { font-size:.85rem; }
 .chips { display:flex; gap:8px; flex-wrap:wrap; }
 .owners { margin-bottom:14px; }
+.owner-context { margin:0 0 12px; color:var(--muted); font-size:.88rem; }
+.home { gap:16px; }
+.home .next { padding:20px; }
+.next .next-status { font-size:.9rem; }
+.next .next-secondary { margin-top:8px; background:transparent; border-color:currentColor; color:inherit; }
+.next a:focus-visible { outline-color:white; }
+.history-heading { margin-top:8px; }
+.recent-details>summary { margin-top:8px; }
 .chips a,.chips button { display:flex; align-items:center; min-height:48px; padding:8px 16px; border:var(--line) solid var(--border); border-radius:999px; background:var(--paper); color:var(--ink); text-decoration:none; font-size:.88rem; font-weight:600; }
 .owners .active { background:var(--teal); color:#fff; border-color:var(--teal); }
 .depts [aria-pressed="true"] { background:var(--navy); color:#fff; border-color:var(--navy); }

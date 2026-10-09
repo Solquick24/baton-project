@@ -29,3 +29,5 @@ Playwright는 처음에 `npx playwright install chromium`이 필요하다. 별�
 빠른 선택의 실제 API 검사는 루트에서 `npx playwright test --config apps/web/playwright.api.config.ts`로 실행한다. 5183/3103의 독립 서버·메모리 SQLite·fixture만 사용한다. preview 검사의 기본 5173 포트가 사용 중이면 `WEB_PORT=5184 npm run test:web`로 분리한다.
 `.env.example`에는 브라우저에 공개 가능한 식별자만 있다.
 명세: [spec.md](../../specs/001-baton-mvp/spec.md).
+
+홈·공통 탐색 후속 개선은 [#47 체크포인트](../../docs/home-navigation-checkpoint.md)를 따른다. 테스트 포트가 다른 세션에서 사용 중이면 루트에서 `E2E_API_PORT=3107 E2E_WEB_PORT=5187 npm run test:e2e`로 별도 서버를 실행한다. 기본 포트 3101/5174, fixture·메모리 DB·기존 서버 재사용 금지 설정은 유지한다.

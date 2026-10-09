@@ -11,7 +11,11 @@ test('unknown medication values remain unknown instead of claiming treatment sta
     await route.fulfill({ response, json: data });
   });
   await login(page, 'b');
+  const history = page.getByTestId('recent-visit-v_im_02');
+  await expect(history.locator('.recent-details > summary')).toContainText('확인 필요');
+  await history.locator('.recent-details > summary').click();
   const medication = page.getByTestId('recent-visit-v_im_02').locator('p').filter({ has: page.locator('strong') }).first();
+  await expect(medication).toBeVisible();
   await expect(medication).toContainText('기록에 없어요 → 기록에 없어요');
   await expect(medication).toContainText('확인 필요');
   await expect(medication).not.toContainText('복용 시작');
