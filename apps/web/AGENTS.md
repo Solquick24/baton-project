@@ -4,7 +4,7 @@
 
 ## 담당 범위와 참고 문서
 
-- 최신 이슈 #32 작업 브랜치의 실제 API 화면 통합·검증·종료 범위는 [통합 체크포인트](../../docs/api-integration-checkpoint.md)를 우선 확인한다. T020·T026~T029·T033~T036·T045~T047을 fixture API/브라우저로 검증했고 OpenAI key/model 미설정으로 실제 호출은 미실시다. STT fixture, T048~T051·Tier C 미완료 유지. 아래 이전 체크포인트의 미완료 문장은 당시 기록이다. 이번 통합은 사용자 요청대로 커밋 후 중지하며 push/PR/병합은 하지 않는다.
+- 최신 이슈 #32 작업 브랜치의 실제 API 화면 통합·검증·종료 범위는 [통합 체크포인트](../../docs/api-integration-checkpoint.md)를 우선 확인한다. T020·T026~T029·T033~T036·T045~T047을 fixture API/브라우저로 검증했고 OpenAI key/model 미설정으로 실제 호출은 미실시다. STT fixture, T048~T051·Tier C 미완료 유지. 아래 이전 체크포인트의 미완료 문장은 당시 기록이다. 최초 커밋 체크포인트 이후 사용자가 devlop 대상 PR 생성과 병합을 명시 요청했다. 검증한 작업 브랜치만 push하고 PR 검사·충돌 상태를 확인해 devlop에 병합한다. main 반영은 이번 범위가 아니다.
 
 - 기본 수정 범위는 이 앱의 `src/`, `dev/`, `public/`, `tests/`와 웹 설정·안내 문서다. 사용자는 FE 리드이므로 공통 UI·접근성·API 연결·프론트 리뷰 기준을 중심으로 보고한다.
 - 루트의 읽는 순서를 따른 뒤 [프론트 계획과 검증 기록](../../docs/frontend-plan.md), [웹 실행 안내](README.md), [FE API 연동 기준](../../docs/fe-api-contract.md), [최신 백엔드 API 인수인계](../../docs/phase3-backend-checkpoint.md)를 확인한다. 이전 백엔드 기반 기록보다 최신 체크포인트의 실제 API 목록을 우선 확인한다.

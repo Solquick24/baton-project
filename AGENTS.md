@@ -17,7 +17,7 @@
 
 ## 1. 지금 상태와 목표
 
-- 최신 이슈 #32 작업 브랜치의 실제 API 화면 통합·검증·종료 범위는 [통합 체크포인트](docs/api-integration-checkpoint.md)를 우선 확인한다. T020·T026~T029·T033~T036·T045~T047을 fixture API/브라우저로 검증했고 OpenAI key/model 미설정으로 실제 호출은 미실시다. STT fixture, T048~T051·Tier C 미완료 유지. 아래 이전 체크포인트의 미완료 문장은 당시 기록이다. 이번 통합은 사용자 요청대로 커밋 후 중지하며 push/PR/병합은 하지 않는다.
+- 최신 이슈 #32 작업 브랜치의 실제 API 화면 통합·검증·종료 범위는 [통합 체크포인트](docs/api-integration-checkpoint.md)를 우선 확인한다. T020·T026~T029·T033~T036·T045~T047을 fixture API/브라우저로 검증했고 OpenAI key/model 미설정으로 실제 호출은 미실시다. STT fixture, T048~T051·Tier C 미완료 유지. 아래 이전 체크포인트의 미완료 문장은 당시 기록이다. 최초 커밋 체크포인트 이후 사용자가 devlop 대상 PR 생성과 병합을 명시 요청했다. 검증한 작업 브랜치만 push하고 PR 검사·충돌 상태를 확인해 devlop에 병합한다. main 반영은 이번 범위가 아니다.
 
 - 바통은 가족이 번갈아 진료에 동행해도 맥락이 끊기지 않게 하는 모바일 웹 MVP다. **해커톤 당일(약 5시간·4명) 로컬 시연용**이다.
 - Phase 1(T001–T007), T008–T020 백엔드·공통 기반과 Phase 3 백엔드 T021–T025를 구현했다. T010의 --pregenerate도 fixture provider와 질문·브리핑 파이프라인으로 검증했다. 실제 API는 health·로그인·jobs·환자 목록·홈·타임라인·진료 조회·질문 등록/통합·브리핑 생성/조회다. T020 실제 JWT 세션·요청 취소·캐시 정리는 실제 API로 검증했다. T026–T029 전체 화면 수용 검증과 후속 진료 기능은 미완료다. Phase 3 전체 완료가 아니다. docs/frontend-session-checkpoint.md도 확인한다. docs/phase3-backend-checkpoint.md, docs/backend-foundation-checkpoint.md와 docs/frontend-plan.md를 함께 확인한다.
