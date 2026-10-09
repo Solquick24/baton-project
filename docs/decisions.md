@@ -26,6 +26,8 @@
 실제 서비스·배포 설계 시 기술 예외와 실정보 처리 요건을 다시 검토한다.
 모델·지도·AWS 제공 자원은 실제 환경 확인 전 호출 성공을 주장하지 않는다.
 
+**후속 사용자 확정 결정(2026-10-09):** 텍스트 생성 AI는 Bedrock 대신 OpenAI API를 기본 선택한다. 위 표와 plan.md의 'AI만 AWS'는 이전 결정의 기록이며, 질문 통합·브리핑·record 텍스트에 한해 이 명시적 사용자 결정으로 변경한다. Bedrock/fixture 선택지와 STT는 보존한다. [구현·공식 문서·검증·남은 live 확인](openai-provider-checkpoint.md). 이는 Codex가 임의로 확대 해석한 기술 예외가 아니다.
+
 ## 명세 보완 기본안 (2026-10-09, 구현 전 빈칸 채우기 — 팀 검토 전)
 
 Codex가 추측하지 않고 바로 구현할 수 있도록 문서에 없던 결정을 채웠다. 팀이 다르게 정하면 표와 관련 문서를 함께 고친다.
@@ -97,3 +99,7 @@ Phase 1 체크포인트 결과와 범위는 [phase1-checkpoint.md](phase1-checkp
 | 2026-10-09 | T024 | stale 브리핑의 질문 문장은 해당 브리핑이 생성된 questions version에서 조회 | 최신 통합 질문으로 과거 브리핑의 의미를 바꾸지 않고 stale로 알림 |
 | 2026-10-09 | T010 | --database로 별도 경로 지정, 실제 fixture provider/기존 jobs/동일 파이프라인으로 pregenerate. 두 결과가 fixture/ready일 때만 성공. 실패 시 기본 시드·이미 성공한 결과·실패 job은 보존 | 직접 fixture 삽입으로 생성 성공을 꾸미지 않음. 임시 DB 생성·저장·API 조회와 개발 DB 해시 불변 확인 |
 | 2026-10-09 | T021·FE 인수인계 | 기존 preview 14개·health E2E 1개 회귀와 실제 API 119개를 구분. 새 공개 질문을 누락하는 고정 fixture는 validation_failed | T020·T026–T029 통합 검증을 완료로 주장하지 않고 실제 API·요청/응답/오류·남은 T032 등을 체크포인트에 전달 |
+| 2026-10-09 | 사용자 결정·OpenAI 이슈 #23 | '텍스트 생성 AI를 Bedrock 대신 OpenAI API로 사용'을 기존 AI만 AWS 방향의 명시적 변경 근거로 적용. 기본 LLM_PROVIDER=openai, LLM_MODE/STT_MODE는 fixture 유지 | 질문·브리핑·record 텍스트만 변경. Bedrock/fixture와 전사 provider·기존 안전/권한/검토 후 공유 규칙 보존 |
+| 2026-10-09 | OpenAI provider·계약 | Node fetch Responses API/store:false/strict text.format 사용. 기존 Zod로 wire schema를 만들고 null/선택 필드 의미를 유지. validatedLLM 및 파이프라인 안전 검증 재사용 | 새로운 SDK/패키지·공유 계약·DB 변경 없음. 모델별 temperature/reasoning·대화 상태·외부 도구를 추가하지 않음. 형식 보장을 의미 안전성으로 간주하지 않음 |
+| 2026-10-09 | Phase 5 보존·OpenAI 회귀 | feat/17-phase5-backend 7a7b452와 draft PR #22 보존. 최신 devlop b3fa963에서 별도 작업. Phase 5 worker/record 안전 검증은 별도 임시 조합에서만 회귀 검사 | 관련 없는 미병합 Phase 5 코드를 OpenAI PR에 섞지 않음. 실제 record 경로 연결은 PR #22와 후속 T039/T042/T043 의존성 |
+| 2026-10-09 | 모델·키·실제 연결 | 공식 문서로 예시 gpt-4.1-mini-2025-04-14의 Responses/구조화 출력 지원 확인. 런타임 모델 암묵 기본값 없음. 키·모델 미설정이라 live 호출 미실시 | 키는 사용자 apps/api/.env 직접 입력, 비밀값 미출력. 실제 점검은 fallback=false의 최소 가상 질문/동일 안전 검증으로 별도 수행해야 성공을 보고할 수 있음 |

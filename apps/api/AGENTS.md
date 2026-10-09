@@ -22,14 +22,16 @@
 
 ## AI provider 규칙
 
-- `LLMProvider`·`TranscriptionProvider` 인터페이스 뒤에 `bedrock`·`transcribe`(live)와 `fixture` 구현을 둔다. `buildApp({ llm, stt })`로 주입해 테스트에서 spy로 호출 횟수를 센다.
+- `RawLLMProvider`·`LLMProvider` 뒤에 `openai`·`bedrock` 텍스트와 `fixture`를 둔다. 2026-10-09 사용자 결정으로 텍스트 기본 provider는 OpenAI이며 이전 'AI만 AWS' 방향의 추가 예외다([결정·검증](../../docs/openai-provider-checkpoint.md)). `TranscriptionProvider`·STT 선택은 바꾸지 않는다. `buildApp({ llm, stt })`로 주입해 테스트에서 spy로 호출 횟수를 센다.
+- `LLM_PROVIDER=openai|bedrock`(기본 openai), `LLM_MODE=fixture|live`(기본 fixture)를 독립적으로 설정한다. OpenAI live에는 백엔드 `OPENAI_API_KEY`·`OPENAI_MODEL`이 필수다. 키는 apps/api/.env에 사용자가 직접 입력하며 채팅·로그·Git·VITE_*에 넣지 않는다. 모델 ID/계정 권한을 확인하지 않고 성공으로 보고하지 않는다.
+- OpenAI는 Node fetch로 Responses API POST `/v1/responses`, `store:false`, strict `text.format`을 사용한다. 기존 스키마에서 wire schema만 변환하고 nullable/선택 필드 의미를 바꾸지 않는다. 도구·대화 상태·모델별 temperature/reasoning 옵션을 추가하지 않는다. 거부/불완전 출력은 안전하게 실패하고 형식 오류만 기존 validatedLLM의 최대 1회 재시도를 거친다. fallback 결과는 mode=fixture이며 실제 연결 점검은 fallback=false다.
 - fixture provider는 루트 `fixtures/expected/manifest.json`의 규칙으로 파일을 고른다(위에서부터 첫 일치, `whenNoteIncludes`, `failOnAttempts`). 맞는 규칙이 없으면 `ai_unavailable`로 실패한다.
 - **fixture 결과도 live와 똑같이 검증기를 통과해야 저장된다.** fixture라고 검증을 건너뛰지 않는다.
 - Bedrock: `BedrockRuntimeClient({ region: 'ap-northeast-2' })`, `ConverseCommand`, 모델 ID `anthropic.claude-sonnet-5`(AWS 모델 카드상 서울 in-region 지원, Structured outputs 미지원). 블록 세 개를 한 번에 받는 tool 1개(`save_blocks`)로 유도하되 **스키마 준수를 보장으로 취급하지 않는다**. tool 응답이 없거나 형식이 틀리면 1회 재호출, 그래도 실패면 `validation_failed`. Converse tool use 지원 여부는 T007 샘플 호출로 확인하고, 안 되면 'JSON만 출력' 지시 + 텍스트 파싱으로 바꾼 뒤 기록한다. temperature 0.
 - 시스템 프롬프트에 반드시: 정보 정리만, 진단·처방·수치 해석·치료 권고 금지, companion·schedule 문자열에 진단명·검사 수치·변경 사유 금지, 근거 없으면 null.
 - Transcribe: ko-KR 배치, 기존 `TRANSCRIBE_STAGING_BUCKET`에 `baton-staging/{patientId}/{jobId}/{uploadId}`로 임시 업로드, 결과를 회수해 구간 id `ts_01, ts_02 …`로 저장. 버킷 값이 비었거나 실패하면 fixture 전사로 대체하고 `mode='fixture'` 표시.
 - GET·scope 변경은 저장된 블록만 조회하며 AI를 호출하지 않는다. worker는 실제 저장 결과 없이 성공을 표시하지 않고 자동 공유하지 않는다.
-- 기본 LLM/STT 모드는 fixture다. 실제 live 성공·의미 안전성은 별도로 검증하고 스키마 통과만으로 안전성을 주장하지 않는다. AWS 호출은 Bedrock·Transcribe와 기존 staging 버킷 사용 범위에 한정하며 새 AWS 자원·IAM 변경·배포는 금지한다.
+- 기본 LLM/STT 모드는 fixture다. OpenAI/Bedrock 모두 기존 validatedLLM과 파이프라인의 저장 전 안전 검증을 통과해야 저장·공개할 수 있다. 실제 live 성공·의미 안전성은 별도로 검증하고 스키마 통과만으로 안전성을 주장하지 않는다. AWS 호출은 Bedrock·Transcribe와 기존 staging 버킷 사용 범위에 한정하며 새 AWS 자원·IAM 변경·배포는 금지한다.
 
 ## apps/api에서 실행하는 명령
 
