@@ -125,14 +125,16 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 
 **Independent Test / Checkpoint**: US1/US2 생성 기능 없이 가상 입력·fixture provider로 정리→검토→공유·A의 불일치를 독립 검증.
 
-- [ ] T037 [P] [US3] apps/api/tests/summary-safety.test.ts에 schedule/companion의 진단명·수치·사유 혼입·quote/sourceRef 유출·알 수 없는 field·근거 없음·fixture 동일 검증을 먼저 작성한다.
+사용자 승인으로 Phase 순차 진행의 예외를 적용했다. 독립 백엔드 T037·T040·T041·T044의 검증과 T038 부분 구현, 미구현 T031/T032 → T039/T042/T043 의존성은 [Phase 5 체크포인트](../../docs/phase5-backend-checkpoint.md)에 기록했다. 공유 수용 테스트 3건은 선행 부재로 skip이며 T038·Phase 5 전체는 미완료다.
+
+- [X] T037 [P] [US3] apps/api/tests/summary-safety.test.ts에 schedule/companion의 진단명·수치·사유 혼입·quote/sourceRef 유출·알 수 없는 field·근거 없음·fixture 동일 검증을 먼저 작성한다.
 - [ ] T038 [P] [US3] apps/api/tests/sharing.test.ts와 apps/api/tests/alerts.test.ts에 ready/blocked/failed·버전충돌·확정 전 가족 비공개·중복 공유·일반 확인 항목과 민감 보류 구분·ALERTfull 전용을 먼저 검증한다.
 - [ ] T039 [US3] apps/api/src/adapters/ai/transcribe.ts와 apps/api/src/handlers/audio.ts에 가상 multipart 업로드·형식·크기 검사·patient·visit 소속·recordingAllowed·기존 S3 임시 staging·완료 결과 회수·transcripts 저장·recordInputVersion 증가·fixture 전사(fixtures/expected/transcribe/v_im_03.json) fallback을 구현하고 POST notes도 이 작업에서 구현한다. 선행: T032.
-- [ ] T040 [US3] apps/api/src/ai/prompts/structure.ts와 apps/api/src/ai/pipelines/structure.ts에 schedule.nextSchedule·companion.medChanges/easySummary·full 진단/수치/설명/사유/medDetails/답변/근거를 한 번에 생성하고 비중복·null/needsCheck=true를 검증한다. 저장 직전 transcripts 행을 full.transcript로 복사한다. fixture 기대값: fixtures/expected/structure/*.json, 검증 기대값: fixtures/expected/validation.json. 선행: T037.
-- [ ] T041 [US3] apps/api/src/ai/safety/block-leak-check.ts와 apps/api/src/ai/safety/output-validator.ts에 낮은 블록·질문·오류의 정규화 문자열 혼입 검사·의료 판단 금지·불명확 값 검사·blocked 상태를 구현하고 재서술을 완전 차단한다고 주장하지 않는다. 선행: T040.
+- [X] T040 [US3] apps/api/src/ai/prompts/structure.ts와 apps/api/src/ai/pipelines/structure.ts에 schedule.nextSchedule·companion.medChanges/easySummary·full 진단/수치/설명/사유/medDetails/답변/근거를 한 번에 생성하고 비중복·null/needsCheck=true를 검증한다. 저장 직전 transcripts 행을 full.transcript로 복사한다. fixture 기대값: fixtures/expected/structure/*.json, 검증 기대값: fixtures/expected/validation.json. 선행: T037.
+- [X] T041 [US3] apps/api/src/ai/safety/block-leak-check.ts와 apps/api/src/ai/safety/output-validator.ts에 낮은 블록·질문·오류의 정규화 문자열 혼입 검사·의료 판단 금지·불명확 값 검사·blocked 상태를 구현하고 재서술을 완전 차단한다고 주장하지 않는다. 선행: T040.
 - [ ] T042 [US3] apps/api/src/modules/summaries/service.ts와 apps/api/src/handlers/summaries.ts에 메모 입력 버전·정리 job·세 블록동일 version 트랜잭션·검토본 생성·작성자·관리자의 자기 scope 검토를 구현한다. 선행: T041, T039.
 - [ ] T043 [US3] apps/api/src/modules/summaries/share.ts와 apps/api/src/handlers/share.ts에 POST share의 draft/inputVersion·현행 권한·검증 ready·idempotencyKey 검사와 recordPublishedVersion·publish 로그·status=done 원자 저장을 구현하고 자동 공유하지 않는다. 선행: T042, T038, T031.
-- [ ] T044 [US3] apps/api/src/modules/alerts/service.ts와 apps/api/src/handlers/alerts.ts에 시드 관찰·처방과 정리 결과 medDetails·처방의 필드별 코드 비교(schemas.md 5장)·두 full 근거·edit_note(새 revision 저장 후 재비교)/reupload(안내만)/confirm_hospital·"status=open/awaiting_confirmation/resolved"를 구현하고 병원 확인 예정은 resolved로 바꾸지 않는다. 기대값: fixtures/expected/alerts.json. 선행: T038.
+- [X] T044 [US3] apps/api/src/modules/alerts/service.ts와 apps/api/src/handlers/alerts.ts에 시드 관찰·처방과 정리 결과 medDetails·처방의 필드별 코드 비교(schemas.md 5장)·두 full 근거·edit_note(새 revision 저장 후 재비교)/reupload(안내만)/confirm_hospital·"status=open/awaiting_confirmation/resolved"를 구현하고 병원 확인 예정은 resolved로 바꾸지 않는다. 기대값: fixtures/expected/alerts.json. 선행: T038.
 - [ ] T045 [US3] apps/web/src/features/visit/VisitPage.tsx와 apps/web/src/features/visit/ReviewPage.tsx에 업로드·메모·job진행/실패/fixture표시·자기 허용 블록 검토·공유하기·blocked 안내를 구현한다. 선행: T043, T039.
 - [ ] T046 [US3] apps/web/src/features/alerts/AlertsPage.tsx에 환자·A의 full 불일치·원문·처리 내역을 표시하고 companion에는 상세 화면·개수를 제공하지 않는다. 선행: T044.
 - [ ] T047 [US3] tests/e2e/review-share.spec.ts에 B의 정리 → 공유 전 A의 신규 정리 비공개·C의 기존 일정 유지 → 공유 확정 → 허용 블록, A의 불일치·혼입 blocked 우회 실패·재정리 시 기존 공유본 보존·실패·중복 재시도를 검증한다. 선행: T045, T046.
