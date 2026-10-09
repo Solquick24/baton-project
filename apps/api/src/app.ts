@@ -18,6 +18,7 @@ import { registerSources } from './handlers/sources.js';
 import { previsitHandlers } from './ai/pipelines/index.js';
 import { FixtureLLM, FixtureTranscription } from './adapters/ai/fixture.js';
 import { BedrockLLM } from './adapters/ai/bedrock.js';
+import { OpenAILLM } from './adapters/ai/openai.js';
 import { validatedLLM, type LLMProvider, type TranscriptionProvider } from './adapters/ai/providers.js';
 
 declare module 'fastify' {
@@ -41,7 +42,9 @@ export async function buildApp(options: { config?: AppConfig; logger?: boolean; 
   await app.register(multipart, { limits: { files: 1, fileSize: 20 * 1024 * 1024 } });
   const db = options.db ?? openDatabase(config.sqlitePath);
   const fixture = new FixtureLLM(config.fixturesDir);
-  const live = !options.llm && config.llmMode === 'live' ? new BedrockLLM(config.bedrockModelId) : null;
+  const live = !options.llm && config.llmMode === 'live'
+    ? config.llmProvider === 'openai' ? new OpenAILLM(config.openaiApiKey, config.openaiModel) : new BedrockLLM(config.bedrockModelId)
+    : null;
   const llm = options.llm ?? validatedLLM(live ?? fixture, live && config.liveFallbackToFixture ? fixture : undefined);
   // Live STT adapter belongs to T039; never silently claim it is available.
   const stt = options.stt ?? (config.sttMode === 'fixture' ? new FixtureTranscription(config.fixturesDir) : { async transcribe() { throw new Error('Live 전사는 T039 구현이 필요해요.'); } });

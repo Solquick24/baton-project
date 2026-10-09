@@ -40,7 +40,7 @@
 
 헌장 원칙 I~V > spec.md > schemas.md·screens.md·seed-story.md > plan.md·data-model.md·api.md > tasks.md > 최종 기획안.
 
-- 헌장의 '기본 기술 방향'(Cognito·Lambda·DynamoDB·S3)은 이번 데모에서 plan.md의 승인 예외(로컬 Fastify·SQLite·시드 JWT, AI만 AWS)로 대체됐다. 그 부분은 plan.md를 따른다.
+- 헌장의 '기본 기술 방향'(Cognito·Lambda·DynamoDB·S3)은 이번 데모에서 로컬 Fastify·SQLite·시드 JWT의 사용자 승인 예외로 대체됐다. 이후 2026-10-09 사용자가 텍스트 생성은 OpenAI API로 변경하기로 명시 결정했다. 이전 plan.md의 'AI만 AWS' 방향에서 텍스트에 한정한 추가 예외이며 [변경 근거·검증](docs/openai-provider-checkpoint.md)과 docs/decisions.md를 따른다. STT는 변경하지 않는다.
 - 확정되지 않은 사항을 결정의 근거로 사용하지 않는다.
 - 문서끼리 맞지 않거나 문서에 없는 결정이 필요하면 **더 좁게 공개하는 쪽**(정보가 덜 나가는 쪽)을 고르고, `docs/decisions.md` 맨 아래 '구현 중 결정' 표에 한 줄을 남긴다. 명세 파일 자체는 고치지 않는다.
 
@@ -57,7 +57,7 @@
 
 ## 5. 절대 규칙(위반하면 완료가 아니다)
 
-1. **배포·AWS 자원 생성 금지.** SAM·CDK·Amplify·CloudFormation·새 버킷·IAM 변경을 하지 않는다. AWS는 Bedrock·Transcribe 호출과 기존 staging 버킷 사용만.
+1. **배포·AWS 자원 생성 금지.** SAM·CDK·Amplify·CloudFormation·새 버킷·IAM 변경을 하지 않는다. 텍스트는 사용자 결정에 따라 OpenAI Responses를 기본 provider로 선택하고 Bedrock 선택지도 보존한다. AWS 사용은 Bedrock·Transcribe 호출과 기존 staging 버킷 범위만.
 2. **가상 자료만.** 실존 인물·병원·약·질환을 만들지 않는다. 모든 화면에 `가상 데이터` 배지.
 3. **조회·범위 변경에서 AI 호출 0회.** GET 경로와 PUT scope는 저장된 블록만 고른다.
 4. **허용 블록만 SELECT.** 범위→kind 표(`ALLOWED_KINDS`)는 `apps/api/src/auth/block-policy.ts` 한 곳. 전체를 읽고 키를 지우는 방식 금지. 응답에 금지 블록 **키 자체가 없어야** 한다.
@@ -108,6 +108,7 @@
 `apps/api/.env.example`·`apps/web/.env.example`에 이름과 기본값이 있다. 상대 경로는 **apps/api 폴더 기준**으로 해석한다(`config.ts`가 `import.meta.url`로 계산). 핵심 값:
 
 - `LLM_MODE`·`STT_MODE` = `fixture`(기본) | `live`. 테스트는 항상 fixture.
+- `LLM_PROVIDER=openai`(기본) | `bedrock`는 live 텍스트 provider 선택이다. `OPENAI_API_KEY`·`OPENAI_MODEL`은 백엔드 전용이며 OpenAI live에서 필수다. 기본 시연 fixture는 키 없이 동작한다. 실제 연결 확인은 fallback=false로 별도 수행하며 설정만으로 성공이라 보고하지 않는다.
 - `LIVE_FALLBACK_TO_FIXTURE=true`면 live 호출이 실패할 때 같은 입력의 fixture를 쓰고 `mode='fixture'`로 저장·표시한다.
 - `DEMO_TODAY=2026-03-12` — 서버의 '오늘'(다음 진료 판단). 로그 시각은 실제 시각.
 - `ENABLE_TEST_ENDPOINTS=true`일 때만 `GET /api/__test/ai-calls`(provider 호출 횟수)를 등록한다. e2e에서만 켠다.

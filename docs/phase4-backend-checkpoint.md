@@ -23,12 +23,12 @@ T030~T032의 백엔드 구현·API 직접 검증은 완료했다. T033~T036의 �
 | 구현 전 신규 API 테스트 | 2파일, **22 실패 / 7 통과**. 실패 원인은 미등록 경로의 404 응답 |
 | 구현 후 신규 API 테스트 | 2파일, 최종 전체 실행에 포함된 **31 통과 / 0 실패** |
 | `npm run typecheck` | API·web·contracts·도구 타입 검사 통과 |
-| `npm run test` | **14파일, 150 통과 / 0 실패**, 기존 Phase 3 포함 |
+| `npm run test` | 최신 devlop의 OpenAI provider 통합 후 **15파일, 185 통과 / 0 실패**, 기존 Phase 3와 신규 권한 31건 포함 |
 | `npm run build` | 타입 검사·Vite 빌드 통과 |
 | 범위 변경 3회 + 각 범위 GET 10회 | 같은 JWT로 다음 조회에 schedule/full/companion 즉시 반영. 허용 kind SQL과 `Object.keys`로 금지 키 부재 확인. LLM/STT 호출 **0회** |
 | 원문 권한·파일 검사 | full 원본 바이트, companion/일정만/비구성원 거부, 현재 권한 철회, 환자·진료 소속, 내부 경로 비노출, 경로 탈출·링크 거부 통과 |
 
-게시 승인 후 최신 `origin/devlop b3fa963`를 기준으로 `npm run test`와 `npm run build`(전체 `npm run typecheck` 포함)를 재실행했다. 동일하게 14파일·150건 통과/0실패이며 타입 검사와 빌드도 통과했다.
+게시 승인 후 `origin/devlop b3fa963`를 기준으로 `npm run test`와 `npm run build`(전체 `npm run typecheck` 포함)를 재실행해 14파일·150건 통과/0실패를 확인했다. PR #30 생성 중 OpenAI provider PR #27이 devlop에 병합돼 최신 `5b4fd9c`를 추가 통합했다. README·API README·결정 기록의 충돌은 양쪽 내용을 보존해 해결했다. provider·설정·테스트와 app.ts의 선택 로직을 보존한 최종 통합 검증은 **15파일·185건 통과/0실패**, 전체 타입 검사·빌드 통과다.
 
 테스트는 fixture·메모리 SQLite와 자체 생성한 임시 가상 파일을 사용했다. 원문 테스트 파일은 종료 후 지웠고 개발 DB·업로드를 열거나 수정하지 않았다. 테스트 setup에서 AWS SDK send를 차단했다. **실제 AWS 호출·자원 생성·IAM 변경·배포는 하지 않았다.** 초기 기본 sandbox 실행은 Vite의 Windows 자식 프로세스 `spawn EPERM`으로 시작하지 못했고, 허용된 실행 환경에서 다시 실행해 위 결과를 얻었다.
 
