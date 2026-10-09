@@ -8,7 +8,7 @@ description: "최종 기획안 기반 로컬 MVP 구현 작업"
 **Created**: 2026-10-09
 **Prerequisites**: plan.md·spec.md와 현재 사용자 결정: 로컬 서버·SQLite·시드 로그인, AI만 AWS, 검토 후 공유.
 **Tests**: 명세 SC와 헌장이 요구하는 권한·근거·저장 블록·공유·E2E 검증을 포함한다. 기능 코드는 아직 없다.
-**Organization**: 사용자 이야기별 독립 시연·검증 단위로 나눈다. Phase 1(T001–T007) 실행 기반을 구현·검증했다. 이후 작업은 미수행이다.
+**Organization**: 사용자 이야기별 독립 시연·검증 단위로 나눈다. Phase 1(T001–T007)과 T008–T019 백엔드 기반을 구현·검증했다(T010 부분 구현). T020·이후 작업은 미수행이다.
 
 ## 해커톤 실행 범위 (2026-10-09 보완)
 
@@ -73,18 +73,20 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 
 **Independent Test / Checkpoint**: 4계정 로그인, 금지 kind 미조회, 원문·위임 권한 거부, 내부 생성 입력과 외부 조회 경로 분리 검증.
 
-- [ ] T008 [P] packages/contracts/src/core.ts와 packages/contracts/src/blocks.ts에 "role=patient/lead/guardian", "scope=schedule/companion/full", "kind=schedule/companion/full", "mode=live/fixture" 및 meta·id/needsCheck·full sourceRefs의 엄격한 런타임 스키마를 정의한다. FE 연동 보완은 schemas.md 8·8.1장(record-input, draft 버전, canResolve, blocked·멱등·오류)을 포함한다.
-- [ ] T009 [P] apps/api/src/adapters/sqlite/schema.sql과 apps/api/src/adapters/sqlite/database.ts에 data-model.md의 users/patients/members/hospitals/visits/block_sets/visit_blocks/questions/notes/transcripts/prescriptions/observations/alerts/jobs/share_logs/uploads 구조·외래키·UNIQUE(visitId,section,version)·UNIQUE(blockSetId,kind)·바인딩·트랜잭션을 구현한다.
+백엔드만 검증한 결과와 T020 인수인계는 [backend-foundation-checkpoint.md](../../docs/backend-foundation-checkpoint.md)에 기록했다. T010은 기본 시드·해시·불일치 생성까지 검증했으나 --pregenerate의 T023·T024 의존성이 없어 미완료다. T020 제외로 Phase 2 전체 완료가 아니다.
+
+- [X] T008 [P] packages/contracts/src/core.ts와 packages/contracts/src/blocks.ts에 "role=patient/lead/guardian", "scope=schedule/companion/full", "kind=schedule/companion/full", "mode=live/fixture" 및 meta·id/needsCheck·full sourceRefs의 엄격한 런타임 스키마를 정의한다. FE 연동 보완은 schemas.md 8·8.1장(record-input, draft 버전, canResolve, blocked·멱등·오류)을 포함한다.
+- [X] T009 [P] apps/api/src/adapters/sqlite/schema.sql과 apps/api/src/adapters/sqlite/database.ts에 data-model.md의 users/patients/members/hospitals/visits/block_sets/visit_blocks/questions/notes/transcripts/prescriptions/observations/alerts/jobs/share_logs/uploads 구조·외래키·UNIQUE(visitId,section,version)·UNIQUE(blockSetId,kind)·바인딩·트랜잭션을 구현한다.
 - [ ] T010 scripts/seed.ts에 이미 작성된 fixtures/seed/*.json(accounts·patient·hospital·visits·records·questions·observations·prescriptions)을 읽어 DB를 다시 만들고, demoPassword를 scrypt 해시로만 저장하고, alerts 코드 비교를 실행해 fixtures/expected/alerts.json과 같은 Alert를 만든다. `--pregenerate`는 fixture provider로 v_im_03 질문 통합·브리핑을 생성한다. 테스트용 `seedDatabase(db, opts)` 함수로도 export한다. 선행: T009, T008.
-- [ ] T011 [P] apps/api/tests/auth.test.ts에 JWT 변조·만료·issuer/audience·비구성원·위임false·현재 관계 재조회·scope 토큰 고정 금지 테스트를 먼저 작성한다.
-- [ ] T012 [P] apps/api/tests/block-policy.test.ts에 scope→kind 합집합·미정full 기본·금지 블록 미조회·응답 키 부재·일반 가족 scope 비노출·외부/내부repository 분리 테스트를 먼저 작성한다.
-- [ ] T013 apps/api/src/auth/session.ts와 apps/api/src/handlers/auth.ts에 시드 passwordHash 검증·서명 JWT·POST /auth/login을 구현하고 유저 식별만 토큰 인증 문맥으로 신뢰한다. 선행: T011, T010.
-- [ ] T014 apps/api/src/auth/permissions.ts와 apps/api/src/auth/block-policy.ts에 매 요청 active/role/scope/위임 검사, 행동 권한과 블록 조회 권한 분리, 기본거부를 구현한다. 선행: T008, T011, T012.
-- [ ] T015 apps/api/src/adapters/sqlite/visit-repository.ts와 apps/api/src/shared/response-assembler.ts에 허용 kind만 SELECT·화이트리스트 조립·draft/publishedVersion 선택을 구현한다. 전체 payload 읽기 후 삭제는 쓰지 않는다. 선행: T009, T014.
-- [ ] T016 apps/api/src/adapters/sqlite/generation-repository.ts에 patientId/dept/생성목적 검사와 비공개 메모 제외를 구현하고 일반 가족 조회에서는 이 원본 경로를 사용하지 않는다. 선행: T009, T014.
-- [ ] T017 apps/api/src/shared/errors.ts와 apps/api/src/shared/logger.ts에 401/403/404/400/409/502 계약·requestId·안전한 오류를 구현하고 원문·토큰·내부경로·다른scope 개수를 노출하지 않는다. 선행: T008.
-- [ ] T018 apps/api/src/adapters/ai/providers.ts, apps/api/src/adapters/ai/bedrock.ts, apps/api/src/adapters/ai/fixture.ts에 공통 LLMProvider·live/fixture 출처·모델 tool input 수집·서버 스키마 검사·최대1회 재시도를 구현한다. structured output 보장을 단정하지 않는다. fixture provider는 fixtures/expected/manifest.json 규칙(whenNoteIncludes·failOnAttempts)으로 응답을 고른다. 선행: T008, T017.
-- [ ] T019 apps/api/src/modules/jobs/service.ts, apps/api/src/workers/runner.ts와 apps/api/src/handlers/jobs.ts에 "status=queued/running/succeeded/failed"·attempt·버전별중복·재시작running→failed·안전한resultVersion 조회를 구현한다. 선행: T009, T014, T017.
+- [X] T011 [P] apps/api/tests/auth.test.ts에 JWT 변조·만료·issuer/audience·비구성원·위임false·현재 관계 재조회·scope 토큰 고정 금지 테스트를 먼저 작성한다.
+- [X] T012 [P] apps/api/tests/block-policy.test.ts에 scope→kind 합집합·미정full 기본·금지 블록 미조회·응답 키 부재·일반 가족 scope 비노출·외부/내부repository 분리 테스트를 먼저 작성한다.
+- [X] T013 apps/api/src/auth/session.ts와 apps/api/src/handlers/auth.ts에 시드 passwordHash 검증·서명 JWT·POST /auth/login을 구현하고 유저 식별만 토큰 인증 문맥으로 신뢰한다. 선행: T011, T010.
+- [X] T014 apps/api/src/auth/permissions.ts와 apps/api/src/auth/block-policy.ts에 매 요청 active/role/scope/위임 검사, 행동 권한과 블록 조회 권한 분리, 기본거부를 구현한다. 선행: T008, T011, T012.
+- [X] T015 apps/api/src/adapters/sqlite/visit-repository.ts와 apps/api/src/shared/response-assembler.ts에 허용 kind만 SELECT·화이트리스트 조립·draft/publishedVersion 선택을 구현한다. 전체 payload 읽기 후 삭제는 쓰지 않는다. 선행: T009, T014.
+- [X] T016 apps/api/src/adapters/sqlite/generation-repository.ts에 patientId/dept/생성목적 검사와 비공개 메모 제외를 구현하고 일반 가족 조회에서는 이 원본 경로를 사용하지 않는다. 선행: T009, T014.
+- [X] T017 apps/api/src/shared/errors.ts와 apps/api/src/shared/logger.ts에 401/403/404/400/409/502 계약·requestId·안전한 오류를 구현하고 원문·토큰·내부경로·다른scope 개수를 노출하지 않는다. 선행: T008.
+- [X] T018 apps/api/src/adapters/ai/providers.ts, apps/api/src/adapters/ai/bedrock.ts, apps/api/src/adapters/ai/fixture.ts에 공통 LLMProvider·live/fixture 출처·모델 tool input 수집·서버 스키마 검사·최대1회 재시도를 구현한다. structured output 보장을 단정하지 않는다. fixture provider는 fixtures/expected/manifest.json 규칙(whenNoteIncludes·failOnAttempts)으로 응답을 고른다. 선행: T008, T017.
+- [X] T019 apps/api/src/modules/jobs/service.ts, apps/api/src/workers/runner.ts와 apps/api/src/handlers/jobs.ts에 "status=queued/running/succeeded/failed"·attempt·버전별중복·재시작running→failed·안전한resultVersion 조회를 구현한다. 선행: T009, T014, T017.
 - [ ] T020 apps/web/src/lib/api.ts와 apps/web/src/app/session.tsx에 JWT 연결·401 처리·환자별 캐시·로그아웃·범위변경 시 캐시 제거를 구현하고 브라우저 scope로 서버 권한을 결정하지 않는다. 선행: T013, T008, T002.
 
 ## Phase 3: User Story 1 - 진료 맥락 이어받기 (Priority: P1)
