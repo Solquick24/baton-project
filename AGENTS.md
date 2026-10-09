@@ -5,7 +5,7 @@
 ## 1. 지금 상태와 목표
 
 - 바통은 가족이 번갈아 진료에 동행해도 맥락이 끊기지 않게 하는 모바일 웹 MVP다. **해커톤 당일(약 5시간·4명) 로컬 시연용**이다.
-- Phase 1(T001–T007)을 재사용하고 T008–T019 백엔드·공통 기반을 구현했다(T010은 기본 시드만, --pregenerate 미완료). 실제 API는 health·로그인·jobs 조회이며 웹은 기존 시작 화면이다. T020과 사용자 기능은 미구현이다. 결과와 인수인계는 docs/backend-foundation-checkpoint.md를 읽는다. Phase 2 전체 완료는 아니다.
+- Phase 1(T001–T007), T008–T019 백엔드·공통 기반과 Phase 3 백엔드 T021–T025를 구현했다. T010의 --pregenerate도 fixture provider와 질문·브리핑 파이프라인으로 검증했다. 실제 API는 health·로그인·jobs·환자 목록·홈·타임라인·진료 조회·질문 등록/통합·브리핑 생성/조회다. 프론트의 기존 화면 시연은 개발용 응답을 사용하며 T020·T026–T029 실제 통합 검증과 후속 진료 기능은 미완료다. Phase 2·3 전체 완료가 아니다. docs/phase3-backend-checkpoint.md, docs/backend-foundation-checkpoint.md와 docs/frontend-plan.md를 함께 확인한다.
 - 목표: `specs/001-baton-mvp/tasks.md`의 **Tier A 작업**을 끝내 두 시연 경로(이어받기·범위 변경)를 로컬에서 2회 연속 완주하는 것.
 
 ## 2. 읽는 순서
@@ -76,6 +76,8 @@
 
 ### 실행 명령(T005에서 만든다)
 
+프론트 개발용 모드는 `npm run dev:preview`, 실제 API 프록시는 `npm run dev:web`이다. 프론트 검사는 `typecheck:web`·`build:web`·`test:web`으로 실행한다. `npm run dev`는 기존 API·웹 동시 실행을 유지한다.
+
 | 명령 | 내용 |
 |---|---|
 | `npm run dev` | concurrently로 API(`tsx watch apps/api/src/server.ts`, :3001)와 web(Vite, :5173) 동시 실행 |
@@ -115,7 +117,8 @@
 
 ## 9. 작업 방식
 
-- 새 작업은 GitHub 이슈를 만들고 최신 `origin/devlop`에서 이슈별 작업 브랜치로 진행한다. 작업 브랜치를 push한 뒤 `devlop` 대상으로 PR을 만들고 리뷰·검증 후 병합한다. `main` 반영은 검증한 `devlop → main` PR로 한다. 세부 순서는 [브랜치 작업 방식](docs/branch-workflow.md)을 따른다.
+- 사용자는 이 프로젝트의 FE 리드다. 프론트 계획·공통 UI·접근성·API 연결과 리뷰 기준을 이 역할에 맞춰 정리한다.
+- 새 작업은 GitHub 이슈를 만들고 최신 `origin/devlop`에서 이슈별 작업 브랜치를 생성해 진행한다. 작업 브랜치를 원격에 push하고 `devlop` 대상으로 PR을 만든 뒤 리뷰·검증 후 병합한다. `main` 반영은 검증한 `devlop → main` PR로 한다. 세부 순서는 [브랜치 작업 방식](docs/branch-workflow.md)을 따른다.
 - 코드·문서·환경 설정 변경에 같은 흐름을 적용한다. 실제 `.env`·인증 정보는 5장 10번에 따라 로컬에 두고, 공유할 환경 설정은 `.env.example`에 반영한다.
 - Phase 순서대로 진행하고 Phase 체크포인트(tasks.md 각 Phase의 Independent Test)를 통과하면 그 작업을 `- [X]`로 표시한다. 통과 못 한 작업은 체크하지 않는다.
 - Phase가 끝날 때마다 `npm run typecheck`와 `npm run test`를 돌리고 커밋한다. 메시지는 팀이 확정한 [커밋 컨벤션](docs/commit-convention.md)을 따른다(예: `Feat: 동행 범위의 저장된 브리핑 조회 추가`).

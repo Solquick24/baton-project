@@ -1,5 +1,7 @@
 # 백엔드·공통 기반 체크포인트 — T008~T019
 
+이 문서는 당시의 검증 기록이다. 이후 T010의 --pregenerate와 실제 질문·브리핑·조회 API는 [Phase 3 백엔드 체크포인트](phase3-backend-checkpoint.md)에서 구현·검증했다.
+
 2026-10-09. 사용자 요청 범위는 T008~T019이며 T020·apps/web·T021 이후·Tier C는 제외했다.
 시작 브랜치는 `codex/phase1-setup`, 미커밋 변경은 없었다. 기존 브랜치와 로컬 main 커밋을 보존하고 `devlop`을 `3343ea1`로 fast-forward했다. PR #4의 Phase 1 구현이 이미 병합되어 그대로 재사용했다.
 최종 원격 확인에서 PR #6의 문서·FE 계약 변경 `1343afe`를 발견했다. 구현을 `81b862a`로 먼저 보존한 뒤 최신 devlop을 병합하고 변경된 계약에 맞춰 재검증했다. tasks.md 충돌은 검증한 완료 상태와 원격 T008 추가 조건을 함께 보존했다. 원격 UI 문서만 반영했으며 apps/web 구현은 변경하지 않았다.
@@ -76,3 +78,15 @@ RecordView는 view로 구분한다. published에는 blocks/mode/version/view만 
 백엔드 내부에서는 `readVisit(db,userId,patientId,visitId,view)`가 현행 권한을 다시 확인하고 strict VisitView를 반환한다. `loadGenerationInput`은 외부 응답용으로 사용하지 않는다. 후속 routes는 `authenticate`·`requireMembership`·행동 정책을 적용해야 한다.
 
 검증 뒤 개발·E2E 서버는 종료했다. 커밋은 팀 형식 `Feat: …`으로 로컬 devlop에 기록하고 이 체크포인트에서 멈춘다.
+
+
+## PR #11 충돌 해결 후 통합 검증 — 2026-10-09
+
+작업 브랜치 `codex/9-backend-foundation`에 최신 `origin/devlop`의 `6f92b51`(프론트 PR #8)을 병합했다. AGENTS.md·README.md는 백엔드 실제 API와 프론트 개발용 시연 범위를 함께 기술했다. 프론트 코드·실행 명령·테스트는 보존하고 공통 index의 중복 DTO는 Zod 추론 타입의 호환 별칭으로 정리했다.
+
+- `npm run build`: API/web/contracts·도구 타입 검사와 Vite 빌드 통과.
+- `npm run test`: 7개 파일, 82 통과 / 0 실패. fixture·메모리 SQLite.
+- `npm run test:e2e`: 실제 API health·프록시·새 로그인 화면 경로 1 통과 / 0 실패.
+- `npm run test:web`: 프론트 개발용 응답 시나리오 14 통과 / 0 실패. 첫 시도는 샌드박스의 5173 포트 제한(EPERM)으로 서버 시작이 차단됐으며 승인된 환경에서 재실행해 통과했다.
+
+실제 AWS 호출은 하지 않았다. 프론트 시연 통과는 T020 전체 API 통합이나 후속 진료 기능 완성을 뜻하지 않는다. T010 사전 생성과 기존 미완료 의존성은 그대로 남긴다.

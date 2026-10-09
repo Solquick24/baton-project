@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "typecheck": "tsc --noEmit"
+    "dev": "vite --host 127.0.0.1",
+    "dev:preview": "vite --mode preview --host 127.0.0.1",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
+    "build": "npm run typecheck && vite build"
   },
   "dependencies": {
     "@baton/contracts": "0.0.0",

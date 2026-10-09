@@ -1,4 +1,4 @@
-import { briefingBlocksSchema, questionsBlocksSchema, recordBlocksSchema, sectionSchema, type Section } from '@baton/contracts';
+import { alertRefSchema, medFactSchema, briefingBlocksSchema, questionsBlocksSchema, recordBlocksSchema, sectionSchema, type Section } from '@baton/contracts';
 import type { BatonDatabase } from './database.js';
 import { requireMembership, assertAction } from '../../auth/permissions.js';
 import { ApiError } from '../../shared/errors.js';
@@ -38,7 +38,35 @@ export function loadGenerationInput(db: BatonDatabase, userId: string, patientId
   const records = past.map((p) => ({ visitId: p.id, version: p.recordPublishedVersion, blocks: readInternalSet(db, patientId, p.id, 'record', p.recordPublishedVersion) }));
   const alerts = db.prepare(`SELECT a.id,a.visitId,a."references",a.differences,a.summary,a.status FROM alerts a JOIN visits v ON v.id=a.visitId AND v.patientId=a.patientId
     WHERE a.patientId=? AND a.dept=? AND v.dept=? AND v.date<=? AND a.status<>'resolved'`).all(patientId, v.dept, v.dept, v.date) as Array<{ id: string; visitId: string; references: string; differences: string; summary: string; status: string }>;
-  const safeAlerts = alerts.map((a) => ({ ...a, references: JSON.parse(a.references), differences: JSON.parse(a.differences) }));
+  // Alert JSON is not a source of truth for patient/dept/date or quoted text.
+  // Check each reference against the already scoped source before giving it to AI.
+  const safeAlerts = alerts.flatMap((a) => {
+    let valid = true;
+    const references = (JSON.parse(a.references) as unknown[]).map((raw) => {
+      const ref = alertRefSchema.parse(raw);
+      let text: string | undefined, facts: unknown[] = [];
+      if (ref.type === 'observation') {
+        const source = db.prepare(`SELECT o.text,o.fact FROM observations o WHERE o.id=? AND o.patientId=? AND o.dept=? AND o.date<=?
+          AND NOT EXISTS (SELECT 1 FROM observations n WHERE n.supersedesId=o.id AND n.patientId=o.patientId AND n.date<=?)`).get(ref.id, patientId, v.dept, v.date, v.date) as { text: string; fact: string | null } | undefined;
+        text = source?.text; facts = source?.fact ? [JSON.parse(source.fact)] : [];
+      } else if (ref.type === 'prescription') {
+        const source = db.prepare(`SELECT p.text,p.items FROM prescriptions p JOIN visits x ON x.id=p.visitId AND x.patientId=p.patientId
+          WHERE p.id=? AND p.patientId=? AND x.dept=? AND x.date<? AND x.recordPublishedVersion IS NOT NULL`).get(ref.id, patientId, v.dept, v.date) as { text: string; items: string } | undefined;
+        text = source?.text; facts = source ? JSON.parse(source.items) : [];
+      } else {
+        const source = records.find((r) => r.visitId === ref.visitId && r.version === ref.version);
+        const blocks = source ? recordBlocksSchema.parse(source.blocks) : undefined;
+        const detail = blocks?.full.medDetails.find((d) => d.medChangeId === ref.itemId);
+        if (detail) {
+          const { medChangeId: _, ...fact } = detail; facts = [fact];
+          text = blocks?.full.sourceRefs.find((r) => r.itemId === ref.itemId && r.quote === ref.quote)?.quote ?? undefined;
+        }
+      }
+      if (text === undefined || ref.quote === null || !ref.quote.trim() || !text.includes(ref.quote) || !facts.some((fact) => JSON.stringify(medFactSchema.parse(fact)) === JSON.stringify(ref.fact))) valid = false;
+      return ref;
+    });
+    return valid ? [{ ...a, references, differences: JSON.parse(a.differences) }] : [];
+  });
   if (purpose === 'questions') return { ...common, questions, records, alerts: safeAlerts };
   if (!v.questionsVersion) throw new ApiError('conflict', 'not_ready');
   const observations = db.prepare(`SELECT o.id,o.text,o.fact,o.date FROM observations o WHERE o.patientId=? AND o.dept=? AND o.date<=?

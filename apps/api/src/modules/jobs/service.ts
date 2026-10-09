@@ -6,7 +6,7 @@ import { allowedKinds } from '../../auth/block-policy.js';
 import { ApiError } from '../../shared/errors.js';
 
 export type StoredJob = Job & { patientId: string; requestedBy: string; inputVersion: number; uploadId: string | null };
-export type JobCompletion = { mode: Mode; resultVersion: number | null; resultState: 'ready' | 'blocked' | null };
+export type JobCompletion = { mode: Mode; resultVersion: number | null; resultState: 'ready' | 'blocked' | null; persist?: () => void };
 const sectionFor = { merge_questions: 'questions', briefing: 'briefing', structure: 'record' } as const;
 export class JobsService {
   constructor(readonly db: BatonDatabase) {}
@@ -71,6 +71,8 @@ export class JobsService {
   complete(job: StoredJob, result: JobCompletion) {
     this.db.transaction(() => {
       assertAction(requireMembership(this.db, job.requestedBy, job.patientId), job.kind === 'transcribe' ? 'upload_audio' : 'generate');
+      if (job.kind !== 'transcribe') this.assertCurrentInput(job);
+      result.persist?.(); // Validated result, pointer and job completion share this transaction.
       if (job.kind === 'transcribe') {
         // T039 worker must store the transcript and advance inputVersion once, atomically.
         this.assertCurrentInput({ ...job, inputVersion: job.inputVersion + 1 });
