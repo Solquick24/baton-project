@@ -1,6 +1,6 @@
 # 바통 FE API 연동 기준
 
-FE 리드와 BE 담당자가 화면 구현 전에 사용할 요청·응답과 예외 처리 기준이다. 사용자 진행 요청에 따라 입력 버전 조회·행동 권한·보류 결과·HTTP 예외를 API 계약에 반영했다(이슈 #5). API handler와 공유 계약 코드는 아직 없으며 실제 BE 담당자의 리뷰는 별도로 필요하다.
+FE 리드와 BE 담당자가 화면 구현 전에 사용할 요청·응답과 예외 처리 기준이다. 사용자 진행 요청에 따라 입력 버전 조회·행동 권한·보류 결과·HTTP 예외를 API 계약에 반영했다(이슈 #5). Phase 1의 health handler·공유 health 스키마는 있으나 진료 API handler와 공유 진료 계약은 아직 없으며 실제 BE 담당자의 리뷰는 별도로 필요하다.
 
 기존 기준은 [API 경로와 권한](../specs/001-baton-mvp/contracts/api.md), [정확한 본문 스키마](../specs/001-baton-mvp/contracts/schemas.md), [화면 정의](../specs/001-baton-mvp/screens.md)다. 아래 호출 규칙과 보완 계약은 그 내용을 FE 관점으로 연결한다. 파일 구조는 FE 구현 제안이며 외부 응답의 기준은 schemas.md다. 이번 범위는 Tier A와 병원 안내 Tier B다.
 
@@ -14,7 +14,7 @@ FE 리드와 BE 담당자가 화면 구현 전에 사용할 요청·응답과 �
 | 입력 버전 읽기 | record-input과 draft.inputVersion·stale 반영 | 전사 후 조회, 검토본과 현재 입력의 충돌 확인 |
 | 화면 행동 권한 | canManageScopes·shareable·canUploadAudio·canResolve 정의 | 서버 응답으로 관리·공유·업로드·불일치 처리 버튼 제어 |
 | HTTP 성공·오류 계약 | 200·201·202와 413·415·500 본문 반영 | 공통 클라이언트와 mock 구현 기준 |
-| 실행 가능한 계약 | Zod 코드·OpenAPI·handler 없음 | 문서 기준으로 분리 작업 가능, 실서버 연동 검증은 아직 불가 |
+| 실행 가능한 진료 계약 | health만 구현, 진료 Zod·OpenAPI·handler 없음 | 문서 기준으로 분리 작업 가능, 실서버 연동 검증은 아직 불가 |
 
 schemas.md 자체도 팀 검토 전 기본안이다. 경로가 있다는 이유로 구현 완료 또는 팀 합의 완료로 취급하지 않는다.
 

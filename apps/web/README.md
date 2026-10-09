@@ -1,7 +1,7 @@
 # Web workspace
 
-React + TypeScript + Vite로 구현할 모바일 우선 웹앱의 자리다.
-현재 소스·HTML 진입점·Vite 설정·런타임 의존성은 없고 기능이 동작하지 않는다.
+Phase 1의 React·Vite 시작 화면·라우터·API 프록시가 구현됐다.
+`npm run dev --workspace @baton/web`로 실행한다. `/`·`/login`은 준비 안내만 표시하며, 실제 로그인·환자 기능은 아직 없다. `/api`는 localhost API로 전달한다. 기본 포트는 5173(API 3001), e2e는 5174(API 3101)다.
 
 - `src/app`: 라우팅·인증 상태·공통 레이아웃·전역 접근성 설정.
 - `src/features`: 로그인·홈·질문·브리핑·진료·타임라인·확인 항목·설정별 코드.

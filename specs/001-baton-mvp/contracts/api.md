@@ -1,6 +1,6 @@
 # API Contract: 로컬 서버·등급별 블록·검토 후 공유
 
-아직 경로·스키마·handler는 구현하지 않았다. Fastify 로컬 API와 공유 Zod 계약을 계획한다.
+Phase 1의 /api/health는 구현됐고, 아래 진료 경로·스키마·handler는 아직 구현하지 않았다. Fastify 로컬 API와 공유 Zod 계약을 계획한다.
 **요청·응답 본문의 정확한 형태는 [schemas.md](schemas.md)가 기준이다.** 이 문서는 경로·권한 요약이다.
 
 ## Authentication and response rules
