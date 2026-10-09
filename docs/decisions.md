@@ -103,3 +103,4 @@ Phase 1 체크포인트 결과와 범위는 [phase1-checkpoint.md](phase1-checkp
 | 2026-10-09 | T041 | 질문·브리핑의 기존 검증을 보존하고 record 항목 관계·근거 identity/quote·복약량/시점·일정/검사 값 앵커를 추가. 질문 자체만으로 답변의 근거를 인정하지 않음 | 명세의 문자열 휴리스틱을 구현하며 재서술·자유 문장의 의미/의료 정확성을 완전히 보장한다고 주장하지 않음. fixture/live 주입 응답 모두 같은 저장 전 검사 |
 | 2026-10-09 | T044·홈 비공개 | 미공유 record alert는 ready 검토본의 full 검토 권한자만 읽고 일반 가족 full의 목록/홈 건수에서도 제외. 기존 공개본 또는 publish 로그가 있는 결과는 조회 가능 | 미공유 정리의 원문/복약 내용이 불일치 API나 개수로 먼저 공개되지 않도록 더 좁은 규칙 선택. 낮은 범위는 목록·개수·상세 없음 |
 | 2026-10-09 | T044·seed | 기존 시드의 dose/timing 비교를 공통 순수 함수로 이동해 ready 정리 비교에도 사용. edit_note는 관찰 새 revision 저장 후 재비교, 과거 블록 불변. confirm_hospital=awaiting_confirmation, reupload=open | 두 근거 중 정답을 판단하지 않음. #15 후속 seed 변경과 병합 시 작은 공통 비교 연결 보존. 공유 계약·DB·권한·패키지·fixture JSON·apps/web 변경 없음 |
+| 2026-10-09 | 제출 전 최신 지침 | PR #20 병합 뒤 origin/devlop b3fa963을 d8482be로 반영하고 새 앱별 AGENTS.md 확인 | 기존 변경을 커밋으로 보존. 추가 변경은 문서뿐이며 T031/T032 구현은 여전히 없음. 기능 코드 불변으로 통과한 검사를 반복 실행하지 않음 |
