@@ -7,6 +7,7 @@
 .env.*
 !.env.example
 samconfig.toml
+infra/local-ai.outputs.json
 
 # Local SQLite database and uploaded files
 apps/api/data/

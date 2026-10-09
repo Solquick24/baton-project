@@ -115,6 +115,7 @@
 ## 9. 작업 방식
 
 - 새 작업·커밋·push는 `devlop`에서 진행하고, 검증한 변경을 `main`에 병합한다. 세부 순서는 [브랜치 작업 방식](docs/branch-workflow.md)을 따른다.
+- 코드·문서·환경 설정 변경에 같은 흐름을 적용한다. 실제 `.env`·인증 정보는 5장 10번에 따라 로컬에 두고, 공유할 환경 설정은 `.env.example`에 반영한다.
 - Phase 순서대로 진행하고 Phase 체크포인트(tasks.md 각 Phase의 Independent Test)를 통과하면 그 작업을 `- [X]`로 표시한다. 통과 못 한 작업은 체크하지 않는다.
 - Phase가 끝날 때마다 `npm run typecheck`와 `npm run test`를 돌리고 커밋한다. 메시지는 팀이 확정한 [커밋 컨벤션](docs/commit-convention.md)을 따른다(예: `Feat: 동행 범위의 저장된 브리핑 조회 추가`).
 - 공통 계약(`packages/contracts`)·`schema.sql`·루트 `package.json`/lockfile 변경은 한 번에 한 작업자만. 병렬 작업 중이면 먼저 merge한다.

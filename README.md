@@ -2,7 +2,7 @@
 
 가족이 번갈아 동행해도 진료 맥락이 끊기지 않도록 진료 전·중·후 기록을 이어주는 프로젝트다.
 
-현재는 **기획·명세·설계·설정 뼈대와 가상 시드·AI 응답 자료 준비** 단계다. 앱·API·AI 기능·테스트·AWS 자원은 아직 구현하지 않았다.
+현재는 **기획·명세·설계·설정 뼈대와 가상 시드·AI 응답 자료 준비** 단계다. 앱·API·AI 기능·테스트는 아직 구현하지 않았다. AWS AI 환경의 준비·검증 결과는 [AWS 준비 기록](docs/aws-setup.md)에 정리했다.
 
 ## 문서
 
@@ -18,6 +18,7 @@
 - [구현 에이전트 안내 AGENTS.md](AGENTS.md)
 - [팀 커밋 컨벤션](docs/commit-convention.md)
 - [브랜치 작업 방식: devlop → main](docs/branch-workflow.md)
+- [로컬 구성의 AWS AI 준비·검증 결과](docs/aws-setup.md)
 - [계약 스키마](specs/001-baton-mvp/contracts/schemas.md) · [화면 정의](specs/001-baton-mvp/screens.md) · [시드 스토리](specs/001-baton-mvp/seed-story.md)
 - [샘플 데이터셋 v2.1 연결·검증·다음 단계](docs/dataset-integration.md)
 - [MVP 명세](specs/001-baton-mvp/spec.md)
@@ -81,7 +82,7 @@ Codex는 루트의 `AGENTS.md`를 먼저 읽는다. 작업 범위(Tier A만)·�
 $speckit-implement AGENTS.md 4장의 Tier A만 수행한다. Phase 1(Setup)부터 순서대로 하고, 각 Phase 체크포인트를 통과하면 멈추고 결과를 보고한다. Tier C(T052–T064)는 하지 않는다.
 ```
 
-4명이 나눠 작업할 때는 Phase 2(Foundation)의 T008·T009·T010을 한 사람이 먼저 끝내 main에 올린 뒤, plan.md의 분담(프론트·API/DB/인증·AI/검증·시드/데모)대로 각자 Codex에 해당 작업 ID만 지시한다.
+4명이 나눠 작업할 때는 Phase 2(Foundation)의 T008·T009·T010을 한 사람이 먼저 `devlop`에서 끝내 검증한 뒤 `main`에 병합하고, plan.md의 분담(프론트·API/DB/인증·AI/검증·시드/데모)대로 각자 Codex에 해당 작업 ID만 지시한다.
 AWS 자격 증명·실제 `.env`·실제 배포 설정은 Git에 포함하지 않는다.
 브라우저의 `VITE_*` 변수에는 공개 가능한 식별자만 넣는다.
 데모에는 가상 환자·음성·문서만 사용한다.
