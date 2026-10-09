@@ -2,9 +2,10 @@
 
 가족이 번갈아 동행해도 진료 맥락이 끊기지 않도록 진료 전·중·후 기록을 이어주는 프로젝트다.
 
-현재는 **Phase 1(T001–T007) 실행 기반 구현 완료** 단계다. 웹 시작 화면·로컬 API health·환경 설정·빌드·테스트 도구가 실행된다. 로그인·환자 DB·진료 기능·AI provider는 아직 구현하지 않았다. Phase 1에서는 AWS 자원을 생성하지 않았다. 앞선 AWS 환경 준비·검증 결과는 [AWS 준비 기록](docs/aws-setup.md)에 정리했다.
+현재는 **Phase 1과 백엔드·공통 기반(T008–T019, T010 부분 구현)** 단계다. SQLite·기본 시드·JWT 로그인·현재 권한 검사·블록 repository·provider 스키마 검증·jobs 기반을 구현했다. 웹은 기존 시작 화면이며 T020 및 진료 기능은 아직 없다. 이 구현에서는 AWS 자원 생성·IAM 변경·배포를 하지 않았다. 앞선 AWS 환경 준비·검증 결과는 [AWS 준비 기록](docs/aws-setup.md)에 정리했다.
 
 - [Phase 1 체크포인트와 실제 검증 결과](docs/phase1-checkpoint.md)
+- [백엔드 기반 체크포인트와 T020 인수인계](docs/backend-foundation-checkpoint.md)
 
 ## 문서
 
@@ -71,14 +72,15 @@ npx playwright install chromium  # 최초 1회
 npm run test:e2e
 ```
 
-`npm run seed`는 Phase 2(T009·T010) 전에는 오류로 종료하고 DB를 변경하지 않는다.
+`npm run seed`는 설정된 로컬 DB의 기본 가상 시드를 트랜잭션으로 다시 만든다. 로그인 API를 쓰려면 먼저 실행한다.
+`--pregenerate`는 T023·T024 의존성이 미구현이므로 DB 변경 전에 exit 1로 중단한다(T010 미완료).
 `npm run check:ai`는 별도 수동 실행 명령이며 Bedrock 연결 확인 호출 1회와 Transcribe 목록·기존 S3 버킷 접근을 검사한다. 검사 실패는 종료 코드 1로 보고한다.
 최종 구성은 로컬 서버·SQLite·시드 로그인, AI만 AWS 사용이다. 배포는 하지 않는다.
 정리 결과는 검토 후 공유하기로 확정하며 원문·인용은 full에만 제공한다.
 
 ## 다음 구현 단계
 
-Phase 1 체크포인트에서 멈춘 상태다. 다음 구현은 `tasks.md`의 Phase 2(T008–T020, Foundation)다.
+백엔드 기반 체크포인트에서 멈춘 상태다. 프론트 T020은 별도 담당이며 T010의 pregenerate는 T023·T024 구현 뒤 연결해야 한다. Phase 2 전체 완료는 아니다.
 Tier A(T001–T049)를 먼저 수행하고 Tier B와 마지막 결과 기록을 이어간다.
 선택 2단계·화면만인 Tier C(T052–T064)는 사람이 명시적으로 요청할 때만 진행한다.
 새 checkout에서는 다음 값을 지정해 Spec Kit가 main에서도 feature를 찾게 한다.

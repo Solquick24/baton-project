@@ -72,3 +72,13 @@ Codex가 추측하지 않고 바로 구현할 수 있도록 문서에 없던 결
 | 2026-10-09 | T007 | baton 계정의 서울 anthropic.claude-sonnet-5 연결 확인 요청 2회 모두 AccessDeniedException. Transcribe ListTranscriptionJobs와 기존 baton-transcribe-staging-201240241312-apne2 HeadBucket 성공. 기본 LLM/STT fixture 유지 | 최종 접근 결과는 references/phase1-ai-access.json. IAM 변경·자원 생성·업로드·전사 작업 생성 없음. 실제 음성이 없어 STT 변환은 미검증. Bedrock tool use·출력 검증도 성공으로 계산하지 않음 |
 
 Phase 1 체크포인트 결과와 범위는 [phase1-checkpoint.md](phase1-checkpoint.md)에 기록했다.
+
+| 날짜 | 작업 | 결정 | 이유 |
+|---|---|---|---|
+| 2026-10-09 | T008–T019 범위 | 최신 devlop 3343ea1에서 기존 Phase 1 재사용. T020/apps/web·T021 이후·Tier C는 제외 | 사용자 명시 범위, Phase 2 전체 완료로 보고하지 않음 |
+| 2026-10-09 | T010·T013 | 기본 시드/해시/불일치 생성만 구현. --pregenerate는 DB 열기 전 거부하며 T010 미완료 유지. 로그인은 검증된 기본 계정 시드를 사용 | T023·T024 생성 파이프라인은 범위 밖. fixture를 직접 주입한 가짜 생성 성공을 금지하고 로그인에 필요한 선행만 검증 |
+| 2026-10-09 | T015·T016 | 공개 handler 대신 테스트 전용 /probe HTTP 경로에서 실제 인증·블록 repository·생성 input/provider spy를 검사. 내부 생성은 목적별 원본과 같은 과의 이전 공유 기록만 사용 | T025/T031/T032를 선행 구현하지 않으면서 API 권한·금지 kind 미조회·진료과/비공개 입력 격리를 확인 |
+| 2026-10-09 | T017 | 예상 밖 500 오류는 고정 6종 계약의 upstream_error와 일반 안내 사용. requestId는 서버 생성, 로그는 method/status/requestId만 | 계약에 internal 오류 코드가 없음. 원문/경로/토큰/범위 상세를 노출하지 않고 계약을 유지 |
+| 2026-10-09 | T018 | fixture/live 동일 strict 스키마와 1회 스키마 재시도, failOnAttempts는 job attempt 기준. provider는 저장/공유하지 않으며 의미 안전성은 미완료 T041에 의존 | T041을 범위 밖에서 구현하거나 혼입 fixture를 스키마 통과만으로 ready 처리하지 않음. Bedrock 실제 접근 실패는 그대로 기록 |
+| 2026-10-09 | T019 | handler와 실제 결과가 없는 job은 failed/internal. 완료 전에 현재 입력·권한과 실제 저장 version을 확인. 다른 companion의 중복 jobId 재사용은 404 | 미구현 파이프라인의 허위 완료 방지, jobs 조회 규칙과 현행 권한 준수. 후속 전사 worker는 입력 버전 1회 증가 필요 |
+| 2026-10-09 | T006 재사용·호환 확인 | 기존 Playwright의 DB를 메모리로 설정하고 기존 웹 코드는 그대로 검사 | 사용자 요청의 테스트 fixture·메모리 SQLite 조건 충족, T020 제외. 상세는 backend-foundation-checkpoint.md |
