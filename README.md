@@ -113,7 +113,18 @@ export SPECIFY_FEATURE_DIRECTORY=specs/001-baton-mvp
 
 ### Codex로 구현 시작하기
 
-Codex는 루트의 `AGENTS.md`를 먼저 읽는다. 작업 범위(Tier A만)·고정 버전·절대 규칙이 거기 있다.
+프론트는 `apps/web`, 백엔드는 `apps/api`에서 Codex를 열어 작업한다. 공통 계약·루트 설정·여러 앱의 통합 작업은 저장소 루트에서 시작한다.
+
+| 시작 위치 | 적용할 지침 |
+|---|---|
+| `apps/web` | [공통 AGENTS.md](AGENTS.md) + [프론트 AGENTS.md](apps/web/AGENTS.md) |
+| `apps/api` | [공통 AGENTS.md](AGENTS.md) + [백엔드 AGENTS.md](apps/api/AGENTS.md) |
+| 저장소 루트 | [공통 AGENTS.md](AGENTS.md) + 변경하는 앱의 지침 |
+
+CLI를 사용한다면 저장소 루트에서 `codex --cd apps/web` 또는 `codex --cd apps/api`로 시작할 수 있다. IDE에서는 해당 앱 폴더를 작업 폴더로 열어 시작한다.
+하위 폴더에서 시작해도 공통 지침을 함께 따른다. 작업 범위·고정 버전·절대 규칙·이슈/브랜치 절차는 루트에, 담당 범위·UI/API 기준·검증 명령은 앱별 파일에 있다.
+앱 폴더에서 공통 명령은 `npm --prefix ../.. run typecheck`처럼 실행한다. 앱별 `npm run dev`는 해당 앱만 실행하며 루트 `npm run dev`는 API·웹을 함께 실행한다. 시작 폴더와 관계없이 공통 파일 변경은 한 작업자씩 통합한다.
+
 `$speckit-implement`는 기본값이 "tasks.md 전부"라서, 범위를 같이 넘긴다. 예:
 
 ```
