@@ -14,7 +14,7 @@ export function Card({ children, className = '', testid }: { children: ReactNode
 
 export function Check({ yes }: { yes: boolean }) { return yes ? <span className="badge warning">! 확인 필요</span> : null; }
 
-export function Saved({ mode }: { mode: Mode }) { return <span className="badge">{mode === 'fixture' ? '저장된 결과' : '실시간 AI'}</span>; }
+export function Saved({ mode }: { mode: Mode }) { return <span className="badge" data-mode={mode}>{mode === 'fixture' ? '저장된 대체 결과' : '실제 AI 생성 결과'}</span>; }
 
 export function Sources({ refs, itemId, testid }: { refs: SourceRef[]; itemId: string; testid?: string }) {
   const matching = refs.filter(ref => ref.itemId === itemId);

@@ -136,3 +136,19 @@ Phase 1 체크포인트 결과와 범위는 [phase1-checkpoint.md](phase1-checkp
 
 | 2026-10-09 | #32 후속 PR·병합 승인 | 사용자가 devlop 대상 PR 생성·병합을 명시 요청. c231943 보존 후 최신 devlop de8b924를 c787a55로 병합, 문서 충돌은 최신 통합 결과·기존 T020/AI 설명 기록을 함께 보존 | 제품 코드·테스트 변경 없음. 최초 커밋 체크포인트 제한은 후속 승인으로 해제하며 main PR #35 병합·외부 AI 실제 호출은 범위에 포함하지 않음 |
 | 2026-10-09 | Phase 3 실제 OpenAI 연결·#37 | 사용자 요청으로 .env의 LLM_MODE=live·fallback=false, STT는 fixture 유지. 실제 질문 통합·브리핑의 job/응답/DB live·ready와 Chrome 표시 확인. 모델에 원 질문 참조·유일한 출력 ID·참조 대상을 명시하고 기존 sourceCatalog를 그대로 전달 | 초기 실제 생성은 검증 실패로 보존. 검증기·권한·스키마는 완화하지 않음. 초기 d525f2d 검증 후 게시 승인, 이슈 #37·fix/37-live-previsit-integration 생성. 최신 devlop 8318aab의 PR #36 API 통합과 T020 세션을 보존. 기록은 docs/phase3-live-checkpoint.md, 병합은 별도 리뷰 단계 |
+
+
+| 날짜 | 작업 | 결정 | 이유·한계 |
+|---|---|---|---|
+| 2026-10-09 | #39 범위·작업 보존 | clean feat/32-api-integration을 보존하고 origin/devlop 8318aab에서 feat/39-final-validation 생성. 열린 PR #38의 OpenAI 변경은 병합하지 않음. 검증 후 로컬 커밋·이슈 기록만 수행 | 사용자 이번 승인에서 push/PR/병합 제외. Tier C 미구현 유지. 다른 CLI의 작업 범위를 임의 추정하지 않음 |
+| 2026-10-09 | T048~T051 | 기존 표시 설정을 지정 경로로 분리하고 전역 적용 유지. 긴 textarea 높이 자동 증가·스크롤 여백 보강. 병원 기존 DTO/DB/시드를 인증 GET과 정적 SVG 화면으로 연결 | 새로운 계약·DB·패키지 없이 390px 최대 글씨/고대비의 실제 API 화면 검사. OS 브라우저 재시작/보조기기 전체 검사와 구분 |
+| 2026-10-09 | T065 축소 평가 | validation 4건 state/issues·alert 1건 exact match, 정확 문자열 누출 전1/4→blocked 비공개 후0/4를 실제 실행해 기록. 별도 재서술 도전은 탐지0/1(actual ready) 실패 기록 | 문자열/근거 앵커 검사가 재서술·의료 의미를 보장하지 않음을 관찰. 실패 도전을 gold4 분모에 섞거나 축소평가를 20장/OpenAI 품질로 확대하지 않음 |
+| 2026-10-09 | T066 복구·모드 | 임시 파일 DB를 close/reopen한 buildApp 제품 API로 running 실패·attempt2·중복 방지 검증. 브라우저 실패 UI는 테스트 진입점의 중단 경계로 재현. Saved fixture 표시는 저장된 대체 결과로 명시 | 브라우저 모의를 OS 프로세스 재시작으로 보고하지 않음. 사용자 서버 종료 없음. 외부 호출 차단·fixture/LIVE_FALLBACK_TO_FIXTURE=false 유지 |
+| 2026-10-09 | T067 반복 시연 | 매회 새 격리 시드에서 이어받기(B→C→A)와 환자 범위 변경 경로를 각각 2회 연속 실제 API/브라우저로 실행, 초기 상태·순서·시간·카운터 JSON 기록 | 자동화 DOM 확인 시간은 사람의 30초 이해도가 아님. STT 가상 바이트/준비 전사는 실제 음성 인식 정확도 측정이 아님 |
+| 2026-10-09 | 사용자 OpenAI 확인의 출처 | 사용자가 check-openai.ts 단일 성공 provider=openai/model=gpt-4.1-mini-2025-04-14/mode=live/state=ready/persisted=false를 확인했다고 보고 | 에이전트 재실행·전체 기능 live 저장/공유·AWS 전사 성공과 구분. 키를 읽거나 출력하지 않음 |
+| 2026-10-09 | #39 데이터 격리 | E2E 3314/5314·메모리 DB·mkdtemp 업로드, preview5313, .env 미로딩·키/모델 비우기·외부 fetch 차단. 사용자3001/5173 보존 | 기존 개발 DB/업로드를 seed/reset/정리 대상으로 사용하지 않음. 공통 계약·루트 package/lockfile·fixture 원본 불변 |
+| 2026-10-09 | #39 추가 진료 흐름 지시 | T067/T068 체크를 보류하고 diff/새파일+stash로 보존 후 새 devlop4079dec(PR38)를 반영. decisions 충돌은 양쪽 유지 | 사용자 추가 지시는 기존 목표의 우선순위 조정. 원래 #39 범위/게시 금지 유지 |
+| 2026-10-09 | 메모·반복 갱신 | focus 재조회 때 Routes 제거와 record-input 로딩 교체를 제거. 사용자 입력/체크는 유지하고 서버 응답은 기존 revision 보안 경계에서 제거. 권한 철회는 로컬 폼도 지움 | idle6.6초 반복 호출 없음/탭 복귀 입력 유실을 수정 전 재현. HMR/권한 재조회/명시적 job 폴링을 구분 |
+| 2026-10-09 | 메모→정리→검토/공유 | 메모 저장 상태·내용 유지, 로컬 횟수 문구 삭제. 정리 직전 권한/버전 GET, 성공 job와 draft의 버전/stale 확인 후 이동. 공유 뒤 기록 확인 링크 | 같은 성공 job 재사용도 정확한 검토본 확인. 미저장 메모는 먼저 저장하며 자동 공유/검증 완화 없음 |
+| 2026-10-09 | record OpenAI·진단 | PR38 sourceCatalog를 record에도 적용, ID/인용·medChangeId/questionId/alertId 규칙 명시. 오류는 서버 고정 stage 코드만 로그 | 개발 DB readonly 집계의 validation_failed3건은 과거 단계 정보가 없어 원인 소급 확정 불가. live 성공 메타데이터1건도 이번 실제 재검증으로 세지 않음. 실제 호출 없이 mock 검증 |
+| 2026-10-09 | #39 최종 검증·종료 | 추가 진료 흐름 안정화 뒤 API260/실제 API E2E37/preview14·타입/빌드 통과, 두 경로 각2회 재완주 후 T067/T068 완료 | T065 축소판만 수행, 원래20장·별도 재서술 실패·Tier C·실제 record 재호출/실제 STT·사람 이해도 미검증 유지. 로컬 커밋/이슈 기록 후 push·PR·병합 없이 중지 |

@@ -1,0 +1,22 @@
+import { expect, test } from '@playwright/test';
+import { auth, login, reset, visit } from './helpers';
+test.beforeEach(async ({request})=>reset(request,false));
+test('interrupted job fails visibly, retains safe inputs and retries with fixture mode without duplicate generation', async ({page,request})=>{
+  await login(page,'b');await page.getByTestId('questions-link').click();
+  expect((await request.post('/api/__test/pause-jobs')).status()).toBe(200);
+  const started=page.waitForResponse(r=>r.url().endsWith('/questions/merge') && r.request().method()==='POST');
+  await page.getByTestId('merge-button').click();const first=(await (await started).json()).jobId;
+  await expect(page.getByTestId('job-status')).toBeVisible();
+  const headers=await auth(request,'b');
+  const duplicate=await request.post(`${visit}/questions/merge`,{headers,data:{inputVersion:3}});expect((await duplicate.json()).jobId).toBe(first);
+  expect((await request.post('/api/__test/interrupt-job')).status()).toBe(200);
+  await expect(page.getByRole('alert')).toContainText('다시 시도');
+  await expect(page.locator('[data-testid^=merged-question-]')).toHaveCount(0);
+  const retry=page.waitForResponse(r=>r.url().endsWith('/questions/merge') && r.request().method()==='POST');
+  await page.getByTestId('merge-button').click();const next=(await (await retry).json()).jobId;expect(next).not.toBe(first);
+  await expect(page.locator('[data-testid^=merged-question-]')).toHaveCount(3);
+  const completed=(await (await request.get(`/api/jobs/${next}`,{headers})).json());expect(completed).toMatchObject({attempt:2,status:'succeeded',mode:'fixture'});
+  await expect(page.locator('main')).toContainText('저장된 대체 결과');
+  expect((await (await request.post(`${visit}/questions/merge`,{headers,data:{inputVersion:3}})).json()).jobId).toBe(next);
+  expect((await (await request.get('/api/__test/ai-calls')).json()).llm).toBe(1);
+});

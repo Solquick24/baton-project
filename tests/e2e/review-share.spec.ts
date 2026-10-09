@@ -62,8 +62,8 @@ test('failed structure retains inputs, offers retry and succeeds without uploadi
   await login(page, 'b'); await page.getByTestId('record-link').click();
   await page.getByTestId('audio-input').setInputFiles({ name: 'virtual.wav', mimeType: 'audio/wav', buffer: Buffer.from('RIFF virtual audio only') });
   await page.getByTestId('transcribe-button').click(); await expect(page.getByTestId('transcribe-result')).toContainText('변환 완료');
-  await page.getByTestId('note-input').fill('실패 시연'); await page.getByTestId('note-save').click(); await expect(page.getByRole('status')).toContainText('저장됨');
-  await page.getByTestId('structure-button').click(); await expect(page.getByRole('alert')).toContainText('정리하지 못했어요');
+  await page.getByTestId('note-input').fill('실패 시연'); await page.getByTestId('note-save').click(); await expect(page.getByTestId('note-message')).toContainText('저장했어요');
+  await page.getByTestId('structure-button').click(); await expect(page.getByRole('alert')).toContainText('AI 연결에 실패했어요');
   await page.getByTestId('structure-button').click(); await expect(page).toHaveURL(/review$/); await expect(page.getByTestId('share-button')).toBeEnabled();
 });
 

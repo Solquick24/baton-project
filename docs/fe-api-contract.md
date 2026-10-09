@@ -189,3 +189,17 @@ edit_note는 observation_vs_prescription에서만 제공한다. record_vs_prescr
 mock은 AI 원본 fixture를 그대로 응답하지 않는다. 원본 fixture에는 세 블록과 근거가 들어 있어 낮은 범위 응답으로 사용할 수 없다. [시드 기대값](../specs/001-baton-mvp/seed-story.md)의 B·C 응답처럼 허용된 키만 가진 외부 응답을 만든다. schedule은 full=null이 아니라 full 키 자체가 없어야 한다.
 
 연동 검증은 B 브리핑의 변경 2개·질문 3개, C의 질문·브리핑 404, 일반 보호자 members 403, 공유 전 draft 비공개, blocked 공유 409, GET 10회·범위 변경 3회 중 AI 호출 증가 0회를 기준으로 한다. 계약 문서 보완은 T008 또는 실제 구현·테스트 작업의 완료를 의미하지 않는다.
+
+
+## #39 정적 병원·표시 설정 인수인계
+
+`GET /api/hospitals/:hid`는 Bearer 인증 후 기존 `hospitalResponseSchema` 그대로 `id/name/address/phone/mapImage/floorImage/guideSteps/experiences/notice`를 반환한다. 미인증 401·알 수 없는 id 404이며 AI를 호출하지 않는다. 시드 h_01의 정적 자료이며 환자/진료 민감 자료가 없다. `/hospitals/h_01`은 주소 복사·가상 전화·위치/원내 SVG·안내 5단계·참고 경험 3개를 표시한다. 홈과 브리핑의 실제 hospitalId에서 진입한다. 외부 지도 SDK·계산 경로·경험 작성은 없다.
+
+화면 설정은 `baton.display` localStorage의 font(normal/large/extra-large)·contrast에 저장하고 전체 문서에 적용한다. 계정/로그아웃과 독립적인 브라우저 표시 설정이다. 저장 실패/잘못된 값에도 기본 설정으로 실행한다. fixture 저장 응답은 `저장된 대체 결과`, live 저장 응답은 `실제 AI 생성 결과`로 구분한다. 실제 검증 범위/미검증은 [최종 체크포인트](final-validation-checkpoint.md)를 따른다.
+
+
+### #39 진료 입력 흐름 보강
+
+메모 저장은 기존 POST notes의 `{noteId,recordInputVersion}` 응답을 사용한다. 화면은 저장 내용/체크를 유지하고 저장 횟수를 총 메모 수로 표시하지 않는다. 미저장 변경은 먼저 저장한다. 정리 클릭에서 GET record-input으로 현재 권한/버전을 다시 확인하고 POST structure→GET jobs의 결과 버전→GET visit?view=draft의 동일 버전/inputVersion/stale를 확인한 뒤 검토로 간다. 성공 job 재사용에도 이 순서를 적용한다. 공유 확인 후 기존 POST share의 버전/UUID 계약을 지키며 성공 시 타임라인 링크를 제공한다.
+
+오류 안내는 stale_input=입력 변경, ai_unavailable=AI 연결 실패, validation_failed=AI 응답 검증 실패로 구분한다. 상세 진단은 서버의 고정 stage 코드 로그에만 있고 공개 API/계약에는 추가하지 않았다. focus 재조회는 서버 응답을 버리되 같은 계정/경로의 입력 폼 자체를 제거하지 않는다. 계정/환자/진료 변경 및 현재 권한 철회에서는 이전 입력을 제거한다. 실제 OpenAI record 재호출 성공은 이번 검증 범위가 아니다.

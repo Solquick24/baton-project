@@ -12,8 +12,13 @@ export interface RawLLMProvider { mode: Mode; generateRaw(request: LLMRequest): 
 export type TranscriptionRequest = { patientId: string; visitId: string; attempt: number; jobId?: string; uploadId?: string;
   audio?: { stream: Readable; mediaType: string; size: number } };
 export interface TranscriptionProvider { transcribe(input: TranscriptionRequest): Promise<{ mode: Mode; segments: Transcript['segments'] }> }
+export const failureStages = ['response_format', 'response_incomplete', 'response_refusal', 'provider_transport', 'output_schema', 'source_identity', 'source_quote', 'item_reference', 'input_context', 'medication_identity', 'storage_schema', 'unknown'] as const;
+export type FailureStage = typeof failureStages[number];
 export class ProviderError extends Error {
-  constructor(readonly code: JobError) { super('AI 처리를 완료하지 못했어요.'); }
+  constructor(readonly code: JobError, readonly stage: FailureStage = 'unknown') { super('AI 처리를 완료하지 못했어요.'); }
+}
+export function safeFailureStage(error: unknown): FailureStage {
+  return error instanceof ProviderError && failureStages.includes(error.stage) ? error.stage : 'unknown';
 }
 
 /** Same strict server schema and at most one schema retry for BOTH live and fixtures.
@@ -23,12 +28,14 @@ export function validatedLLM(primary: RawLLMProvider, fallback?: RawLLMProvider)
   async function generateWith(provider: RawLLMProvider, request: LLMRequest): Promise<LLMResult> {
     const schema = generatedSchemas[request.input.purpose];
     if (!schema || !Number.isInteger(request.attempt) || request.attempt < 1) throw new ProviderError('validation_failed');
+    let stage: FailureStage = 'output_schema';
     for (let retry = 0; retry < 2; retry++) {
       const raw = await provider.generateRaw(request);
+      stage = raw === undefined ? 'response_format' : 'output_schema';
       const parsed = schema.safeParse(raw);
       if (parsed.success) return { section: request.input.purpose, mode: provider.mode, blocks: parsed.data };
     }
-    throw new ProviderError('validation_failed');
+    throw new ProviderError('validation_failed', stage);
   }
   return { async generate(request) {
     try { return await generateWith(primary, request); }

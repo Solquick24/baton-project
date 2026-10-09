@@ -27,7 +27,7 @@ export async function record(page: Page, note?: string) {
   await expect(page.getByTestId('transcribe-button')).toBeEnabled();
   await page.getByTestId('transcribe-button').click();
   await expect(page.getByTestId('transcribe-result')).toContainText('변환 완료');
-  if (note) { await page.getByTestId('note-input').fill(note); await page.getByTestId('note-save').click(); await expect(page.getByRole('status')).toContainText('메모 1개 저장됨'); }
+  if (note) { await page.getByTestId('note-input').fill(note); await page.getByTestId('note-save').click(); await expect(page.getByTestId('note-message')).toContainText('메모를 저장했어요'); }
   await page.getByTestId('structure-button').click();
   await expect(page).toHaveURL(/\/review$/);
 }

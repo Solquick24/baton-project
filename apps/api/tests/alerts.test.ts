@@ -46,3 +46,13 @@ it('keeps a changed but still conflicting observation open; rejects non-owner pa
   expect((await ctx.request('u_b', `${url}/${original.id}/resolve`, 'POST', { action: 'reupload' })).statusCode).toBe(403);
   expect((await ctx.request('u_a', '/api/patients/p_02/alerts')).statusCode).toBe(403);
 });
+it('keeps an awaiting confirmation in the next actual briefing generation input and marks the related change', async () => {
+  const original=await alert();
+  expect((await ctx.request('u_a',`${url}/${original.id}/resolve`,'POST',{action:'confirm_hospital'})).statusCode).toBe(200);
+  const generated=await ctx.briefing();expect(generated.job.json()).toMatchObject({status:'succeeded',mode:'fixture',resultState:'ready'});
+  const inputs=ctx.generate.mock.calls.map(([r])=>r.input as {alerts?:Array<{status:string}>});
+  expect(inputs).toHaveLength(2);expect(inputs.every(i=>i.alerts?.some(a=>a.status==='awaiting_confirmation'))).toBe(true);
+  const briefing=(await ctx.request('u_a',`${ctx.base}/briefing`)).json();
+  expect(briefing.blocks.companion.briefing.changes.find((c:{id:string})=>c.id==='bc_01').needsCheck).toBe(true);
+  expect((await alert()).status).toBe('awaiting_confirmation');
+});

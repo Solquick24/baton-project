@@ -1,13 +1,14 @@
 import type { JobKind } from '@baton/contracts';
 import { JobsService, type JobCompletion, type StoredJob } from '../modules/jobs/service.js';
-import { ProviderError } from '../adapters/ai/providers.js';
+import { ProviderError, safeFailureStage, type FailureStage } from '../adapters/ai/providers.js';
 import { ApiError } from '../shared/errors.js';
 
 export type JobHandlers = Partial<Record<JobKind, (job: StoredJob) => Promise<JobCompletion>>>;
 export class JobRunner {
   private active: Promise<boolean> | null = null;
   private timer: ReturnType<typeof setInterval> | undefined;
-  constructor(readonly service: JobsService, private readonly handlers: JobHandlers = {}) {}
+  constructor(readonly service: JobsService, private readonly handlers: JobHandlers = {},
+    private readonly onFailure?: (event: { event: 'ai_job_failed'; kind: JobKind; code: string; stage: FailureStage }) => void) {}
   async runNext(): Promise<boolean> {
     if (this.active) return false;
     const run = async () => {
@@ -19,7 +20,10 @@ export class JobRunner {
         if (!handler) throw new Error('Pipeline not implemented');
         this.service.complete(job, await handler(job));
       } catch (error) {
-        this.service.fail(job.id, error instanceof ProviderError ? error.code : error instanceof ApiError && error.reason === 'stale_input' ? 'stale_input' : 'internal');
+        const code = error instanceof ProviderError ? error.code : error instanceof ApiError && error.reason === 'stale_input' ? 'stale_input' : 'internal';
+        this.service.fail(job.id, code);
+        // Fixed enums only: no exception, IDs, prompt, quotes, payload, or credentials.
+        this.onFailure?.({ event: 'ai_job_failed', kind: job.kind, code, stage: safeFailureStage(error) });
       }
       return true;
     };

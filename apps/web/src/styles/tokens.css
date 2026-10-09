@@ -1,0 +1,4 @@
+:root { font-family: 'Noto Sans KR', system-ui, sans-serif; font-size: 18px; line-height: 1.45; color: #202833; background: #F5F6F8; --paper:#fff; --ink:#202833; --muted:#59636E; --border:#DDE2E7; --teal:#0F766E; --navy:#203864; --tint:#edf8f6; --warning:#FFF8E6; --line:1px; }
+:root[data-font="large"] { font-size:22px; }
+:root[data-font="extra-large"] { font-size:26px; }
+:root[data-contrast="true"] { color:#000; background:#fff; --paper:#fff; --ink:#000; --muted:#000; --border:#000; --teal:#00695C; --navy:#000; --tint:#fff; --warning:#fff; --line:3px; }

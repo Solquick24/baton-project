@@ -49,7 +49,7 @@ test('real question submission is stored; fixture mismatch fails rather than fak
   await page.getByTestId('question-input').fill('다음 진료 날짜도 다시 확인하고 싶어요.'); await page.getByTestId('question-submit').click();
   await expect(page.getByRole('heading', { name: '가족이 남긴 질문 4개' })).toBeVisible();
   await expect(page.locator('main')).toContainText('새 질문이 있어요'); await expect(page.getByTestId('question-input')).toHaveValue('');
-  await page.getByTestId('merge-button').click(); await expect(page.getByRole('alert')).toContainText('정리하지 못했어요');
+  await page.getByTestId('merge-button').click(); await expect(page.getByRole('alert')).toContainText('AI 응답 검증에 실패했어요');
   const questions = await (await request.get(`${visit}/questions`, { headers: await auth(request, 'b') })).json();
   expect(questions.questionsInputVersion).toBe(4); expect(questions.merged.stale).toBe(true);
 });

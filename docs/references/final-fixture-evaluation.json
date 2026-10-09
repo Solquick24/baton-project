@@ -1,0 +1,93 @@
+{
+  "mode": "fixture",
+  "scope": "T065 reduced validator evaluation",
+  "validation": {
+    "passed": 4,
+    "total": 4,
+    "cases": [
+      {
+        "file": "structure/v_im_03.json",
+        "expectedState": "ready",
+        "actualState": "ready",
+        "issues": [],
+        "matches": true,
+        "beforeLeak": false,
+        "afterLeak": false
+      },
+      {
+        "file": "structure/v_im_03.leak.json",
+        "expectedState": "blocked",
+        "actualState": "blocked",
+        "issues": [
+          {
+            "blockKind": "companion",
+            "itemId": "es_im03_1",
+            "rule": "restricted_value"
+          }
+        ],
+        "matches": true,
+        "beforeLeak": true,
+        "afterLeak": false
+      },
+      {
+        "file": "briefing/v_im_03.json",
+        "expectedState": "ready",
+        "actualState": "ready",
+        "issues": [],
+        "matches": true,
+        "beforeLeak": false,
+        "afterLeak": false
+      },
+      {
+        "file": "merge-questions/v_im_03.json",
+        "expectedState": "ready",
+        "actualState": "ready",
+        "issues": [],
+        "matches": true,
+        "beforeLeak": false,
+        "afterLeak": false
+      }
+    ]
+  },
+  "leakage": {
+    "unit": "fixture cases containing restricted exact values in low blocks",
+    "before": {
+      "numerator": 1,
+      "denominator": 4
+    },
+    "after": {
+      "numerator": 0,
+      "denominator": 4
+    },
+    "blockedPositive": {
+      "detected": 1,
+      "total": 1
+    }
+  },
+  "alerts": {
+    "detected": 1,
+    "expected": 1,
+    "exactMatch": true
+  },
+  "seedEvidence": {
+    "covered": 29,
+    "total": 29,
+    "definition": "item sourceRef present or null core value with needsCheck; not semantic entailment"
+  },
+  "separateChallenges": [
+    {
+      "id": "paraphrase-diagnosis",
+      "denominator": 1,
+      "expected": "blocked",
+      "actual": "ready",
+      "passed": false,
+      "limitation": "Known paraphrase leakage is not reliably detected by exact-string/source-anchor rules; excluded from the four golden fixtures."
+    }
+  ],
+  "notPerformed": [
+    "20-document extraction evaluation",
+    "live OpenAI quality/medical accuracy",
+    "real STT accuracy",
+    "document correction rate"
+  ]
+}

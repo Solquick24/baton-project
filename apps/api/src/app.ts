@@ -17,6 +17,7 @@ import { registerAlerts } from './handlers/alerts.js';
 import { registerMembers } from './handlers/members.js';
 import { registerSources } from './handlers/sources.js';
 import { registerRecords } from './handlers/records.js';
+import { registerHospitals } from './handlers/hospitals.js';
 import { generateRecord } from './ai/pipelines/structure.js';
 import { transcribeAudio } from './workers/transcribe.js';
 import { previsitHandlers } from './ai/pipelines/index.js';
@@ -56,7 +57,8 @@ export async function buildApp(options: { config?: AppConfig; logger?: boolean; 
   const stt = options.stt ?? (liveSTT ? transcriptionWithFallback(liveSTT, config.liveFallbackToFixture ? fixtureSTT : undefined) : fixtureSTT);
   const jobs = new JobsService(db);
   const runner = new JobRunner(jobs, { ...previsitHandlers(db, llm), structure: job => generateRecord(db, llm, job),
-    transcribe: job => transcribeAudio(db, stt, config.uploadDir, job), ...options.jobHandlers });
+    transcribe: job => transcribeAudio(db, stt, config.uploadDir, job), ...options.jobHandlers },
+    event => app.log.warn(event, 'AI 작업 실패'));
   jobs.recoverRunning();
   app.decorate('baton', { db, llm, stt, jobs, runner });
   app.addHook('onReady', async () => { runner.start(); });
@@ -72,6 +74,7 @@ export async function buildApp(options: { config?: AppConfig; logger?: boolean; 
   registerMembers(app, db);
   registerSources(app, db, config.uploadDir);
   registerRecords(app, db, jobs, config.uploadDir);
+  registerHospitals(app, db);
   app.get('/api/health', async () => healthResponseSchema.parse({ status: 'ok' }));
   return app;
 }

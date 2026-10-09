@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" role="img" aria-labelledby="title desc">
+<title id="title">한빛가상병원 위치 그림</title><desc id="desc">실제 지도가 아닌 가상 바통로와 병원 위치 표시</desc>
+<rect width="400" height="260" fill="white"/><path d="M0 190H400M100 0V260" stroke="#ddd" stroke-width="36"/>
+<rect x="160" y="45" width="220" height="105" rx="12" fill="#edf8f6" stroke="#000" stroke-width="3"/>
+<text x="270" y="90" text-anchor="middle" font-size="22" fill="#000">한빛가상병원</text><text x="270" y="125" text-anchor="middle" font-size="18" fill="#000">가상 위치 ●</text>
+<text x="230" y="197" font-size="20" fill="#000">바통로</text><text x="160" y="240" font-size="16" fill="#000">가상 그림 · 실제 지도 아님</text></svg>

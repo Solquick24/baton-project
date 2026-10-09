@@ -1,35 +1,31 @@
-import { createContext, useContext, useEffect, useRef, useState, type FormEvent } from 'react';
+import { useContext, useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import type { BriefingRes, HomeRes, LoginRes, MePatientsRes, QuestionsRes, TimelineResponse } from '@baton/contracts';
 import { request, waitForJob } from '../lib/api';
 import { SessionContext as Auth, SessionProvider, useResource } from './session';
 import { Card, Check, Saved, State, Sources, Items, RecordCard, useVisitBase, VisitContext } from '../components/ui';
-import { SharingPage, SharingSettings } from '../features/settings/SharingPage';
+import { SharingPage } from '../features/settings/SharingPage';
 import { VisitPage, ReviewPage } from '../features/visit/VisitPage';
 import { AlertsPage } from '../features/alerts/AlertsPage';
 
-type Display = { font: 'normal' | 'large' | 'extra-large'; contrast: boolean };
-const DisplayContext = createContext<{ value: Display; set: (value: Display) => void }>({ value: { font: 'normal', contrast: false }, set: () => {} });
-function initialDisplay(): Display {
-  try { const v = JSON.parse(localStorage.getItem('baton.display') ?? 'null'); if (v && ['normal', 'large', 'extra-large'].includes(v.font) && typeof v.contrast === 'boolean') return v; } catch { /* defaults */ }
-  return { font: 'normal', contrast: false };
-}
+import { DisplayProvider } from './display-settings';
+import { SettingsPage } from '../features/settings/SettingsPage';
+import { HospitalPage } from '../features/home/HospitalPage';
+
 export function App() {
-  return <SessionProvider><Application /></SessionProvider>;
+  return <DisplayProvider><SessionProvider><Application /></SessionProvider></DisplayProvider>;
 }
 function Application() {
   const { session } = useContext(Auth);
-  const [display, setDisplay] = useState<Display>(initialDisplay);
   const location = useLocation();
-  useEffect(() => { document.documentElement.dataset.font = display.font; document.documentElement.dataset.contrast = String(display.contrast); try { localStorage.setItem('baton.display', JSON.stringify(display)); } catch { /* still usable */ } }, [display]);
   useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
-  return <DisplayContext.Provider value={{ value: display, set: setDisplay }}>
+  return <>
     <a className="skip" href="#main">본문으로 이동</a>
     <Routes>
       <Route path="/login" element={session ? <Navigate to="/" replace /> : <Login />} />
       <Route path="*" element={session ? <Workspace key={session.accessToken} /> : <Navigate to="/login" replace />} />
     </Routes>
-  </DisplayContext.Provider>;
+  </>;
 }
 
 function NavIcon({ kind }: { kind: 'home' | 'timeline' | 'settings' }) {
@@ -71,13 +67,13 @@ function Workspace() {
   const patients = useResource<MePatientsRes>('/me/patients');
   const location = useLocation();
   const pid = /^\/p\/([^/]+)/.exec(location.pathname)?.[1] ?? patients.data?.self.patientId ?? patients.data?.linked[0]?.patientId;
-  const title = location.pathname.endsWith('/questions') ? '가족 질문' : location.pathname.endsWith('/briefing') ? '진료 전 브리핑' : location.pathname.endsWith('/timeline') ? '타임라인' : location.pathname === '/settings' ? '설정' : '진료 동행 노트';
+  const title = location.pathname.endsWith('/questions') ? '가족 질문' : location.pathname.endsWith('/briefing') ? '진료 전 브리핑' : location.pathname.endsWith('/timeline') ? '타임라인' : location.pathname === '/settings' ? '설정' : location.pathname.startsWith('/hospitals/') ? '병원 위치·약도' : '진료 동행 노트';
   return <div className="shell"><header><Link className="wordmark" to={pid ? `/p/${pid}` : '/me'}>바통</Link><span className="badge">가상 데이터</span></header><main id="main">
     <div className="page-heading"><h1>{title}</h1>{title === '진료 전 브리핑' && <span className="badge">30초 읽기</span>}</div>
     {notice && <p role="status" className="warning card">{notice}</p>}
-    {patients.data ? <><div className="chips owners" aria-label="기록 주인"><NavLink to="/me">나</NavLink>{patients.data.linked.map(p => <NavLink key={p.patientId} to={`/p/${p.patientId}`}>{p.name}</NavLink>)}{patients.data.self.patientId && <NavLink to={`/p/${patients.data.self.patientId}`}>내 기록</NavLink>}</div>
-      <Routes key={location.pathname}><Route path="/" element={<Navigate replace to={pid ? `/p/${pid}` : '/me'} />} /><Route path="/me" element={patients.data.self.patientId ? <Navigate replace to={`/p/${patients.data.self.patientId}`} /> : <Card><h2>아직 내 진료 기록이 없어요</h2><p>가족 기록을 선택해 이번 진료를 준비해 보세요.</p>{patients.data.linked.map(p => <Link className="button primary" key={p.patientId} to={`/p/${p.patientId}`}>{p.name} 기록 보기</Link>)}</Card>} />
-      <Route path="/p/:pid" element={<Home />} /><Route path="/p/:pid/timeline" element={<Timeline />} /><Route path="/p/:pid/visits/:vid/questions" element={<Questions />} /><Route path="/p/:pid/visits/:vid/briefing" element={<Briefing />} /><Route path="/settings" element={<Settings pid={pid} />} /><Route path="/p/:pid/sharing/:uid" element={<SharingPage />} /><Route path="/p/:pid/visits/:vid/record" element={<VisitPage />} /><Route path="/p/:pid/visits/:vid/review" element={<ReviewPage />} /><Route path="/p/:pid/alerts" element={<AlertsPage />} /><Route path="/p/:pid/alerts/:aid" element={<AlertsPage />} /><Route path="*" element={<Card><h2>찾을 수 없어요</h2><Link to="/me">홈으로</Link></Card>} /></Routes></> : <State error={patients.error} retry={patients.reload} />}
+    {patients.data ? <div className="chips owners" aria-label="기록 주인"><NavLink to="/me">나</NavLink>{patients.data.linked.map(p => <NavLink key={p.patientId} to={`/p/${p.patientId}`}>{p.name}</NavLink>)}{patients.data.self.patientId && <NavLink to={`/p/${patients.data.self.patientId}`}>내 기록</NavLink>}</div> : <State error={patients.error} retry={patients.reload} />}
+      <Routes key={location.pathname}><Route path="/" element={patients.data ? <Navigate replace to={pid ? `/p/${pid}` : '/me'} /> : <State error={patients.error} retry={patients.reload} />} /><Route path="/me" element={patients.data?.self.patientId ? <Navigate replace to={`/p/${patients.data.self.patientId}`} /> : <Card><h2>아직 내 진료 기록이 없어요</h2><p>가족 기록을 선택해 이번 진료를 준비해 보세요.</p>{patients.data?.linked.map(p => <Link className="button primary" key={p.patientId} to={`/p/${p.patientId}`}>{p.name} 기록 보기</Link>)}</Card>} />
+      <Route path="/p/:pid" element={<Home />} /><Route path="/p/:pid/timeline" element={<Timeline />} /><Route path="/p/:pid/visits/:vid/questions" element={<Questions />} /><Route path="/p/:pid/visits/:vid/briefing" element={<Briefing />} /><Route path="/hospitals/:hid" element={<HospitalPage />} /><Route path="/settings" element={<SettingsPage pid={pid} />} /><Route path="/p/:pid/sharing/:uid" element={<SharingPage />} /><Route path="/p/:pid/visits/:vid/record" element={<VisitPage />} /><Route path="/p/:pid/visits/:vid/review" element={<ReviewPage />} /><Route path="/p/:pid/alerts" element={<AlertsPage />} /><Route path="/p/:pid/alerts/:aid" element={<AlertsPage />} /><Route path="*" element={<Card><h2>찾을 수 없어요</h2><Link to="/me">홈으로</Link></Card>} /></Routes>
   </main><nav className="bottom-nav" aria-label="주요 메뉴"><NavLink end to={pid ? `/p/${pid}` : '/me'}><NavIcon kind="home" /><span>홈</span></NavLink><NavLink to={pid ? `/p/${pid}/timeline` : '/me'}><NavIcon kind="timeline" /><span>타임라인</span></NavLink><NavLink to="/settings"><NavIcon kind="settings" /><span>설정</span></NavLink></nav></div>;
 }
 function DeptChips({ depts, dept, set }: { depts: string[]; dept: string; set: (value: string) => void }) { return <div className="chips depts" aria-label="진료과">{depts.map(d => <button data-testid={`timeline-dept-${d}`} aria-pressed={dept === d} key={d} onClick={() => set(d)}>{d}</button>)}</div>; }
@@ -88,6 +84,7 @@ function Home() {
   const d = r.data; const next = d.nextVisit; const base = `/p/${pid}/visits/${next?.meta.id}`;
   return <div className="stack"><DeptChips depts={d.depts} dept={dept || d.depts[0] || ''} set={setDept} /><h2>{d.patient.name}님의 기록</h2>
     {next ? <Card className="next" testid="next-visit-card"><span className="eyebrow">다음 진료 · {next.meta.dept}</span><h2>{next.meta.date.replaceAll('-', '.')} <span>{next.meta.time}</span></h2><p>{next.meta.hospital.name}<br />이번 동행 · {next.meta.companion?.name ?? '미정'}</p>
+      <Link className="button light" data-testid="hospital-link" to={`/hospitals/${next.meta.hospital.id}`}>병원 위치·약도</Link>
       {'briefingReady' in next && <><Link className="button light" data-testid="briefing-link" to={`${base}/briefing`}>진료 전 브리핑 보기 <span aria-hidden="true">→</span></Link><Link className="button light" data-testid="record-link" to={`${base}/record`}>진료 기록하기</Link></>}</Card> : <Card><p>예정된 진료가 없어요.</p></Card>}
     {typeof d.openAlertCount === 'number' && d.openAlertCount > 0 && <Card className="warning" testid="alert-card"><h2>! 확인이 필요한 기록 {d.openAlertCount}건</h2><Link className="button" data-testid="alerts-link" to={`/p/${pid}/alerts`}>서로 다른 기록 확인하기</Link></Card>}
     {next && typeof next.questionCount === 'number' && <Card><h2>가족이 남긴 질문 {next.questionCount}개</h2><p className="muted">함께 궁금한 내용을 모아 두었어요.</p><Link className="button" data-testid="questions-link" to={`${base}/questions`}>가족 질문 확인하기 →</Link></Card>}
@@ -147,10 +144,10 @@ function Briefing() {
     {d.blocks.companion && <><Card testid="briefing-changes"><h2>바뀐 점</h2>{d.blocks.companion.briefing.changes.map(c => <div className="change" key={c.id} data-testid={`change-${c.id}`}><p>{c.text} <Check yes={c.needsCheck} /></p>{full && <details><summary>이유와 원문 보기</summary>{full.briefing.changeReasons.filter(v => v.changeId === c.id).map(v => <p key={v.id}>{v.text ?? '기록에 없어요'} <Check yes={v.needsCheck} /></p>)}<Sources refs={full.sourceRefs} itemId={c.id} /></details>}</div>)}</Card>
     <Card testid="briefing-questions"><h2>오늘 물어볼 질문</h2><ol className="questions-list">{d.questions.map(q => <li key={q.id}><p>{q.text}</p>{q.addedByAI && <span className="badge">AI가 추가</span>}<Check yes={q.needsCheck} /></li>)}</ol></Card></>}
     {full && <><Card testid="briefing-watch"><h2>지켜볼 증상</h2><Items values={full.briefing.watch} /></Card><Card testid="briefing-tests"><h2>먼저 받을 검사</h2><Items values={full.briefing.tests} /></Card><Card testid="briefing-prep"><h2>준비사항</h2>{full.briefing.prep.map(p => <p key={p.id}><strong>{p.label}</strong><br />{p.text ?? '기록에 없어요'} <Check yes={p.needsCheck} /></p>)}</Card></>}
-    <Link className="button" to={`${base.path}/questions`}>가족 질문 다시 보기</Link><Link className="button primary" data-testid="record-link" to={`${base.path}/record`}>진료 기록 시작</Link>
+    <HospitalLink path={base.api} /><Link className="button" to={`${base.path}/questions`}>가족 질문 다시 보기</Link><Link className="button primary" data-testid="record-link" to={`${base.path}/record`}>진료 기록 시작</Link>
   </div>;
 }
-function Settings({ pid }: { pid: string | undefined }) {
-  const display = useContext(DisplayContext); const { session, setSession } = useContext(Auth);
-  return <div className="stack"><Card><h2>{session?.user.name}님</h2><p className="muted">내 화면 보기 설정</p></Card><Card><fieldset><legend>글씨 크기</legend>{[['normal', '보통'], ['large', '크게'], ['extra-large', '아주 크게']].map(([key, label]) => <label className="choice" key={key}><input data-testid={`font-size-${key}`} type="radio" name="font-size" checked={display.value.font === key} onChange={() => display.set({ ...display.value, font: key as Display['font'] })} />{label}</label>)}</fieldset><label className="choice"><input data-testid="high-contrast" type="checkbox" checked={display.value.contrast} onChange={e => display.set({ ...display.value, contrast: e.target.checked })} />고대비 화면</label></Card><SharingSettings pid={pid} /><Card><button data-testid="logout" onClick={() => setSession(null)}>로그아웃</button></Card></div>;
+function HospitalLink({ path }: { path: string }) {
+  const r = useResource<import('@baton/contracts').VisitView>(path);
+  return r.data ? <Link className="button" data-testid="hospital-link" to={`/hospitals/${r.data.meta.hospital.id}`}>병원 위치·약도 보기</Link> : null;
 }

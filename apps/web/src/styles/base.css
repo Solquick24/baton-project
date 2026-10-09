@@ -1,7 +1,4 @@
-:root { font-family: 'Noto Sans KR', system-ui, sans-serif; font-size: 18px; line-height: 1.45; color: #202833; background: #F5F6F8; --paper:#fff; --ink:#202833; --muted:#59636E; --border:#DDE2E7; --teal:#0F766E; --navy:#203864; --tint:#edf8f6; --warning:#FFF8E6; --line:1px; }
-:root[data-font="large"] { font-size:22px; }
-:root[data-font="extra-large"] { font-size:26px; }
-:root[data-contrast="true"] { color:#000; background:#fff; --paper:#fff; --ink:#000; --muted:#000; --border:#000; --teal:#00695C; --navy:#000; --tint:#fff; --warning:#fff; --line:3px; }
+@import "./tokens.css";
 * { box-sizing:border-box; }
 body { margin:0; }
 button,input,textarea { font:inherit; }
@@ -48,7 +45,7 @@ small,.footnote { display:block; color:var(--muted); font-size:.8rem; }
 .bottom-nav .active { color:var(--teal); background:var(--tint); font-weight:700; }
 label { display:block; font-weight:600; }
 input:not([type="radio"]):not([type="checkbox"]),textarea { width:100%; margin-top:8px; min-height:52px; border:var(--line) solid var(--border); background:var(--paper); color:var(--ink); border-radius:12px; padding:12px; }
-textarea { min-height:110px; resize:vertical; }
+textarea { min-height:110px; field-sizing:content; resize:vertical; }
 fieldset { padding:0; margin:0; border:0; }
 legend { font-weight:700; margin-bottom:8px; }
 .choice { display:flex; gap:12px; align-items:center; min-height:56px; padding:10px 0; cursor:pointer; }
@@ -88,3 +85,16 @@ blockquote { margin:12px 0; padding:10px 14px; border-left:3px solid var(--teal)
 .skip { position:fixed; top:-100px; left:12px; padding:12px; background:var(--paper); z-index:20; }
 .skip:focus { top:12px; }
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; } }
+
+/* Let long labels and file controls reflow at 390px with the largest font. */
+button, input, textarea, .button { min-width:0; max-width:100%; }
+header { flex-wrap:wrap; }
+.hospital-image { display:block; width:100%; height:auto; border:var(--line) solid var(--border); }
+:root[data-contrast="true"] .next,
+:root[data-contrast="true"] .primary,
+:root[data-contrast="true"] .owners .active,
+:root[data-contrast="true"] .depts [aria-pressed="true"] { background:#fff; color:#000; border-color:#000; }
+:root[data-contrast="true"] h2 { text-decoration-color:var(--teal); }
+
+html { scroll-padding-bottom:calc(110px + env(safe-area-inset-bottom)); }
+main button, main a, main input, main textarea, main summary { scroll-margin-block:100px; }

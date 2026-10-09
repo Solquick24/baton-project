@@ -1,6 +1,6 @@
 # Web workspace
 
-React + TypeScript + Vite 모바일 웹이다. 실제 API 연결의 최신 결과는 [통합 체크포인트](../../docs/api-integration-checkpoint.md)에 있다. 루트에서 `npm run dev:preview`를 실행하면 가상 계정으로 로그인·홈·질문·브리핑·타임라인·화면 설정을 확인한다.
+React + TypeScript + Vite 모바일 웹이다. 실제 API 연결과 진료 동행 노트 안정화·접근성·정적 병원·최종 검증은 [최종 체크포인트](../../docs/final-validation-checkpoint.md)에 있다. 루트에서 `npm run dev:preview`를 실행하면 가상 계정으로 로그인·홈·질문·브리핑·타임라인·화면 설정을 확인한다.
 
 - `src/app/App.tsx`: 로그인·홈·질문·브리핑·타임라인·라우팅·기존 화면 보기 설정.
 - `src/features/{settings,visit,alerts}`: 실제 공개 범위·입력/전사·정리/검토/공유·불일치 연결.
@@ -25,3 +25,6 @@ T020 실제 세션·요청 취소·401·로그아웃·환자/진료 전환·탭 
 Playwright는 처음에 `npx playwright install chromium`이 필요하다. 별도 브라우저가 필요한 환경은 `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`로 실행 파일을 지정할 수 있다.
 `.env.example`에는 브라우저에 공개 가능한 식별자만 있다.
 명세: [spec.md](../../specs/001-baton-mvp/spec.md).
+
+
+진료 메모는 저장 중/성공/실패를 구분하고 입력·질문 체크를 유지한다. 미저장 메모 변경이 있으면 저장한 뒤 정리한다. 정리는 최신 입력 버전/성공 job/현재 검토본을 확인한 뒤 검토로 이동하고, 공유 확인 후 타임라인 링크로 이어진다. 탭 복귀의 권한 재조회는 서버 응답을 제거하되 폼 자체를 재마운트하지 않는다. 계정/환자/권한 변경 때 이전 응답/입력 제거 규칙은 유지한다. 진단 stage는 서버에만 있고 실제 OpenAI record 호출은 fixture 브라우저 결과와 구분한다.

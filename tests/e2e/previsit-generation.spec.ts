@@ -18,7 +18,7 @@ test('question merge and briefing buttons generate, poll and display stored fixt
   const mergeId = (await mergeResponse.json()).jobId;
   await expect(page.getByRole('heading', { name: '한눈에 보는 질문' })).toBeVisible();
   await expect(page.locator('[data-testid^="merged-question-"]')).not.toHaveCount(0);
-  await expect(page.getByText('저장된 결과', { exact: true })).toBeVisible();
+  await expect(page.getByText('저장된 대체 결과', { exact: true })).toBeVisible();
   await expect(page.getByTestId('job-status')).toHaveCount(0);
 
   const briefingJob = page.waitForResponse(response => response.url().endsWith('/briefing') && response.request().method() === 'POST');
@@ -29,7 +29,7 @@ test('question merge and briefing buttons generate, poll and display stored fixt
   await expect(page).toHaveURL(/v_im_03\/briefing$/);
   await expect(page.getByTestId('briefing-changes')).toBeVisible();
   await expect(page.getByTestId('briefing-questions').locator('li')).not.toHaveCount(0);
-  await expect(page.getByText('저장된 결과', { exact: true })).toBeVisible();
+  await expect(page.getByText('저장된 대체 결과', { exact: true })).toBeVisible();
   expect(errors).toEqual([]);
 
   const session = await page.evaluate(() => JSON.parse(sessionStorage.getItem('baton.session')!));

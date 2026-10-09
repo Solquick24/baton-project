@@ -11,6 +11,9 @@ infra/local-ai.outputs.json
 
 # Local SQLite database and uploaded files
 apps/api/data/
+*.sqlite
+*.sqlite-*
+uploads/
 
 # Playwright output
 test-results/

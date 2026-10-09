@@ -2,9 +2,12 @@
 
 가족이 번갈아 동행해도 진료 맥락이 끊기지 않도록 진료 전·중·후 기록을 이어주는 프로젝트다.
 
-현재 작업 브랜치에서는 **기존 Phase 3·4·5 백엔드와 프론트의 실제 API 연결**을 검증했다. 로그인·홈·질문 통합·브리핑·범위 관리·진료 입력·정리·검토·공유·불일치 처리를 로컬 API로 사용한다. API 245건, 실제 API 브라우저 25건, 기존 preview 14건과 전체 타입 검사·빌드가 통과했다. OpenAI 키·모델이 없어 실제 외부 호출은 미실시이며 STT는 fixture로 검증했다. T048~T051·Tier C 전체 완료를 뜻하지 않는다. 이슈 #32의 커밋 체크포인트 이후 사용자가 devlop 대상 PR 생성·병합을 요청했다. 실제 반영 단계는 이슈/PR 기록을 확인한다. main 반영은 이번 요청에서 제외한다.
+이슈 #39 작업 브랜치에서 기존 실제 API 연결을 재검증하고 글씨 3단계·고대비·설정 저장, 정적 가상 병원 안내, 복구·반복 시연을 보강했다. 추가 지시에 따라 진료 메모 저장/탭 복귀의 입력 유실을 수정하고 정리 실패 진단·최신 검토본 확인·공유 후 기록 연결을 보완했다. 최신 완료 ID·명령·실측 수치·실패 사례는 [최종 체크포인트](docs/final-validation-checkpoint.md)를 따른다. T065는 준비된 validation 4건/alert 1건의 **축소판만** 수행했으며 20장 문서 평가와 Tier C(T052~T064)는 수행하지 않았다. 이번 종료 범위는 로컬 커밋·이슈 기록이며 push·PR·병합은 하지 않는다.
 
-- [최신 API 통합 결과·실행 방법·OpenAI/STT 구분·남은 설정](docs/api-integration-checkpoint.md)
+자동 검증의 텍스트 AI·STT는 fixture다. 사용자는 별도로 `provider=openai, model=gpt-4.1-mini-2025-04-14, mode=live, state=ready, persisted=false`의 단일 응답 검증 성공을 보고했다. 에이전트의 재실행이나 전체 기능의 live 저장·공유 검증 결과가 아니다. 재서술 혼입을 놓친 별도 실패 사례도 기록했으며 의료적 정확성을 보장하지 않는다.
+
+- [시연 순서·계정·반복 실행 결과](docs/demo.md) · [개발 DB를 보존하는 실행법](specs/001-baton-mvp/quickstart.md)
+- [이전 실제 API 통합 결과](docs/api-integration-checkpoint.md)
 
 - [Phase 1 체크포인트와 실제 검증 결과](docs/phase1-checkpoint.md)
 - [백엔드 기반 체크포인트와 T020 인수인계](docs/backend-foundation-checkpoint.md)
@@ -12,7 +15,7 @@
 - [Phase 3 백엔드 체크포인트와 실제 API 인수인계](docs/phase3-backend-checkpoint.md)
 - [Phase 4 백엔드 T030~T032 검증·인수인계](docs/phase4-backend-checkpoint.md): 범위 변경·공유 로그·full 원문 스트림을 구현·검증하고 사용자 검토·게시 승인을 받았다. [이슈 #29](https://github.com/Solquick24/baton-project/issues/29)에서 `devlop` 반영 결과를 확인한다. 당시 미완료였던 T033~T036의 후속 통합은 최신 이슈 #32 체크포인트를 따른다.
 
-- [Phase 5 백엔드 T037~T044 최신 검증](docs/phase5-backend-checkpoint.md) · [실제 API 요청/응답·오류·버전·폴링·파일·캐시 인수인계](docs/phase5-api-handoff.md). 당시 미완료였던 프론트 통합의 후속 결과는 이슈 #32를 따른다. 외부 AI 실제 성공은 여전히 미검증이다.
+- [Phase 5 백엔드 T037~T044 최신 검증](docs/phase5-backend-checkpoint.md) · [실제 API 요청/응답·오류·버전·폴링·파일·캐시 인수인계](docs/phase5-api-handoff.md). 당시 미완료였던 프론트 통합의 후속 결과는 이슈 #32를 따른다. 당시의 미검증 상태와 이후 사용자 단일 live 응답 보고는 최신 체크포인트에서 구분한다.
 
 ## 문서
 
@@ -64,13 +67,13 @@ Node.js 22.22.0(`.nvmrc`) / npm 10.9.8을 사용한다. 의존성은 lockfile에
 
 ```bash
 npm ci --ignore-scripts --no-audit --no-fund
-cp apps/api/.env.example apps/api/.env
+test -e apps/api/.env || cp apps/api/.env.example apps/api/.env
 # apps/api/.env의 JWT_SECRET을 32자 이상의 임의 비밀값으로 채운다.
 npm run dev
 ```
 
 웹은 http://127.0.0.1:5173, API health는 http://127.0.0.1:3001/api/health다.
-브라우저의 /api 요청은 Vite가 로컬 API로 프록시한다. 실제 로그인·환자/진료 조회·질문/브리핑 API는 기본 시드 투입 후 사용할 수 있다. 이번 작업 브랜치의 실제 API 통합 결과는 위 체크포인트를 따른다. 아래 개발용 모드는 기존 진료 전 화면의 별도 시연용이다.
+브라우저의 /api 요청은 Vite가 로컬 API로 프록시한다. 실제 로그인·환자/진료 조회·질문/브리핑 API는 기본 시드 투입 후 사용할 수 있다. 기존 데이터가 있으면 아래 seed를 바로 실행하지 말고 [분리된 실행법](specs/001-baton-mvp/quickstart.md)을 사용한다. 이번 작업 브랜치의 실제 API 통합 결과는 위 체크포인트를 따른다. 아래 개발용 모드는 기존 진료 전 화면의 별도 시연용이다.
 기본 LLM/STT 모드는 fixture다. 기본 시연·테스트·빌드는 외부 AI를 호출하지 않는다. 사용자 결정으로 텍스트의 live 기본 provider는 OpenAI Responses(`LLM_PROVIDER=openai`)이며 Bedrock도 선택 가능하다. [설정·검증·남은 live 확인](docs/openai-provider-checkpoint.md)을 참고한다. 전사 provider는 변경하지 않는다.
 
 ```bash
@@ -106,9 +109,8 @@ npm run test:web
 
 ## 다음 구현 단계
 
-백엔드 T021~T025·T010 사전 생성과 T030~T032를 검증했다. T020 실제 API 세션 검증도 완료했다. 프론트 T026~T029 및 T033~T036 실제 화면 수용 검증은 남은 작업이다. Phase 3~4 전체 완료는 아니다.
-Tier A(T001–T049)를 먼저 수행하고 Tier B와 마지막 결과 기록을 이어간다.
-선택 2단계·화면만인 Tier C(T052–T064)는 사람이 명시적으로 요청할 때만 진행한다.
+Tier A 설정과 Tier B 병원·접근성·축소 평가·복구 검사 및 마지막 반복 시연·기록은 이슈 #39의 검증 범위를 따른다. 실제 API 화면 통합의 이전 미완료 기록은 이슈 #32에서 갱신했다. 원래 SC-009의 20장 문서/음성 평가는 미수행이며, 의미적 안전성·실제 STT·전체 파이프라인 live 검증은 남아 있다.
+선택 2단계·화면만인 Tier C(T052~T064)는 미선택·미완료이며 사람이 명시적으로 요청할 때만 진행한다.
 새 checkout에서는 다음 값을 지정해 Spec Kit가 main에서도 feature를 찾게 한다.
 
 ```bash

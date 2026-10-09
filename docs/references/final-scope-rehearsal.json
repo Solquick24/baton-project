@@ -1,0 +1,57 @@
+{
+  "mode": "fixture",
+  "runs": [
+    {
+      "run": 1,
+      "initial": "fresh isolated seed; no generation; B companion; delegated=false; scope_change logs=0",
+      "accounts": [
+        "patient",
+        "B"
+      ],
+      "steps": [
+        "patient settings→B",
+        "B initial companion home",
+        "schedule save→next B response/UI removes medication/questions",
+        "full save→next response",
+        "restore companion→next response",
+        "B PUT403",
+        "B timeline allowed blocks",
+        "3 atomic scope logs",
+        "LLM/STT zero"
+      ],
+      "totalMs": 1616,
+      "calls": {
+        "llm": 0,
+        "stt": 0,
+        "departmentIsolated": true
+      },
+      "result": "passed"
+    },
+    {
+      "run": 2,
+      "initial": "fresh isolated seed; no generation; B companion; delegated=false; scope_change logs=0",
+      "accounts": [
+        "patient",
+        "B"
+      ],
+      "steps": [
+        "patient settings→B",
+        "B initial companion home",
+        "schedule save→next B response/UI removes medication/questions",
+        "full save→next response",
+        "restore companion→next response",
+        "B PUT403",
+        "B timeline allowed blocks",
+        "3 atomic scope logs",
+        "LLM/STT zero"
+      ],
+      "totalMs": 1561,
+      "calls": {
+        "llm": 0,
+        "stt": 0,
+        "departmentIsolated": true
+      },
+      "result": "passed"
+    }
+  ]
+}

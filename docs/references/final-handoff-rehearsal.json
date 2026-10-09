@@ -1,0 +1,65 @@
+{
+  "mode": "fixture",
+  "runs": [
+    {
+      "run": 1,
+      "initial": "fresh isolated seed; questions=3; no pregeneration; no v_im_03 draft/published; B companion/C schedule/A full; delegated=false",
+      "accounts": [
+        "B",
+        "C",
+        "A"
+      ],
+      "steps": [
+        "UI login",
+        "merge 3→2+1",
+        "briefing 2 changes/3 questions",
+        "GET10 AI0",
+        "synthetic audio→fixture STT",
+        "note→structure→draft private",
+        "explicit share",
+        "C schedule timeline",
+        "A full sources/null prep",
+        "alert two sources→awaiting confirmation→reload"
+      ],
+      "lookupMs": 23,
+      "totalMs": 12810,
+      "calls": {
+        "llm": 3,
+        "stt": 1,
+        "departmentIsolated": true
+      },
+      "result": "passed",
+      "humanReadingTime": "not measured"
+    },
+    {
+      "run": 2,
+      "initial": "fresh isolated seed; questions=3; no pregeneration; no v_im_03 draft/published; B companion/C schedule/A full; delegated=false",
+      "accounts": [
+        "B",
+        "C",
+        "A"
+      ],
+      "steps": [
+        "UI login",
+        "merge 3→2+1",
+        "briefing 2 changes/3 questions",
+        "GET10 AI0",
+        "synthetic audio→fixture STT",
+        "note→structure→draft private",
+        "explicit share",
+        "C schedule timeline",
+        "A full sources/null prep",
+        "alert two sources→awaiting confirmation→reload"
+      ],
+      "lookupMs": 19,
+      "totalMs": 12575,
+      "calls": {
+        "llm": 3,
+        "stt": 1,
+        "departmentIsolated": true
+      },
+      "result": "passed",
+      "humanReadingTime": "not measured"
+    }
+  ]
+}

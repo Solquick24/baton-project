@@ -56,7 +56,7 @@ export class OpenAILLM implements RawLLMProvider {
   }
   async generateRaw(request: LLMRequest): Promise<unknown> {
     const schema = openaiOutputSchema(request.input.purpose);
-    const input = request.input.purpose === 'record' ? request.input : { ...request.input,
+    const input = { ...request.input,
       sourceCatalog: [...sourceCatalog(request.input)].map(([source, quoteOptions]) => ({ source: JSON.parse(source), quoteOptions })),
     };
     let data: unknown;
@@ -72,24 +72,24 @@ export class OpenAILLM implements RawLLMProvider {
           // No temperature/reasoning options: model support differs. No tools/state.
         }),
       });
-      if (!response.ok) throw new ProviderError('ai_unavailable'); // Never read/log upstream error bodies.
+      if (!response.ok) throw new ProviderError('ai_unavailable', 'provider_transport'); // Never read/log upstream error bodies.
       data = await response.json();
     } catch (error) {
       if (error instanceof ProviderError) throw error;
       if (error instanceof SyntaxError) return undefined; // Same existing schema retry policy.
-      throw new ProviderError('ai_unavailable');
+      throw new ProviderError('ai_unavailable', 'provider_transport');
     }
     const parsed = envelope.safeParse(data);
     if (!parsed.success) return undefined;
     const result = parsed.data;
-    if (result.error != null || result.status === 'failed') throw new ProviderError('ai_unavailable');
-    if (result.status !== 'completed' || result.incomplete_details != null) throw new ProviderError('validation_failed');
+    if (result.error != null || result.status === 'failed') throw new ProviderError('ai_unavailable', 'provider_transport');
+    if (result.status !== 'completed' || result.incomplete_details != null) throw new ProviderError('validation_failed', 'response_incomplete');
     // Ignore reasoning items but never execute tool calls or accept ambiguous messages.
     const outputs = result.output.filter((item) => !(typeof item === 'object' && item !== null && 'type' in item && item.type === 'reasoning'));
     if (outputs.length !== 1) return undefined;
     const m = message.safeParse(outputs[0]);
     if (!m.success) return undefined;
-    if (m.data.content.some((c) => typeof c === 'object' && c !== null && 'type' in c && c.type === 'refusal')) throw new ProviderError('validation_failed');
+    if (m.data.content.some((c) => typeof c === 'object' && c !== null && 'type' in c && c.type === 'refusal')) throw new ProviderError('validation_failed', 'response_refusal');
     if (m.data.content.length !== 1) return undefined;
     const content = outputText.safeParse(m.data.content[0]);
     if (!content.success) return undefined;

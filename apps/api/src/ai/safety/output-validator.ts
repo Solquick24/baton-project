@@ -43,7 +43,8 @@ export function sourceCatalog(input: GenerationInput) {
 function assertRefs(refs: SourceRef[], catalog: Map<string, string[]>) {
   for (const ref of refs) {
     const texts = catalog.get(key(ref.source));
-    if (!texts || (ref.quote !== null && (!ref.quote.trim() || !texts.some((text) => normalizeRestricted(text).includes(normalizeRestricted(ref.quote!)))))) throw new ProviderError('validation_failed');
+    if (!texts) throw new ProviderError('validation_failed', 'source_identity');
+    if (ref.quote !== null && (!ref.quote.trim() || !texts.some((text) => normalizeRestricted(text).includes(normalizeRestricted(ref.quote!))))) throw new ProviderError('validation_failed', 'source_quote');
   }
 }
 /** Only Phase 3 sections. Schema, source identities/quotes, missing facts and disclosure checks run before storage. */
@@ -132,7 +133,8 @@ export function validatePrevisit(section: 'questions' | 'briefing', raw: unknown
 /** Record only: deterministic provenance/anchor checks are not semantic entailment guarantees. */
 export function validateRecord(raw: unknown, input: GenerationInput, restricted: readonly string[]) {
   const parsed = recordGeneratedBlocksSchema.safeParse(raw);
-  if (!parsed.success || !('notes' in input)) throw new ProviderError('validation_failed');
+  if (!parsed.success) throw new ProviderError('validation_failed', 'output_schema');
+  if (!('notes' in input)) throw new ProviderError('validation_failed', 'input_context');
   const blocks = structuredClone(parsed.data), refs = blocks.full.sourceRefs, catalog = sourceCatalog(input);
   assertRefs(refs, catalog);
   const items = [...blocks.schedule.nextSchedule, ...blocks.companion.medChanges, ...blocks.companion.easySummary,
@@ -142,7 +144,7 @@ export function validateRecord(raw: unknown, input: GenerationInput, restricted:
   if (refs.some((r) => !ids.has(r.itemId)) || blocks.full.medReasons.some((r) => !medIds.has(r.medChangeId)) ||
     blocks.full.medDetails.some((r) => !medIds.has(r.medChangeId)) || new Set(blocks.full.medDetails.map((r) => r.medChangeId)).size !== blocks.full.medDetails.length ||
     blocks.full.answers.some((r) => !mergedIds.has(r.questionId)) || new Set(blocks.full.answers.map((r) => r.questionId)).size !== blocks.full.answers.length ||
-    blocks.full.needsCheckDetails.some((r) => !ids.has(r.itemId) || r.alertId !== null)) throw new ProviderError('validation_failed');
+    blocks.full.needsCheckDetails.some((r) => !ids.has(r.itemId) || r.alertId !== null)) throw new ProviderError('validation_failed', 'item_reference');
   const issues: ValidationIssue[] = [];
   let state: 'ready' | 'blocked' = 'ready';
   const add = (blockKind: BlockKind, itemId: string, rule: ValidationIssue['rule']) => {
@@ -162,7 +164,7 @@ export function validateRecord(raw: unknown, input: GenerationInput, restricted:
   const doseText = (s: string) => normalizeRestricted(s).replace(/반(?:알|정)/gu, '0.5정').replace(/한(?:알|정)/gu, '1정').replace(/알/gu, '정');
   const doseIn = (text: string, dose: string) => new RegExp(`(?<![\\d.])${dose.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\d.])`, 'u').test(text);
   for (const row of blocks.schedule.nextSchedule) {
-    if (row.dept !== null && row.dept !== input.dept) throw new ProviderError('validation_failed');
+    if (row.dept !== null && row.dept !== input.dept) throw new ProviderError('validation_failed', 'input_context');
     const texts = normalizedEvidence(row.id);
     if (row.date !== null) {
       const [, month, day] = row.date.split('-');
@@ -207,7 +209,7 @@ export function validateRecord(raw: unknown, input: GenerationInput, restricted:
     const row = blocks.companion.medChanges.find((r) => r.id === detail.medChangeId)!;
     const text = doseText(evidence(row.id).join('\n'));
     const known = input.prescriptions.flatMap((p) => p.items).find((p) => p.drugKey === detail.drugKey);
-    if (row.drug !== detail.drugName || (known ? known.drugName !== detail.drugName : !text.includes(normalizeRestricted(detail.drugName)))) throw new ProviderError('validation_failed');
+    if (row.drug !== detail.drugName || (known ? known.drugName !== detail.drugName : !text.includes(normalizeRestricted(detail.drugName)))) throw new ProviderError('validation_failed', 'medication_identity');
     if (detail.dose !== null && !doseIn(text, doseText(detail.dose))) { detail.dose = null; missing(row, 'companion', true); }
     if (detail.timing !== null && !detail.timing.every((t) => text.includes(timingText[t]))) { detail.timing = null; missing(row, 'companion', true); }
     if (detail.dose === null || detail.timing === null) missing(row, 'companion', false);

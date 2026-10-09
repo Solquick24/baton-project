@@ -49,7 +49,7 @@ export async function request<T>(path: string, token: string | undefined, signal
     const payload = await response.json().catch(() => { throw new ApiError(response.status, fallback); });
     controller.signal.throwIfAborted();
     if (!response.ok) {
-      throw new ApiError(response.status, typeof payload?.error?.message === 'string' ? payload.error.message : fallback,
+      throw new ApiError(response.status, payload?.error?.reason === 'stale_input' ? '입력이 바뀌었어요. 최신 내용을 확인하고 다시 시도해 주세요.' : typeof payload?.error?.message === 'string' ? payload.error.message : fallback,
         typeof payload?.error?.reason === 'string' ? payload.error.reason : undefined);
     }
     return payload as T;
@@ -70,6 +70,8 @@ export async function waitForJob(jobId: string, token: string, signal: AbortSign
     }
     if (job.status === 'failed') throw new ApiError(0, job.errorCode === 'stale_input'
       ? '입력이 바뀌었어요. 최신 내용을 확인하고 다시 시도해 주세요.'
+      : job.errorCode === 'validation_failed' ? 'AI 응답 검증에 실패했어요. 입력은 유지했어요. 다시 정리하거나 내용을 확인해 주세요.'
+      : job.errorCode === 'ai_unavailable' ? 'AI 연결에 실패했어요. 잠시 후 다시 시도해 주세요.'
       : job.errorCode === 'stt_unavailable' ? '글자로 바꾸지 못했어요. 다시 시도해 주세요.'
       : '정리하지 못했어요. 이 입력에 맞는 결과를 확인하고 다시 시도해 주세요.', job.errorCode ?? undefined);
     await new Promise<void>((resolve, reject) => {

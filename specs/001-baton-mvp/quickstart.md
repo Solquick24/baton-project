@@ -1,74 +1,71 @@
 # Quickstart and Validation: 로컬 시연
 
-## 현재 상태
+## 현재 상태와 검증 출처
 
-현재는 문서·시드 자료(`fixtures/`)·빈 src·workspace 설정만 있다. 앱·SQLite·로그인·AI·테스트는 미구현이다.
-지금 가능한 명령은 workspace 준비·목록 확인뿐이다.
+Fastify·SQLite·JWT·React와 실제 API 연결이 구현되어 있다. 글씨/고대비·정적 병원 안내·복구·반복 시연의 최신 결과는 [최종 체크포인트](../../docs/final-validation-checkpoint.md)를 따른다. preview 응답 테스트와 실제 API 브라우저 검증은 구분한다. Tier C(T052~T064)는 제외했다.
+
+자동 검증·시연은 텍스트 AI/STT 모두 fixture이며 실제 OpenAI/AWS 호출을 하지 않는다. 사용자의 별도 단일 OpenAI 응답 성공 보고(`gpt-4.1-mini-2025-04-14`, live/ready/persisted=false)는 전체 생성·저장·공유의 live 검증이 아니다.
+
+## 준비
+
+저장소 루트에서 Node 22.22.0·npm 10.9.8과 기존 lockfile을 사용한다.
 
 ```bash
 npm ci --ignore-scripts --no-audit --no-fund
-npm ls --workspaces --depth=0
+npx playwright install chromium
 ```
 
-## 구현 후 준비와 실행
-
-[tasks.md](tasks.md)의 Setup/Foundation이 실제 실행·시드·빌드·테스트 명령을 추가한다. 고정 버전과 명령 정의는 [AGENTS.md](../../AGENTS.md) 6장.
-아래 명령은 지금 존재하지 않는 미래 명령이며 해당 작업 완료 후에만 실행한다.
-
-1. Node 22.12+·npm 10.x. better-sqlite3는 `--ignore-scripts` 설치에서도 prebuild로 로드된다(2026-10-09 확인).
-2. `cp apps/api/.env.example apps/api/.env` 후 `JWT_SECRET`(32자 이상)만 채우면 fixture 모드로 전부 동작한다.
-3. live AI를 쓰려면 `LLM_MODE=live`, 필요하면 `STT_MODE=live`와 `TRANSCRIBE_STAGING_BUCKET`, `AWS_PROFILE`을 채운다. 실제 계정·토큰·비밀번호를 Git에 넣지 않는다.
-4. 웹 환경은 `VITE_API_BASE_URL=/api`만 사용한다(Vite가 :3001로 프록시). Cognito·배포 설정은 필요 없다.
-5. 처음 e2e를 돌리기 전에 `npx playwright install chromium`.
+개발 서버가 실행 중이면 종료하거나 DB를 초기화하지 않는다. 아래는 별도 임시 경로와 미사용 포트를 쓰는 수동 fixture 시연 예다. `NODE_ENV=test`로 로컬 .env 읽기를 끄며 필수 모드를 명시한다. 이 예의 API에는 테스트 전용 reset/중단 경로를 등록하지 않는다. 선택한 포트가 사용 중이면 다른 빈 포트를 지정한다.
 
 ```bash
-# 아래는 tasks의 실행 명령 추가·시드 구현 후 사용
-npm run seed                  # DB 초기화 + 시드
-npm run seed -- --pregenerate # + v_im_03 질문 통합·브리핑 미리 생성(fixture)
-npm run dev                   # API :3001 + web :5173
-npm run typecheck
-npm run build
-npm run test
-npm run test:e2e
+export BATON_DEMO_DIR="$(mktemp -d /tmp/baton-demo.XXXXXX)"
+export NODE_ENV=test
+export JWT_SECRET="$(node -e 'process.stdout.write(require("node:crypto").randomBytes(32).toString("hex"))')"
+export SQLITE_PATH="$BATON_DEMO_DIR/baton.sqlite"
+export UPLOAD_DIR="$BATON_DEMO_DIR/uploads"
+export API_PORT=3315 WEB_PORT=5315
+export LLM_MODE=fixture STT_MODE=fixture LIVE_FALLBACK_TO_FIXTURE=false
+export LLM_PROVIDER=openai DEMO_TODAY=2026-03-12 ENABLE_TEST_ENDPOINTS=false
+export OPENAI_API_KEY= OPENAI_MODEL=
+npm run seed -- --database "$SQLITE_PATH"
+npm run dev
 ```
 
-웹과 API는 localhost에서 실행하고 SQLite·uploads(`apps/api/data/`)는 공개 static 밖에 둔다.
-SAM·Amplify·CloudFormation 배포는 수행하지 않는다. STT의 임시 버킷은 기존 제공 자원만 사용한다.
+http://127.0.0.1:5315에서 로그인한다. `seed`는 대상 DB를 재생성하므로 기존 DB로 바꾸지 않는다. `--pregenerate`를 추가하면 fixture provider→jobs→저장 전 검증→저장으로 질문·브리핑을 미리 생성한다. 수동 생성 경로를 보여주려면 추가하지 않는다. 반복 시연의 초기 상태는 매회 새 임시 DB로 준비한다. 사용자 서버와 별도이므로 현재 터미널에서 띄운 시연 서버만 Ctrl+C로 종료한다.
 
-## 시연 계정
+기존 개발용 .env를 사용할 경우 `apps/api/.env.example`을 참고해 백엔드 `JWT_SECRET`, `LLM_PROVIDER`, `LLM_MODE`, `STT_MODE`, DB/업로드 경로를 직접 설정한다. `.env`를 덮어쓰거나 커밋하지 않는다. OpenAI live에는 `OPENAI_API_KEY`·`OPENAI_MODEL`이 필요하고 직접 연결 점검은 `LIVE_FALLBACK_TO_FIXTURE=false`로 수동 수행한다. 키는 서버 파일에만 입력한다. 전사 provider는 별개이며 이번에는 fixture만 검증했다.
 
-비밀번호는 모두 `baton-demo-2026`(가상). 상세는 [seed-story.md](seed-story.md).
+## 검증 명령
+
+```bash
+LLM_MODE=fixture STT_MODE=fixture LIVE_FALLBACK_TO_FIXTURE=false npm run typecheck
+LLM_MODE=fixture STT_MODE=fixture LIVE_FALLBACK_TO_FIXTURE=false npm run test
+LLM_MODE=fixture STT_MODE=fixture LIVE_FALLBACK_TO_FIXTURE=false npm run build
+LLM_MODE=fixture STT_MODE=fixture LIVE_FALLBACK_TO_FIXTURE=false npm run test:e2e
+LLM_MODE=fixture STT_MODE=fixture LIVE_FALLBACK_TO_FIXTURE=false npm run test:web
+LLM_MODE=fixture STT_MODE=fixture LIVE_FALLBACK_TO_FIXTURE=false node --import tsx scripts/evaluate.ts --report docs/references/final-fixture-evaluation.json
+```
+
+API 테스트는 메모리/전용 임시 DB다. 실제 API E2E는 3314/5314·메모리 DB·매회 새 임시 업로드를 사용하고 `.env`를 읽지 않는다. 외부 fetch를 차단하고 키/모델을 지운다. preview 검사는 5313에서 실행하며 실제 API 검증에 합산하지 않는다. 두 Playwright 명령은 결과 폴더를 공유하므로 순서대로 실행한다. `npm run test:e2e -- tests/e2e/rehearsal.spec.ts`는 두 시연 경로를 각각 두 번 연속 실행한다. 리허설 JSON은 test-results에 생성되므로 보존하려면 다음 Playwright 실행 전에 복사한다.
+
+## 가상 계정
+
+비밀번호는 모두 `baton-demo-2026`(가상 시드 전용). 상세는 [seed-story.md](seed-story.md).
 
 | 계정 | 이메일 | 범위 |
 |---|---|---|
 | 환자 박하늘 | patient@baton.demo | 본인(full) |
 | A 박지원 | a@baton.demo | full, 대표 보호자, 위임 꺼짐 |
-| B 박지후 | b@baton.demo | companion, 이번 첫 동행 |
+| B 박지후 | b@baton.demo | companion, 첫 동행 |
 | C 정다온 | c@baton.demo | schedule |
-| 비구성원 | outsider@baton.demo | 테스트 전용 |
+| 비구성원 | outsider@baton.demo | 거부 검사 전용 |
 
-## 검증 시나리오
+## 시연 순서·한계
 
-### 이어받기 경로
+메모를 저장하면 성공 안내와 내용/질문 체크가 유지된다. 새로 바꾼 메모는 다시 저장해야 정리할 수 있다. 정리는 최신 입력 버전을 확인하고 job 성공의 검토본을 조회한 후 검토 화면으로 간다. 오류는 입력 변경/AI 연결/응답 검증 실패를 구분하며 입력을 유지한다. 공유 확인 후 `공유한 기록 확인하기`로 타임라인을 연다. 자동 공유는 없다. 실제 OpenAI record 재실행 성공은 이번 fixture 검사로 대신하지 않는다.
 
-1. B(companion) 로그인 → 내과 브리핑. 변경·질문만 있고 이유·원문·인용·full 키가 없는지 확인한다.
-2. 질문 3개 → 통합 2개 + 추가 1개. 관계·작성자와 needsCheck를 확인한다.
-3. 가상 파일 변환·메모·정리 → ready 검토본. 가족의 timeline에 아직 공개되지 않았는지 확인한다.
-4. B가 자기 허용 검토 내용을 확인하고 공유하기 → C/A의 다음 조회에 허용 블록만 표시된다.
-5. 환자/A로 전환해 메모·약봉투 불일치(화면 19)와 원문을 확인한다. B에게 19번 상세를 공개하지 않는다.
-6. 민감 혼입 샘플(메모에 `혼입 시연`)은 blocked이고 공유하기로 우회할 수 없는지 확인한다.
+두 경로의 초기 상태·계정·실행 순서·각 관찰 결과는 [demo.md](../../docs/demo.md)를 따른다. 진료 전 질문·브리핑의 검증된 ready 결과는 허용 범위에 바로 제공하며 record는 명시적 POST share 전까지 가족에게 새 공유본으로 공개하지 않는다.
 
-### 범위 경로
+390×844 Chromium에서 가장 큰 글씨·고대비로 주요 화면의 스크롤 후 조작/내용 잘림을 검사했다. 같은 브라우저 컨텍스트에서 페이지를 닫고 다시 열어 설정 유지를 확인했으며 OS 브라우저 재시작·보조기기 전체 검사는 하지 않았다.
 
-1. 환자 로그인 → 화면 25-2에서 B를 schedule/companion/full로 변경하고 공유 기록을 확인한다.
-2. B의 다음 조회에서 허용 블록과 화면이 바뀌고 금지 블록 키·잠금·다른 가족 범위가 없는지 확인한다.
-3. 일반 B의 scope 변경·비구성원 조회·위임이 꺼진 A의 변경을 직접 호출로 거부하는지 확인한다.
-4. GET 10회·scope 3회 동안 AI spy 호출 0회를 확인한다.
-5. full에서만 원문·인용·파일을 확인하고 질문·작업·오류·알림 경로도 같은 정책인지 확인한다.
-
-### 공통 품질
-
-가장 큰 글씨·흰 배경 고대비에서 주요 내용·버튼 잘림을 확인한다.
-실패·재시작·중복·입력 변경에서 거짓 완료·진료 후 정리의 공유 확정 전 공개가 없는지 확인한다. 진료 전 질문 통합·브리핑은 검증 ready 결과를 허용 범위에 바로 제공한다.
-두 경로를 2회 연속 완주하고 SC-001~010 결과·실제 평가 분모·검사 전후 누출률을 기록한다.
-실제 호출과 저장 대체 결과, 화면만 동의와 기능 완성을 구분한다.
+축소 평가 분모는 validation 4건·alert 1건이며 별도 재서술 실패 1건을 기록했다. 20장 문서/실제 음성 평가·의료적 정확성·사람의 30초 이해도는 미검증이다. 실제 음성 파일 대신 가상 바이트와 준비된 STT fixture를 사용한다. 배포·AWS 자원/IAM 변경은 없다.

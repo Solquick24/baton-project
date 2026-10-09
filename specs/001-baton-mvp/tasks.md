@@ -8,7 +8,7 @@ description: "최종 기획안 기반 로컬 MVP 구현 작업"
 **Created**: 2026-10-09
 **Prerequisites**: plan.md·spec.md와 현재 사용자 결정: 로컬 서버·SQLite·시드 로그인, AI만 AWS, 검토 후 공유.
 **Tests**: 명세 SC와 헌장이 요구하는 권한·근거·저장 블록·공유·E2E 검증을 포함한다.
-**Organization**: 사용자 이야기별 독립 시연·검증 단위로 나눈다. Phase 1(T001–T007), Phase 2(T008–T020) 기반과 T021–T025 백엔드를 구현·검증했다. T010의 --pregenerate도 검증했다. T026–T029·T033–T036·T045–T047의 실제 API 화면 통합 검증은 이슈 #32 작업 브랜치에서 완료했다. 최신 결과와 미검증 외부 AI/후속 범위는 [통합 체크포인트](../../docs/api-integration-checkpoint.md)를 따른다. T048~T051은 이번 통합으로 완료 처리하지 않는다.
+**Organization**: 사용자 이야기별 독립 시연·검증 단위로 나눈다. Phase 1(T001–T007), Phase 2(T008–T020) 기반과 T021–T025 백엔드를 구현·검증했다. T010의 --pregenerate도 검증했다. T026–T029·T033–T036·T045–T047의 실제 API 화면 통합 검증은 이슈 #32 작업 브랜치에서 완료했다. 이후 #39에서 T048~T051·T065 축소판·T066을 검증했다. 사용자 추가 지시의 진료 동행 노트를 안정화하고 API260/실제 API E2E37/preview14·타입/빌드·두 경로 각2회 재완주 후 T067·T068을 완료했다. 최신 명령·수치·SC 부분/미검증·사용자 단일 live 보고는 [최종 체크포인트](../../docs/final-validation-checkpoint.md)를 따른다. Tier C와 T065 원래 전체 평가는 미완료다.
 
 ## 해커톤 실행 범위 (2026-10-09 보완)
 
@@ -147,10 +147,10 @@ T030~T032 백엔드의 실제 검증 결과는 [phase4-backend-checkpoint.md](..
 
 **Independent Test / Checkpoint**: 다른 생성 기능 없이 정적 화면과 설정으로 검증; 모든 구현 화면에서도 반복검증.
 
-- [ ] T048 [P] [US4] apps/web/src/styles/tokens.css와 apps/web/src/app/display-settings.tsx에 normal/large/extra-large·highContrast 브라우저저장·흰배경/검은글자/진한청록/검은테두리·큰터치영역을 구현한다.
-- [ ] T049 [US4] apps/web/src/features/settings/SettingsPage.tsx에 글씨·고대비·로그아웃과 공개 범위 관리 진입을 구현하고 설정을 전역 레이아웃에 적용한다. 선행: T048.
-- [ ] T050 [P] [US4] apps/web/public/hospital/map.svg, apps/web/public/hospital/floor.svg와 apps/web/src/features/home/HospitalPage.tsx에 가상 위치·약도·주소·전화·안내 순서·참고 더미 경험을 구현한다. 병원 값은 fixtures/seed/hospital.json, 지도도 정적 SVG로 그리고 외부 지도 SDK는 쓰지 않는다. 길찾기는 없다.
-- [ ] T051 [US4] tests/e2e/accessibility.spec.ts에 390px·가장 큰 글씨·고대비의 주요 내용·버튼 잘림·같은 브라우저 재접속 설정 유지·동적 길찾기 부재를 확인한다. 선행: T049, T050.
+- [X] T048 [P] [US4] apps/web/src/styles/tokens.css와 apps/web/src/app/display-settings.tsx에 normal/large/extra-large·highContrast 브라우저저장·흰배경/검은글자/진한청록/검은테두리·큰터치영역을 구현한다.
+- [X] T049 [US4] apps/web/src/features/settings/SettingsPage.tsx에 글씨·고대비·로그아웃과 공개 범위 관리 진입을 구현하고 설정을 전역 레이아웃에 적용한다. 선행: T048.
+- [X] T050 [P] [US4] apps/web/public/hospital/map.svg, apps/web/public/hospital/floor.svg와 apps/web/src/features/home/HospitalPage.tsx에 가상 위치·약도·주소·전화·안내 순서·참고 더미 경험을 구현한다. 병원 값은 fixtures/seed/hospital.json, 지도도 정적 SVG로 그리고 외부 지도 SDK는 쓰지 않는다. 길찾기는 없다.
+- [X] T051 [US4] tests/e2e/accessibility.spec.ts에 390px·가장 큰 글씨·고대비의 주요 내용·버튼 잘림·같은 브라우저 재접속 설정 유지·동적 길찾기 부재를 확인한다. 선행: T049, T050.
 
 ## Phase 7: User Story 5 - Optional Phase 2 (Priority: P2)
 
@@ -186,9 +186,11 @@ T030~T032 백엔드의 실제 검증 결과는 [phase4-backend-checkpoint.md](..
 **Independent Test / Checkpoint**: US1~4의두경로2회완주·SC결과·평가분모·검사전후누출률을보고한다. 배포하지 않는다.
 
 - [ ] T065 [P] fixtures/documents/index.json, fixtures/expected/labels.json과 scripts/evaluate.ts에 약20모의자료의추출정확도/불일치탐지율/누출률·혼입검사전후·재서술실패·선택문서수정률의실제 분모를기록한다. **축소판(Tier B)**: 약 20장 모의 문서는 아직 없으므로 fixtures/expected/validation.json의 4건과 alerts.json 1건만으로 검사 전후 누출·불일치 탐지 결과를 실제 분모(n=4, n=1)로 기록하고, 20장 평가는 미수행으로 명시한다.
-- [ ] T066 apps/api/tests/recovery.test.ts와 tests/e2e/failure.spec.ts에서재시작running실패·fixture표시·중복작업/공유·scope변경후이전캐시·원문경로탈출·stale검토본공유거부를검증한다.
-- [ ] T067 docs/demo.md와 specs/001-baton-mvp/quickstart.md의B이어받기/A상세확인·환자범위변경경로를2회연속완주하고SC-001~010의실제결과를기록한다.
-- [ ] T068 README.md, docs/decisions.md와 specs/001-baton-mvp/tasks.md에실제 실행 명령·완료 작업·미선택 2단계·화면만/fixture·한계를반영하고자격 증명·SQLite·uploads의 Git 제외를 확인한다.
+**T065 축소판만 완료 (#39)**: gold 4/4 일치, 정확 문자열 누출 전1/4→blocked 비공개 후0/4, alert1/1 일치. 별도 재서술 도전 탐지0/1 실패를 기록했다. 위 T065 체크박스는 원래 약20장 전체 평가의 미수행을 표시하며, 승인한 축소 평가 수행과 구분한다. [실측 JSON](../../docs/references/final-fixture-evaluation.json) · [SC 결과/한계](../../docs/final-validation-checkpoint.md).
+
+- [X] T066 apps/api/tests/recovery.test.ts와 tests/e2e/failure.spec.ts에서재시작running실패·fixture표시·중복작업/공유·scope변경후이전캐시·원문경로탈출·stale검토본공유거부를검증한다.
+- [X] T067 docs/demo.md와 specs/001-baton-mvp/quickstart.md의B이어받기/A상세확인·환자범위변경경로를2회연속완주하고SC-001~010의실제결과를기록한다.
+- [X] T068 README.md, docs/decisions.md와 specs/001-baton-mvp/tasks.md에실제 실행 명령·완료 작업·미선택 2단계·화면만/fixture·한계를반영하고자격 증명·SQLite·uploads의 Git 제외를 확인한다.
 
 ## Dependencies & Execution Order
 
