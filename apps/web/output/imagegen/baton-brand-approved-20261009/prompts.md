@@ -6,7 +6,7 @@ Mode: built-in image generation, reference-image extraction. PNG masters are kep
 
 ## a1-icon
 
-Reference: /home/solquick/baton-project/apps/web/output/imagegen/baton-logo-concepts-v6-20261009/A1-baton-mascot.png
+Reference: ../baton-logo-concepts-v6-20261009/A1-baton-mascot.png
 
 ```text
 Use case: background-extraction.
@@ -18,7 +18,7 @@ Extract ONLY the large upper A1 app icon into a square full-bleed cream (#FFF5DF
 
 ## a2-prepare
 
-Reference: /home/solquick/baton-project/apps/web/output/imagegen/baton-logo-concepts-v7-20261009/A2-context-holder.png
+Reference: ../baton-logo-concepts-v7-20261009/A2-context-holder.png
 
 ```text
 Use case: background-extraction.
@@ -30,7 +30,7 @@ Extract ONLY the large upper A2 character, exact both-hands holding blue record 
 
 ## a3-handoff
 
-Reference: /home/solquick/baton-project/apps/web/output/imagegen/baton-logo-concepts-v7-20261009/A3-context-handoff.png
+Reference: ../baton-logo-concepts-v7-20261009/A3-context-handoff.png
 
 ```text
 Use case: background-extraction.
@@ -42,7 +42,7 @@ Extract ONLY the large upper A3 character, exact pose offering blue card toward 
 
 ## a4-welcome
 
-Reference: /home/solquick/baton-project/apps/web/output/imagegen/baton-logo-concepts-v7-20261009/A4-friendly-wave.png
+Reference: ../baton-logo-concepts-v7-20261009/A4-friendly-wave.png
 
 ```text
 Use case: background-extraction.
@@ -51,4 +51,3 @@ Input image: edit target, approved concept board.
 Keep mascot identity and pose unchanged; this is asset extraction, not redesign. Preserve original proportions and orange/blue/darkink colors.
 Extract ONLY the large upper A4 character, exact waving rightarm with NO floatingmotionticks, leftarm holds bluecard2darkblue lines, same slightly larger eyes curvedsmile two-toneorangebody no top highlight. Delete creamtile entirewhiteboard text lowerrow. No groundshadow nobackdrop. Single freestandingcharacter centered completecontour with~8%transparentmargin noextraaccessories.
 ```
-
