@@ -102,7 +102,7 @@ npx playwright install chromium
 npm run test:web
 ```
 
-실제 API 프록시만 실행하려면 `npm run dev:web`를 사용한다. 웹 빌드와 실제 API 모드에는 개발용 응답·빠른 계정 로그인을 제공하지 않는다. 세부 범위와 제한은 [web 안내](apps/web/README.md)를 따른다.
+실제 API 프록시만 실행하려면 `npm run dev:web`를 사용한다. 로컬 개발 서버에서는 실제 API·preview 모두 네 가상 계정의 빠른 선택을 제공한다. 실제 모드는 기존 로그인 API/JWT를 사용하고, preview 응답은 preview 모드에만 등록한다. 웹 빌드에는 개발용 응답·빠른 선택·가상 비밀번호를 넣지 않는다. 세부 범위와 제한은 [web 안내](apps/web/README.md)를 따른다.
 
 ## 다음 구현 단계
 

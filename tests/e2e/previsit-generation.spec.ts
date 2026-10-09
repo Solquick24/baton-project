@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('baton.onboarding', JSON.stringify({ version: 1, completedAt: Date.now(), lastVisitedAt: Date.now() })));
+});
+
 test('question merge and briefing buttons generate, poll and display stored fixture results through the real API', async ({ page, request }) => {
   expect((await request.post('/api/__test/reset', { data: { pregenerate: false } })).status()).toBe(200);
   const errors: string[] = [];

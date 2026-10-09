@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { auth, login, reset } from './helpers';
+
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('baton.onboarding', JSON.stringify({ version: 1, completedAt: Date.now(), lastVisitedAt: Date.now() })));
+});
 test.beforeEach(async ({ request }) => reset(request));
 
 test('core scope management uses real PUT and refreshes the next guardian read with AI zero', async ({ page, context, request }) => {

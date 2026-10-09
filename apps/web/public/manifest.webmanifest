@@ -1,0 +1,13 @@
+{
+  "name": "바통 · 진료 동행 노트",
+  "short_name": "바통",
+  "lang": "ko",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f766e",
+  "icons": [
+    { "src": "/brand/a1-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/brand/a1-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
