@@ -7,7 +7,7 @@ const environment = {
   API_PORT: '3101', WEB_PORT: '5174',
   JWT_SECRET: randomBytes(32).toString('hex'),
   LLM_MODE: 'fixture', STT_MODE: 'fixture', LIVE_FALLBACK_TO_FIXTURE: 'false',
-  SQLITE_PATH: './data/e2e/baton.sqlite', UPLOAD_DIR: './data/e2e/uploads',
+  SQLITE_PATH: ':memory:', UPLOAD_DIR: './data/e2e/uploads',
   ENABLE_TEST_ENDPOINTS: 'true',
 };
 
