@@ -1,6 +1,6 @@
 # API workspace
 
-Fastify 서버·SQLite·기본 시드·JWT 로그인·현재 권한 검사·블록/생성 입력 repository·provider·jobs 기반을 구현했다. `npm run seed` 뒤 API를 시작한다. 실제 경로는 `GET /api/health`, `POST /api/auth/login`, `GET /api/jobs/:jobId`다. `apps/api/.env`의 JWT_SECRET은 32자 이상이어야 한다. 사용자 기능 routes와 생성 파이프라인은 미구현이다. [검증·인터페이스·제약](../../docs/backend-foundation-checkpoint.md)을 참고한다.
+Phase 1의 Fastify 서버·설정 검증이 구현됐다. `npm run dev --workspace @baton/api` 또는 `npm run start --workspace @baton/api`로 시작하며, `GET /api/health`만 제공한다. `apps/api/.env`의 JWT_SECRET은 32자 이상이어야 한다. DB·인증 handler·아래 기능 모듈은 Phase 2 이후 대상이다.
 
 - handlers: HTTP routes; 요청 검증→인증·관계·행동 권한→기능 모듈→허용 블록 응답.
 - modules: members·visits·questions·briefing·summaries·alerts·jobs.

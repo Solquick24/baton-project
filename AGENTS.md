@@ -5,7 +5,7 @@
 ## 1. 지금 상태와 목표
 
 - 바통은 가족이 번갈아 진료에 동행해도 맥락이 끊기지 않게 하는 모바일 웹 MVP다. **해커톤 당일(약 5시간·4명) 로컬 시연용**이다.
-- Phase 1(T001–T007)을 재사용하고 T008–T019 백엔드·공통 기반을 구현했다(T010은 기본 시드만, --pregenerate 미완료). 실제 API는 health·로그인·jobs 조회이며 웹은 기존 시작 화면이다. T020과 사용자 기능은 미구현이다. 결과와 인수인계는 docs/backend-foundation-checkpoint.md를 읽는다. Phase 2 전체 완료는 아니다.
+- Phase 1(T001–T007)의 로컬 실행·설정·검증 기반이 구현됐다. API는 health만 제공하고 웹은 시작 화면만 있다. DB·로그인·사용자 기능·AI provider는 Phase 2 이후 대상이다. 현재 검증 결과는 docs/phase1-checkpoint.md를 읽는다.
 - 목표: `specs/001-baton-mvp/tasks.md`의 **Tier A 작업**을 끝내 두 시연 경로(이어받기·범위 변경)를 로컬에서 2회 연속 완주하는 것.
 
 ## 2. 읽는 순서

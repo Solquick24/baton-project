@@ -3,27 +3,14 @@ import jwt from '@fastify/jwt';
 import multipart from '@fastify/multipart';
 import { healthResponseSchema } from '@baton/contracts';
 import { readConfig, type AppConfig } from './shared/config.js';
-import { openDatabase, type BatonDatabase } from './adapters/sqlite/database.js';
-import { registerAuth } from './handlers/auth.js';
-import { installErrors } from './shared/errors.js';
-import { installSafeLogging, newRequestId, safeLoggerOptions } from './shared/logger.js';
-import { JobsService } from './modules/jobs/service.js';
-import { JobRunner, type JobHandlers } from './workers/runner.js';
-import { registerJobs } from './handlers/jobs.js';
-import { FixtureLLM, FixtureTranscription } from './adapters/ai/fixture.js';
-import { BedrockLLM } from './adapters/ai/bedrock.js';
-import { validatedLLM, type LLMProvider, type TranscriptionProvider } from './adapters/ai/providers.js';
 
-declare module 'fastify' {
-  interface FastifyInstance { baton: { db: BatonDatabase; llm: LLMProvider; stt: TranscriptionProvider; jobs: JobsService; runner: JobRunner } }
-}
-
-export async function buildApp(options: { config?: AppConfig; logger?: boolean; db?: BatonDatabase; llm?: LLMProvider; stt?: TranscriptionProvider; jobHandlers?: JobHandlers } = {}) {
+export async function buildApp(options: { config?: AppConfig; logger?: boolean } = {}) {
   const config = options.config ?? readConfig();
   const app = Fastify({
-    logger: options.logger ? safeLoggerOptions : false,
-    genReqId: newRequestId,
-    // Custom safe response logging omits URL, body, headers and originals.
+    logger: options.logger ? {
+      redact: ['req.headers.authorization', 'req.headers.cookie', 'res.headers["set-cookie"]'],
+    } : false,
+    // Request logging is deliberately disabled until the safe logger in T017.
     logController: new LogController({ disableRequestLogging: true }),
     bodyLimit: 1_048_576,
   });
@@ -33,22 +20,19 @@ export async function buildApp(options: { config?: AppConfig; logger?: boolean; 
     verify: { algorithms: ['HS256'], allowedIss: 'baton-local', allowedAud: 'baton-web' },
   });
   await app.register(multipart, { limits: { files: 1, fileSize: 20 * 1024 * 1024 } });
-  const db = options.db ?? openDatabase(config.sqlitePath);
-  const fixture = new FixtureLLM(config.fixturesDir);
-  const live = !options.llm && config.llmMode === 'live' ? new BedrockLLM(config.bedrockModelId) : null;
-  const llm = options.llm ?? validatedLLM(live ?? fixture, live && config.liveFallbackToFixture ? fixture : undefined);
-  // Live STT adapter belongs to T039; never silently claim it is available.
-  const stt = options.stt ?? (config.sttMode === 'fixture' ? new FixtureTranscription(config.fixturesDir) : { async transcribe() { throw new Error('Live 전사는 T039 구현이 필요해요.'); } });
-  const jobs = new JobsService(db);
-  const runner = new JobRunner(jobs, options.jobHandlers);
-  jobs.recoverRunning();
-  app.decorate('baton', { db, llm, stt, jobs, runner });
-  app.addHook('onReady', async () => { runner.start(); });
-  app.addHook('onClose', async () => { await runner.stop(); live?.destroy(); if (!options.db) db.close(); });
-  installErrors(app);
-  installSafeLogging(app);
-  registerAuth(app, db);
-  registerJobs(app, jobs);
   app.get('/api/health', async () => healthResponseSchema.parse({ status: 'ok' }));
+  // Patient/auth routes and persistence are intentionally left for Phase 2.
+  app.setNotFoundHandler((request, reply) => reply.code(404).send({
+    error: { code: 'not_found', message: '찾을 수 없어요.', requestId: request.id },
+  }));
+  app.setErrorHandler((error, request, reply) => {
+    const statusCode = typeof error === 'object' && error !== null && 'statusCode' in error
+      ? error.statusCode : undefined;
+    const status = typeof statusCode === 'number' && statusCode >= 400 && statusCode < 500 ? statusCode : 500;
+    reply.code(status).send({ error: {
+      code: status < 500 ? 'bad_request' : 'internal',
+      message: status < 500 ? '요청을 확인해 주세요.' : '처리하지 못했어요.', requestId: request.id,
+    } });
+  });
   return app;
 }
