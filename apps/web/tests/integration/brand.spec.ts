@@ -1,4 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
+import { fileURLToPath } from 'node:url';
+
+const screenshot = (name: string) => fileURLToPath(new URL(`../../output/brand-preview/${name}`, import.meta.url));
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('baton.onboarding', JSON.stringify({ version: 1, completedAt: Date.now(), lastVisitedAt: Date.now() })));
@@ -30,7 +33,7 @@ for (const layout of [
       const manifest = await (await request.get('/manifest.webmanifest')).json();
       for (const icon of manifest.icons) expect((await request.get(icon.src)).status()).toBe(200);
       for (const size of [64, 180]) expect((await request.get(`/brand/a1-icon-${size}.png`)).status()).toBe(200);
-      await page.screenshot({ path: 'output/brand-preview/login.png', fullPage: true });
+      await page.screenshot({ path: screenshot('login.png'), fullPage: true });
     }
     await page.getByTestId('login-email').fill('b@baton.demo');
     await page.getByTestId('login-password').fill('baton-demo-2026');
@@ -39,7 +42,7 @@ for (const layout of [
     await expect(page.getByRole('link', { name: '바통', exact: true })).toBeVisible();
     await expect(page.locator('.baton-mascot')).toHaveAttribute('src', '/brand/a2-prepare.webp');
     await checkImagesAndLayout(page);
-    if (layout.name === 'mobile') await page.screenshot({ path: 'output/brand-preview/home.png', fullPage: true });
+    if (layout.name === 'mobile') await page.screenshot({ path: screenshot('home.png'), fullPage: true });
     await page.getByTestId('briefing-link').click();
     await expect(page.getByTestId('briefing-questions').locator('li')).toHaveCount(3);
     await expect(page.locator('.baton-mascot')).toHaveAttribute('src', '/brand/a3-handoff.webp');
@@ -48,7 +51,7 @@ for (const layout of [
       const questions = await page.getByTestId('briefing-questions').boundingBox();
       expect(questions!.y + questions!.height).toBeLessThanOrEqual(layout.height);
     }
-    await page.screenshot({ path: `output/brand-preview/briefing-${layout.name}.png`, fullPage: true });
+    await page.screenshot({ path: screenshot(`briefing-${layout.name}.png`), fullPage: true });
     await page.getByRole('link', { name: '가족 질문 다시 보기' }).click();
     await expect(page.getByTestId('question-input')).toBeVisible();
     await checkImagesAndLayout(page);
