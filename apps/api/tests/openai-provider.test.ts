@@ -180,6 +180,7 @@ it.each(['true', 'false'] as const)('honors app fallback=%s and keeps transport 
   const transport = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error(`${key} 가상 원문`));
   const db = fixtureDatabase(), config = readConfig({ ...env, LLM_MODE: 'live', OPENAI_API_KEY: key, OPENAI_MODEL: model, LIVE_FALLBACK_TO_FIXTURE: fallback });
   const app = await buildApp({ db, config });
+  const logs = vi.spyOn(app.log, 'info');
   try {
     await app.ready(); await app.baton.runner.stop();
     const headers = { authorization: `Bearer ${app.jwt.sign({ sub: 'u_b' })}` };
@@ -188,6 +189,8 @@ it.each(['true', 'false'] as const)('honors app fallback=%s and keeps transport 
     const job = await app.inject({ url: `/api/jobs/${res.json().jobId}`, headers });
     expect(job.json()).toMatchObject(fallback === 'true' ? { status: 'succeeded', mode: 'fixture', resultState: 'ready' } : { status: 'failed', mode: null, errorCode: 'ai_unavailable' });
     expect(job.body).not.toMatch(/test-only-openai-secret|가상 원문/);
+    expect(logs).toHaveBeenCalled();
+    expect(JSON.stringify(logs.mock.calls)).not.toMatch(/test-only-openai-secret|가상 원문/);
     expect(transport).toHaveBeenCalledTimes(1);
     if (fallback === 'false') expect(db.prepare("SELECT count(*) n FROM block_sets WHERE section='questions'").get()).toEqual({ n: 0 });
   } finally { await app.close(); db.close(); }
