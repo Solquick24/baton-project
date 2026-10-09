@@ -26,6 +26,8 @@
 실제 서비스·배포 설계 시 기술 예외와 실정보 처리 요건을 다시 검토한다.
 모델·지도·AWS 제공 자원은 실제 환경 확인 전 호출 성공을 주장하지 않는다.
 
+**후속 사용자 확정 결정(2026-10-09):** 텍스트 생성 AI는 Bedrock 대신 OpenAI API를 기본 선택한다. 위 표와 plan.md의 'AI만 AWS'는 이전 결정의 기록이며, 질문 통합·브리핑·record 텍스트에 한해 이 명시적 사용자 결정으로 변경한다. Bedrock/fixture 선택지와 STT는 보존한다. [구현·공식 문서·검증·남은 live 확인](openai-provider-checkpoint.md). 이는 Codex가 임의로 확대 해석한 기술 예외가 아니다.
+
 ## 명세 보완 기본안 (2026-10-09, 구현 전 빈칸 채우기 — 팀 검토 전)
 
 Codex가 추측하지 않고 바로 구현할 수 있도록 문서에 없던 결정을 채웠다. 팀이 다르게 정하면 표와 관련 문서를 함께 고친다.
@@ -104,3 +106,12 @@ Phase 1 체크포인트 결과와 범위는 [phase1-checkpoint.md](phase1-checkp
 | 2026-10-09 | T044·홈 비공개 | 미공유 record alert는 ready 검토본의 full 검토 권한자만 읽고 일반 가족 full의 목록/홈 건수에서도 제외. 기존 공개본 또는 publish 로그가 있는 결과는 조회 가능 | 미공유 정리의 원문/복약 내용이 불일치 API나 개수로 먼저 공개되지 않도록 더 좁은 규칙 선택. 낮은 범위는 목록·개수·상세 없음 |
 | 2026-10-09 | T044·seed | 기존 시드의 dose/timing 비교를 공통 순수 함수로 이동해 ready 정리 비교에도 사용. edit_note는 관찰 새 revision 저장 후 재비교, 과거 블록 불변. confirm_hospital=awaiting_confirmation, reupload=open | 두 근거 중 정답을 판단하지 않음. #15 후속 seed 변경과 병합 시 작은 공통 비교 연결 보존. 공유 계약·DB·권한·패키지·fixture JSON·apps/web 변경 없음 |
 | 2026-10-09 | 제출 전 최신 지침 | PR #20 병합 뒤 origin/devlop b3fa963을 d8482be로 반영하고 새 앱별 AGENTS.md 확인 | 기존 변경을 커밋으로 보존. 추가 변경은 문서뿐이며 T031/T032 구현은 여전히 없음. 기능 코드 불변으로 통과한 검사를 반복 실행하지 않음 |
+| 2026-10-09 | T030~T032 최초 검토 시 브랜치·게시 | origin/devlop d3e0417에서 feat/t030-t032-sharing-api 로컬 브랜치 생성. 최초 검토 시 신규 이슈는 초안만 준비하고 커밋·푸시·PR은 보류함 | 사용자의 사전 검토 지시가 저장소 자동 게시·커밋 절차보다 우선함 |
+| 2026-10-09 | T030~T032 게시 승인·최신 지침 통합 | 사용자 검토 후 커밋·푸시 및 devlop 반영 승인. 이슈 #29와 최신 origin/devlop b3fa963 기반 feat/29-sharing-api로 진행. 원격 앱별 AGENTS.md 안내를 보존하고 백엔드 지침을 확인 | 검토한 변경만 게시하며 main 반영은 제외. 실제 반영 단계는 이슈·PR에 기록하고 이후 변경도 사용자 사전 검토를 받음 |
+| 2026-10-09 | T031 | 현행 활성 관계·지정 대표·위임으로 관리 권한 판정. 환자 대상 변경은 400, 비활성 대상 변경은 404, 같은 값은 로그 없음. 변경·감사 로그·응답 검증은 immediate 트랜잭션. 비활성 가족의 과거 로그는 관리자가 조회 가능 | schemas.md의 환자 full 고정·공유 이력 보존. 범위 변경으로 중단된 가족을 재활성화하지 않는 더 좁은 공개 원칙 |
+| 2026-10-09 | T032 | 등록된 환자·진료 파일만 full 인증 스트림으로 반환. 루트 안 경로·realpath·파일 크기 확인, 비동기 파일 열기 뒤 권한 재검사. 알려진 음성 MIME 외에는 octet-stream, no-store·nosniff·고정 attachment 이름 | 원문은 공개 static에 두지 않으며 경로·파일명·낮은 권한 오류에서 원문을 노출하지 않음. 업로드/전사 생성은 T039에 남김 |
+| 2026-10-09 | 사용자 결정·OpenAI 이슈 #23 | '텍스트 생성 AI를 Bedrock 대신 OpenAI API로 사용'을 기존 AI만 AWS 방향의 명시적 변경 근거로 적용. 기본 LLM_PROVIDER=openai, LLM_MODE/STT_MODE는 fixture 유지 | 질문·브리핑·record 텍스트만 변경. Bedrock/fixture와 전사 provider·기존 안전/권한/검토 후 공유 규칙 보존 |
+| 2026-10-09 | OpenAI provider·계약 | Node fetch Responses API/store:false/strict text.format 사용. 기존 Zod로 wire schema를 만들고 null/선택 필드 의미를 유지. validatedLLM 및 파이프라인 안전 검증 재사용 | 새로운 SDK/패키지·공유 계약·DB 변경 없음. 모델별 temperature/reasoning·대화 상태·외부 도구를 추가하지 않음. 형식 보장을 의미 안전성으로 간주하지 않음 |
+| 2026-10-09 | Phase 5 보존·OpenAI 회귀 | feat/17-phase5-backend 7a7b452와 draft PR #22 보존. 최신 devlop b3fa963에서 별도 작업. Phase 5 worker/record 안전 검증은 별도 임시 조합에서만 회귀 검사 | 관련 없는 미병합 Phase 5 코드를 OpenAI PR에 섞지 않음. 실제 record 경로 연결은 PR #22와 후속 T039/T042/T043 의존성 |
+| 2026-10-09 | 모델·키·실제 연결 | 공식 문서로 예시 gpt-4.1-mini-2025-04-14의 Responses/구조화 출력 지원 확인. 런타임 모델 암묵 기본값 없음. 키·모델 미설정이라 live 호출 미실시 | 키는 사용자 apps/api/.env 직접 입력, 비밀값 미출력. 실제 점검은 fallback=false의 최소 가상 질문/동일 안전 검증으로 별도 수행해야 성공을 보고할 수 있음 |
+| 2026-10-09 | T030~T032 PR #30 최신 devlop 통합 | PR 생성 중 devlop에 OpenAI PR #27(5b4fd9c)이 병합됨. 문서 충돌은 두 작업의 결정·인수인계를 보존해 해결하고 app.ts의 provider 선택과 두 새 handler 등록을 함께 유지 | 다른 담당자의 provider·설정·테스트를 덮어쓰지 않으며 통합 후 fixture 전체 검사를 재실행 |

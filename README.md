@@ -7,6 +7,7 @@
 - [Phase 1 체크포인트와 실제 검증 결과](docs/phase1-checkpoint.md)
 - [백엔드 기반 체크포인트와 T020 인수인계](docs/backend-foundation-checkpoint.md)
 - [Phase 3 백엔드 체크포인트와 실제 API 인수인계](docs/phase3-backend-checkpoint.md)
+- [Phase 4 백엔드 T030~T032 검증·인수인계](docs/phase4-backend-checkpoint.md): 범위 변경·공유 로그·full 원문 스트림을 구현·검증하고 사용자 검토·게시 승인을 받았다. [이슈 #29](https://github.com/Solquick24/baton-project/issues/29)에서 `devlop` 반영 결과를 확인한다. T033~T036과 Phase 4 전체 통합은 미완료다.
 
 ## 문서
 
@@ -64,8 +65,8 @@ npm run dev
 ```
 
 웹은 http://127.0.0.1:5173, API health는 http://127.0.0.1:3001/api/health다.
-브라우저의 /api 요청은 Vite가 로컬 API로 프록시한다. 실제 로그인은 기본 시드 투입 후 사용할 수 있다. 환자 목록·홈 등 후속 API는 아직 없으므로 전체 화면 시연에는 아래 프론트 개발용 모드를 사용한다.
-기본 LLM/STT 모드는 fixture다. dev·테스트·빌드는 AWS를 호출하지 않는다.
+브라우저의 /api 요청은 Vite가 로컬 API로 프록시한다. 실제 로그인·환자/진료 조회·질문/브리핑 API는 기본 시드 투입 후 사용할 수 있다. 기존 프론트의 실제 API 통합은 별도 검증이 남아 있으며 화면 시연에는 아래 개발용 모드를 사용할 수 있다.
+기본 LLM/STT 모드는 fixture다. 기본 시연·테스트·빌드는 외부 AI를 호출하지 않는다. 사용자 결정으로 텍스트의 live 기본 provider는 OpenAI Responses(`LLM_PROVIDER=openai`)이며 Bedrock도 선택 가능하다. [설정·검증·남은 live 확인](docs/openai-provider-checkpoint.md)을 참고한다. 전사 provider는 변경하지 않는다.
 
 ```bash
 npm run typecheck
@@ -76,9 +77,9 @@ npm run test:e2e
 ```
 
 `npm run seed`는 설정된 로컬 DB의 기본 가상 시드를 트랜잭션으로 다시 만든다. 로그인 API를 쓰려면 먼저 실행한다.
-`--pregenerate`는 T023·T024 의존성이 미구현이므로 DB 변경 전에 exit 1로 중단한다(T010 미완료).
+`--pregenerate`는 실제 fixture 질문 통합·브리핑 파이프라인으로 저장 전 검증과 저장을 수행한다. 기본 DB를 보존할 검증에는 `--database /별도/임시경로/baton.sqlite`를 지정한다. OpenAI를 선택해도 사전 생성은 fixture다.
 `npm run check:ai`는 별도 수동 실행 명령이며 Bedrock 연결 확인 호출 1회와 Transcribe 목록·기존 S3 버킷 접근을 검사한다. 검사 실패는 종료 코드 1로 보고한다.
-최종 구성은 로컬 서버·SQLite·시드 로그인, AI만 AWS 사용이다. 배포는 하지 않는다.
+최종 구성은 로컬 서버·SQLite·시드 로그인, 텍스트 OpenAI/Bedrock 선택과 기존 전사 provider다. 이전 'AI만 AWS' 방향의 변경 근거는 이번 사용자 결정이며 docs/decisions.md에 기록했다. 배포는 하지 않는다.
 정리 결과는 검토 후 공유하기로 확정하며 원문·인용은 full에만 제공한다.
 
 ### 프론트 화면 시연
@@ -100,7 +101,7 @@ npm run test:web
 
 ## 다음 구현 단계
 
-백엔드 기반 체크포인트에서 멈춘 상태다. 프론트 T020은 별도 담당이며 T010의 pregenerate는 T023·T024 구현 뒤 연결해야 한다. Phase 2 전체 완료는 아니다.
+백엔드 T021~T025·T010 사전 생성과 T030~T032를 검증했다. 프론트 T020·T026~T029 및 T033~T036 실제 통합은 별도 담당의 남은 작업이다. Phase 2~4 전체 완료는 아니다.
 Tier A(T001–T049)를 먼저 수행하고 Tier B와 마지막 결과 기록을 이어간다.
 선택 2단계·화면만인 Tier C(T052–T064)는 사람이 명시적으로 요청할 때만 진행한다.
 새 checkout에서는 다음 값을 지정해 Spec Kit가 main에서도 feature를 찾게 한다.

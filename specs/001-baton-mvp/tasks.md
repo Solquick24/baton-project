@@ -111,9 +111,11 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 
 **Independent Test / Checkpoint**: 생성 기능 없이 시드 공유본과4계정으로 세 scope·위임·원문·로그를 독립 검증.
 
-- [ ] T030 [P] [US2] apps/api/tests/members.test.ts와 apps/api/tests/source-access.test.ts에 B의 무단 변경 403·위임 false인 A의 변경 403·scope 반영·원문·인용 full 전용·로그 비노출·kind SELECT spy를 먼저 작성한다.
-- [ ] T031 [US2] apps/api/src/modules/members/service.ts와 apps/api/src/handlers/members.ts에 GET members/PUT scope/GET members/{uid}/share-log/GET share-log, "action=start/scope_change/stop/publish" 중 1단계 scope_change 기록(start·publish 시드 기록 조회 포함)과 현재/새값·actor·time 트랜잭션을 구현한다. 같은 값 변경은 로그를 남기지 않는다. 선행: T030.
-- [ ] T032 [US2] apps/api/src/adapters/local/files.ts와 apps/api/src/handlers/sources.ts에 full 전용 인증 스트림·환자·진료 소속·경로 탈출 거부·내부 경로 비노출을 구현한다. 공개 static은 사용하지 않는다. 선행: T030.
+T030~T032 백엔드의 실제 검증 결과는 [phase4-backend-checkpoint.md](../../docs/phase4-backend-checkpoint.md)에 기록했다. T033~T036 프론트·캐시·E2E는 미완료이며 Phase 4 전체 완료가 아니다. 사용자 검토 후 커밋·게시 및 devlop 반영 승인을 받았으며 실제 반영 결과는 [이슈 #29](https://github.com/Solquick24/baton-project/issues/29)에 기록한다.
+
+- [X] T030 [P] [US2] apps/api/tests/members.test.ts와 apps/api/tests/source-access.test.ts에 B의 무단 변경 403·위임 false인 A의 변경 403·scope 반영·원문·인용 full 전용·로그 비노출·kind SELECT spy를 먼저 작성한다.
+- [X] T031 [US2] apps/api/src/modules/members/service.ts와 apps/api/src/handlers/members.ts에 GET members/PUT scope/GET members/{uid}/share-log/GET share-log, "action=start/scope_change/stop/publish" 중 1단계 scope_change 기록(start·publish 시드 기록 조회 포함)과 현재/새값·actor·time 트랜잭션을 구현한다. 같은 값 변경은 로그를 남기지 않는다. 선행: T030.
+- [X] T032 [US2] apps/api/src/adapters/local/files.ts와 apps/api/src/handlers/sources.ts에 full 전용 인증 스트림·환자·진료 소속·경로 탈출 거부·내부 경로 비노출을 구현한다. 공개 static은 사용하지 않는다. 선행: T030.
 - [ ] T033 [US2] apps/web/src/features/settings/SharingPage.tsx에 25-2의 세 단계 항목표·민감표시·환자·위임 대표 관리·공유 기록·일반 보호자 범위명 비노출을 구현한다. 선행: T031.
 - [ ] T034 [US2] apps/web/src/features/timeline/TimelinePage.tsx에 schedule 공통 정보, companion 약 변경/주의/쉬운요약/질문, full내용을 저장 블록으로 표시하고 이유/진단/수치/원문은 full에만 둔다. 선행: T025.
 - [ ] T035 [US2] apps/web/src/app/session.tsx와 apps/web/src/lib/api.ts에 범위변경의 다음조회 반영·이전캐시 제거를 완성하고 GET·scope변경에 AI를 호출하지 않도록 연결한다. 선행: T033, T034.
