@@ -30,3 +30,5 @@ Playwright는 처음에 `npx playwright install chromium`이 필요하다. 별�
 빠른 선택의 실제 API 검사는 루트에서 `npx playwright test --config apps/web/playwright.api.config.ts`로 실행한다. 5183/3103의 독립 서버·메모리 SQLite·fixture만 사용한다. preview 검사의 기본 5173 포트가 사용 중이면 `WEB_PORT=5184 npm run test:web`로 분리한다.
 `.env.example`에는 브라우저에 공개 가능한 식별자만 있다.
 명세: [spec.md](../../specs/001-baton-mvp/spec.md).
+
+온보딩(#41): 첫 방문에는 글·그림·정적 화면 예시를 담은 4단계 사용법이 열립니다. 스와이프, 좌우 화살표 키, 이전/다음 버튼과 단계 버튼으로 이동하며 마지막 `바통 시작하기!` 또는 건너뛰기로 닫습니다. 로그인·설정에서 다시 볼 수 있습니다. 브라우저별 완료/마지막 방문 시각만 `baton.onboarding`에 저장하며 30일 이상 미방문이면 재안내 배너를 제공합니다. 저장소가 차단되면 현재 방문에서는 정상 이용하고 다음 새로고침에 안내가 다시 열릴 수 있습니다. 화면 예시는 실제 기록이 아니며 API/AI 생성·공유를 실행하지 않습니다.

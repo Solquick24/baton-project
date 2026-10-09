@@ -24,11 +24,12 @@
 
 ## 이번 검증 결과
 
-- 최신 `origin/devlop`의 별도 작업 공간에서 `npm run build` 통과(API·web·contracts·tools 전체 타입 검사와 Vite 빌드).
+- 팀 통합 `f03384c`까지 보존한 별도 작업 공간에서 `npm run build` 통과(API·web·contracts·tools 전체 타입 검사와 Vite 빌드).
 - 실제 Fastify API·메모리 SQLite·fixture와 Chromium으로 캐릭터 검사 **3 통과 / 0 실패**: 390×844 보통 글씨, 375×844 아주 큰 글씨·고대비, 844×390 가로 화면. 이미지 로딩·장식 이미지 의미·로고 링크 이름·가로 넘침·질문 3개 유지·조회 중 텍스트 생성 0회를 확인했다.
-- 최종 preview 회귀 `WEB_PORT=5486 npm run test:web`: **14 통과 / 0 실패**. 개발용 응답의 계정별 제한 표시·질문 통합·로그아웃·고대비 등을 확인했다. 실제 API의 권한 검증과는 구분한다.
+- 최종 preview 회귀 `WEB_PORT=5486 npm run test:web`: **21 통과 / 0 실패**. 온보딩과 개발용 응답의 계정별 제한 표시·질문 통합·로그아웃·고대비 등을 확인했다. 실제 API의 권한 검증과는 구분한다.
+- 최종 fixture API 회귀 `npm run test --workspace @baton/api -- --maxWorkers=1`: **247 통과 / 0 실패**(22개 파일). 최초 기본 병렬 실행은 245 통과/시간 초과 2건이었고, 한 워커로 전체를 재실행해 모두 통과했다. 테스트 시간 제한이나 기대값은 변경하지 않았다.
 - 최종 브랜드 검사 `node_modules/.bin/playwright test --config apps/web/playwright.brand.config.ts`: **3 통과 / 0 실패**. 실제 fixture API에서 조회 중 텍스트 생성 호출 0회를 확인했다.
-- 원본 작업 폴더의 이전 `playwright.wireframe.config.ts` 회귀는 **13 통과 / 1 실패**였다. 실패는 녹음 화면 이탈 직후 MediaStream 트랙 종료 확인이다. 이 별도 녹음·문서·병원 화면 구현은 이번 브랜드 전용 브랜치에 포함하지 않았다. 해당 통합 검증은 #42 작업에 남는다. 녹음 오류를 이번 변경으로 수정했다고 보고하지 않는다.
+- 원본 폴더의 이전 녹음 종료 검사 실패(13 통과/1 실패)는 당시 기록이다. 이후 팀 통합 [PR #51](https://github.com/Solquick24/baton-project/pull/51)에서 화면·브랜드·온보딩을 병합했다. 이 브랜드 보완 PR은 그 구현을 보존하며 승인 원본·독립 검증·재현 가능한 경로와 기록을 추가한다. 명세 작업의 전체 완료나 실제 기기·외부 AI 검증으로 계산하지 않는다.
 - 실행 환경의 Chromium 라이브러리는 기존 `/tmp/baton-main-browser-libs/extracted/usr/lib/x86_64-linux-gnu`, 한글 테스트 폰트는 기존 `/tmp/baton-fe-fonts.conf`를 사용했다. 시스템 설치·프로젝트 의존성 추가 없이 로컬 브라우저 실행 승인을 받아 검증했다.
 
 홈 화면 추가를 위한 아이콘·manifest를 연결했다. 서비스 워커·오프라인 동작·네이티브 앱 패키징은 이번 변경에 포함하지 않는다. 실제 iOS/Android 홈 화면 추가는 별도 기기 검증이 필요하다.

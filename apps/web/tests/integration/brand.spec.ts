@@ -3,6 +3,10 @@ import { fileURLToPath } from 'node:url';
 
 const screenshot = (name: string) => fileURLToPath(new URL(`../../output/brand-preview/${name}`, import.meta.url));
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('baton.onboarding', JSON.stringify({ version: 1, completedAt: Date.now(), lastVisitedAt: Date.now() })));
+});
+
 async function checkImagesAndLayout(page: Page) {
   for (const image of await page.locator('.baton-icon, .baton-mascot').all()) {
     await expect.poll(() => image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
