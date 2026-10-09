@@ -41,14 +41,21 @@ function Login() {
   const { setSession } = useContext(Auth);
   const [email, setEmail] = useState(''); const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const [demoPassword, setDemoPassword] = useState('');
+  const [demoError, setDemoError] = useState(false); const [demoAttempt, setDemoAttempt] = useState(0);
   const controller = useRef<AbortController | null>(null);
   useEffect(() => () => controller.current?.abort(), []);
   useEffect(() => {
-    if (import.meta.env.MODE !== 'preview') return;
+    if (!import.meta.env.DEV) return;
     const c = new AbortController();
-    fetch('/__preview/accounts', { signal: c.signal }).then(res => res.json()).then(value => { if (!c.signal.aborted) setDemoPassword(value.demoPassword); }).catch(() => {});
+    setDemoError(false);
+    fetch('/__demo/accounts', { signal: c.signal, cache: 'no-store' }).then(async res => {
+      if (!res.ok) throw new Error('Demo accounts unavailable');
+      const value: unknown = await res.json();
+      if (!value || typeof value !== 'object' || !('demoPassword' in value) || typeof value.demoPassword !== 'string' || !value.demoPassword) throw new Error('Invalid demo accounts');
+      if (!c.signal.aborted) setDemoPassword(value.demoPassword);
+    }).catch(() => { if (!c.signal.aborted) setDemoError(true); });
     return () => c.abort();
-  }, []);
+  }, [demoAttempt]);
   async function submit(e: FormEvent) {
     e.preventDefault(); setBusy(true); setError(''); controller.current = new AbortController();
     try { setSession(await request<LoginRes>('/auth/login', undefined, controller.current.signal, { email, password })); }
@@ -60,9 +67,9 @@ function Login() {
     <form onSubmit={submit} className="stack"><label>이메일<input data-testid="login-email" type="email" autoComplete="username" required value={email} onChange={e => setEmail(e.target.value)} /></label>
       <label>비밀번호<input data-testid="login-password" type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} /></label>
       {error && <p role="alert" className="error">{error}</p>}<button className="primary" data-testid="login-submit" disabled={busy}>{busy ? '로그인 중…' : '로그인'}</button></form>
-    <Card className="demo"><h2>가상 계정으로 둘러보기</h2><p className="muted">{import.meta.env.MODE === 'preview' ? '계정을 선택하면 로그인 정보가 채워져요.' : '계정을 선택한 뒤 안내받은 가상 시연 비밀번호를 입력해 주세요.'}</p><div className="quick-grid">{[
+    {import.meta.env.DEV && <Card className="demo"><h2>가상 계정으로 둘러보기</h2><p className="muted">계정을 선택하면 로그인 정보가 채워져요.</p>{demoError && <p role="status">가상 계정을 불러오지 못했어요. <button onClick={() => setDemoAttempt(v => v + 1)}>다시 불러오기</button></p>}<div className="quick-grid">{[
       ['patient', '박하늘 · 환자'], ['a', '박지원 · 지난 동행'], ['b', '박지후 · 이번 동행'], ['c', '정다온 · 가족'],
-    ].map(([id, label]) => <button key={id} disabled={import.meta.env.MODE === 'preview' && !demoPassword} data-testid={`quick-login-${id}`} onClick={() => { setEmail(`${id}@baton.demo`); if (import.meta.env.MODE === 'preview') setPassword(demoPassword); }}>{label}</button>)}</div></Card>
+    ].map(([id, label]) => <button key={id} disabled={!demoPassword} data-testid={`quick-login-${id}`} onClick={() => { setEmail(`${id}@baton.demo`); setPassword(demoPassword); }}>{label}</button>)}</div></Card>}
     <p className="footnote">모든 인물과 진료 내용은 가상 자료입니다.</p>
   </main>;
 }
@@ -75,7 +82,7 @@ function Workspace() {
   return <div className="shell"><header><Link className="wordmark" to={pid ? `/p/${pid}` : '/me'}>바통</Link><span className="badge">가상 데이터</span></header><main id="main">
     <div className="page-heading"><h1>{title}</h1>{title === '진료 전 브리핑' && <span className="badge">30초 읽기</span>}</div>
     {notice && <p role="status" className="warning card">{notice}</p>}
-    {patients.data ? <><div className="chips owners" aria-label="기록 주인"><NavLink to="/me">나</NavLink>{patients.data.linked.map(p => <NavLink key={p.patientId} to={`/p/${p.patientId}`}>{p.name}</NavLink>)}{patients.data.self.patientId && <NavLink to={`/p/${patients.data.self.patientId}`}>내 기록</NavLink>}</div>
+    {patients.data ? <><div className="chips owners" aria-label="기록 주인">{patients.data.linked.map(p => <NavLink key={p.patientId} to={`/p/${p.patientId}`}>{p.name}</NavLink>)}{patients.data.self.patientId && <NavLink to={`/p/${patients.data.self.patientId}`}>내 기록</NavLink>}</div>
       <Routes key={location.pathname}><Route path="/" element={<Navigate replace to={pid ? `/p/${pid}` : '/me'} />} /><Route path="/me" element={patients.data.self.patientId ? <Navigate replace to={`/p/${patients.data.self.patientId}`} /> : <Card><h2>아직 내 진료 기록이 없어요</h2><p>가족 기록을 선택해 이번 진료를 준비해 보세요.</p>{patients.data.linked.map(p => <Link className="button primary" key={p.patientId} to={`/p/${p.patientId}`}>{p.name} 기록 보기</Link>)}</Card>} />
       <Route path="/p/:pid" element={<Home />} /><Route path="/p/:pid/timeline" element={<Timeline />} /><Route path="/p/:pid/visits/:vid/questions" element={<Questions />} /><Route path="/p/:pid/visits/:vid/briefing" element={<Briefing />} /><Route path="/settings" element={<Settings pid={pid} />} /><Route path="/p/:pid/sharing/:uid" element={<SharingPage />} /><Route path="/p/:pid/visits/:vid/record" element={<VisitPage />} /><Route path="/p/:pid/visits/:vid/review" element={<ReviewPage />} /><Route path="/p/:pid/alerts" element={<AlertsPage />} /><Route path="/p/:pid/alerts/:aid" element={<AlertsPage />} /><Route path="*" element={<Card><h2>찾을 수 없어요</h2><Link to="/me">홈으로</Link></Card>} /></Routes></> : <State error={patients.error} retry={patients.reload} />}
   </main><nav className="bottom-nav" aria-label="주요 메뉴"><NavLink end to={pid ? `/p/${pid}` : '/me'}><NavIcon kind="home" /><span>홈</span></NavLink><NavLink to={pid ? `/p/${pid}/timeline` : '/me'}><NavIcon kind="timeline" /><span>타임라인</span></NavLink><NavLink to="/settings"><NavIcon kind="settings" /><span>설정</span></NavLink></nav></div>;

@@ -10,10 +10,11 @@ test('mobile entry point connects to the real local API through the Vite proxy',
   await expect(page.getByRole('heading', { name: '로그인' })).toBeVisible();
   await page.goto('/login');
   await expect(page.getByRole('heading', { name: '로그인' })).toBeVisible();
+  await expect(page.getByTestId('quick-login-b')).toBeEnabled();
   await expect(page.getByTestId('quick-login-b')).toBeVisible();
   await page.getByTestId('quick-login-b').click();
   await expect(page.getByTestId('login-email')).toHaveValue('b@baton.demo');
-  await expect(page.getByTestId('login-password')).toHaveValue('');
+  await expect(page.getByTestId('login-password')).not.toHaveValue('');
   await page.goto('/unknown-route');
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
