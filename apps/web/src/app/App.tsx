@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import type { BriefingRes, HomeRes, Item, LoginRes, MePatientsRes, Mode, QuestionsRes, SourceRef, VisitMeta, VisitView } from '@baton/contracts';
-import { ApiError, readSession, request, saveSession, waitForJob } from '../lib/api';
+import { ApiError, request, waitForJob } from '../lib/api';
+import { SessionContext as Auth, SessionProvider, useResource } from './session';
 
-const Auth = createContext<{ session: LoginRes | null; setSession: (value: LoginRes | null) => void }>({ session: null, setSession: () => {} });
 type Display = { font: 'normal' | 'large' | 'extra-large'; contrast: boolean };
 const DisplayContext = createContext<{ value: Display; set: (value: Display) => void }>({ value: { font: 'normal', contrast: false }, set: () => {} });
 function initialDisplay(): Display {
@@ -11,32 +11,21 @@ function initialDisplay(): Display {
   return { font: 'normal', contrast: false };
 }
 export function App() {
-  const [session, updateSession] = useState<LoginRes | null>(readSession);
+  return <SessionProvider><Application /></SessionProvider>;
+}
+function Application() {
+  const { session } = useContext(Auth);
   const [display, setDisplay] = useState<Display>(initialDisplay);
   const location = useLocation();
-  const setSession = (value: LoginRes | null) => { saveSession(value); updateSession(value); };
-  useEffect(() => { const expire = () => updateSession(null); window.addEventListener('baton:unauthorized', expire); return () => window.removeEventListener('baton:unauthorized', expire); }, []);
   useEffect(() => { document.documentElement.dataset.font = display.font; document.documentElement.dataset.contrast = String(display.contrast); try { localStorage.setItem('baton.display', JSON.stringify(display)); } catch { /* still usable */ } }, [display]);
   useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
-  return <Auth.Provider value={{ session, setSession }}><DisplayContext.Provider value={{ value: display, set: setDisplay }}>
+  return <DisplayContext.Provider value={{ value: display, set: setDisplay }}>
     <a className="skip" href="#main">본문으로 이동</a>
     <Routes>
       <Route path="/login" element={session ? <Navigate to="/" replace /> : <Login />} />
       <Route path="*" element={session ? <Workspace key={session.accessToken} /> : <Navigate to="/login" replace />} />
     </Routes>
-  </DisplayContext.Provider></Auth.Provider>;
-}
-function useResource<T>(path: string) {
-  const token = useContext(Auth).session?.accessToken;
-  const [result, setResult] = useState<{ path: string; data?: T; error?: Error }>({ path });
-  const [version, setVersion] = useState(0);
-  useEffect(() => {
-    const controller = new AbortController();
-    setResult({ path });
-    request<T>(path, token, controller.signal).then(data => { if (!controller.signal.aborted) setResult({ path, data }); }).catch(error => { if (!controller.signal.aborted) setResult({ path, error: error instanceof Error ? error : new Error('불러오지 못했어요.') }); });
-    return () => controller.abort();
-  }, [path, token, version]);
-  return { ...(result.path === path ? result : { path }), reload: () => setVersion(v => v + 1) };
+  </DisplayContext.Provider>;
 }
 function State({ error, retry }: { error?: Error | undefined; retry: () => void }) {
   return <section className="card state" aria-live="polite"><h2>{error ? error instanceof ApiError && error.status === 404 ? '찾을 수 없어요' : '불러오지 못했어요' : '불러오는 중…'}</h2>
@@ -94,7 +83,7 @@ function Workspace() {
   return <div className="shell"><header><Link className="wordmark" to={pid ? `/p/${pid}` : '/me'}>바통</Link><span className="badge">가상 데이터</span></header><main id="main">
     <div className="page-heading"><h1>{title}</h1>{title === '진료 전 브리핑' && <span className="badge">30초 읽기</span>}</div>
     {patients.data ? <><div className="chips owners" aria-label="기록 주인"><NavLink to="/me">나</NavLink>{patients.data.linked.map(p => <NavLink key={p.patientId} to={`/p/${p.patientId}`}>{p.name}</NavLink>)}{patients.data.self.patientId && <NavLink to={`/p/${patients.data.self.patientId}`}>내 기록</NavLink>}</div>
-      <Routes><Route path="/" element={<Navigate replace to={pid ? `/p/${pid}` : '/me'} />} /><Route path="/me" element={patients.data.self.patientId ? <Navigate replace to={`/p/${patients.data.self.patientId}`} /> : <Card><h2>아직 내 진료 기록이 없어요</h2><p>가족 기록을 선택해 이번 진료를 준비해 보세요.</p>{patients.data.linked.map(p => <Link className="button primary" key={p.patientId} to={`/p/${p.patientId}`}>{p.name} 기록 보기</Link>)}</Card>} />
+      <Routes key={location.pathname}><Route path="/" element={<Navigate replace to={pid ? `/p/${pid}` : '/me'} />} /><Route path="/me" element={patients.data.self.patientId ? <Navigate replace to={`/p/${patients.data.self.patientId}`} /> : <Card><h2>아직 내 진료 기록이 없어요</h2><p>가족 기록을 선택해 이번 진료를 준비해 보세요.</p>{patients.data.linked.map(p => <Link className="button primary" key={p.patientId} to={`/p/${p.patientId}`}>{p.name} 기록 보기</Link>)}</Card>} />
       <Route path="/p/:pid" element={<Home />} /><Route path="/p/:pid/timeline" element={<Timeline />} /><Route path="/p/:pid/visits/:vid/questions" element={<Questions />} /><Route path="/p/:pid/visits/:vid/briefing" element={<Briefing />} /><Route path="/settings" element={<Settings />} /><Route path="*" element={<Card><h2>찾을 수 없어요</h2><Link to="/me">홈으로</Link></Card>} /></Routes></> : <State error={patients.error} retry={patients.reload} />}
   </main><nav className="bottom-nav" aria-label="주요 메뉴"><NavLink end to={pid ? `/p/${pid}` : '/me'}><NavIcon kind="home" /><span>홈</span></NavLink><NavLink to={pid ? `/p/${pid}/timeline` : '/me'}><NavIcon kind="timeline" /><span>타임라인</span></NavLink><NavLink to="/settings"><NavIcon kind="settings" /><span>설정</span></NavLink></nav></div>;
 }

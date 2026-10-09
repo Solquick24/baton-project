@@ -2,10 +2,11 @@
 
 가족이 번갈아 동행해도 진료 맥락이 끊기지 않도록 진료 전·중·후 기록을 이어주는 프로젝트다.
 
-현재는 **Phase 1·백엔드 기반, Phase 3·4 백엔드, Phase 5 백엔드(T037~T044), 프론트 첫 화면 흐름**이 구현된 상태다. 실제 API에서 환자/진료·질문·브리핑·범위/로그·원문·업로드·전사·메모·정리·검토 후 공유·불일치를 제공한다. T010의 `--pregenerate`는 실제 fixture provider와 같은 생성·검증·저장 파이프라인을 사용한다. 백엔드는 fixture/모의 응답·직접 API로 검증했고 프론트 화면 시연은 기존 개발용 응답을 사용한다. T020·T026~T029·T033~T036·T045~T047 화면 통합은 미완료이므로 해당 Phase 전체 완료가 아니다. 외부 AI 실제 호출은 이번에 하지 않았고 AWS 자원 생성·IAM 변경·배포도 없다. 앞선 Bedrock 접근 실패는 [AWS 준비 기록](docs/aws-setup.md)에 정리했다.
+현재는 **Phase 1·백엔드 기반(T008–T020), Phase 3·4 백엔드, Phase 5 백엔드(T037~T044), 프론트 첫 화면 흐름**이 구현된 상태다. 실제 API에서 환자/진료·질문·브리핑·범위/로그·원문·업로드·전사·메모·정리·검토 후 공유·불일치를 제공한다. T010의 `--pregenerate`는 실제 fixture provider와 같은 생성·검증·저장 파이프라인을 사용한다. T020의 실제 JWT 세션·요청 취소·캐시 정리는 실제 API로 검증했다. T026~T029·T033~T036·T045~T047 화면 통합은 미완료이므로 해당 Phase 전체 완료가 아니다. 백엔드는 fixture/모의 응답·직접 API로 검증했고 외부 AI 실제 호출·AWS 자원 생성·IAM 변경·배포는 이번에 하지 않았다. 앞선 Bedrock 접근 실패는 [AWS 준비 기록](docs/aws-setup.md)에 정리했다.
 
 - [Phase 1 체크포인트와 실제 검증 결과](docs/phase1-checkpoint.md)
 - [백엔드 기반 체크포인트와 T020 인수인계](docs/backend-foundation-checkpoint.md)
+- [T020 실제 API 세션 체크포인트](docs/frontend-session-checkpoint.md)
 - [Phase 3 백엔드 체크포인트와 실제 API 인수인계](docs/phase3-backend-checkpoint.md)
 - [Phase 4 백엔드 T030~T032 검증·인수인계](docs/phase4-backend-checkpoint.md): 범위 변경·공유 로그·full 원문 스트림을 구현·검증하고 사용자 검토·게시 승인을 받았다. [이슈 #29](https://github.com/Solquick24/baton-project/issues/29)에서 `devlop` 반영 결과를 확인한다. T033~T036과 Phase 4 전체 통합은 미완료다.
 
@@ -103,7 +104,7 @@ npm run test:web
 
 ## 다음 구현 단계
 
-백엔드 T021~T025·T010 사전 생성과 T030~T032를 검증했다. 프론트 T020·T026~T029 및 T033~T036 실제 통합은 별도 담당의 남은 작업이다. Phase 2~4 전체 완료는 아니다.
+백엔드 T021~T025·T010 사전 생성과 T030~T032를 검증했다. T020 실제 API 세션 검증도 완료했다. 프론트 T026~T029 및 T033~T036 실제 화면 수용 검증은 남은 작업이다. Phase 3~4 전체 완료는 아니다.
 Tier A(T001–T049)를 먼저 수행하고 Tier B와 마지막 결과 기록을 이어간다.
 선택 2단계·화면만인 Tier C(T052–T064)는 사람이 명시적으로 요청할 때만 진행한다.
 새 checkout에서는 다음 값을 지정해 Spec Kit가 main에서도 feature를 찾게 한다.

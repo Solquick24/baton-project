@@ -8,7 +8,7 @@ description: "최종 기획안 기반 로컬 MVP 구현 작업"
 **Created**: 2026-10-09
 **Prerequisites**: plan.md·spec.md와 현재 사용자 결정: 로컬 서버·SQLite·시드 로그인, AI만 AWS, 검토 후 공유.
 **Tests**: 명세 SC와 헌장이 요구하는 권한·근거·저장 블록·공유·E2E 검증을 포함한다.
-**Organization**: 사용자 이야기별 독립 시연·검증 단위로 나눈다. Phase 1(T001–T007), T008–T019 백엔드 기반과 T021–T025 백엔드를 구현·검증했다. T010의 --pregenerate도 검증했다. T020·T026–T029 실제 프론트 통합과 후속 작업은 미완료다. Phase 2·3 전체 완료가 아니다.
+**Organization**: 사용자 이야기별 독립 시연·검증 단위로 나눈다. Phase 1(T001–T007), Phase 2(T008–T020) 기반과 T021–T025 백엔드를 구현·검증했다. T010의 --pregenerate도 검증했다. T026–T029 실제 프론트 화면 수용 검증과 후속 작업은 미완료다. Phase 3 전체 완료가 아니다.
 
 ## 해커톤 실행 범위 (2026-10-09 보완)
 
@@ -73,7 +73,7 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 
 **Independent Test / Checkpoint**: 4계정 로그인, 금지 kind 미조회, 원문·위임 권한 거부, 내부 생성 입력과 외부 조회 경로 분리 검증.
 
-백엔드 기반 검증과 T020 인수인계는 [backend-foundation-checkpoint.md](../../docs/backend-foundation-checkpoint.md)에 기록했다. 이후 T010의 --pregenerate를 T023·T024와 연결한 실제 검증은 [phase3-backend-checkpoint.md](../../docs/phase3-backend-checkpoint.md)에 기록했다. T020 제외로 Phase 2 전체 완료가 아니다.
+백엔드 기반 검증과 당시 T020 인수인계는 [backend-foundation-checkpoint.md](../../docs/backend-foundation-checkpoint.md)에 기록했다. 이후 T010의 --pregenerate를 T023·T024와 연결한 실제 검증은 [phase3-backend-checkpoint.md](../../docs/phase3-backend-checkpoint.md), T020 실제 API 세션 검증은 [frontend-session-checkpoint.md](../../docs/frontend-session-checkpoint.md)에 기록했다. T020까지 완료했으며 사용자 요청으로 Task 단위에서 중지한다.
 
 - [X] T008 [P] packages/contracts/src/core.ts와 packages/contracts/src/blocks.ts에 "role=patient/lead/guardian", "scope=schedule/companion/full", "kind=schedule/companion/full", "mode=live/fixture" 및 meta·id/needsCheck·full sourceRefs의 엄격한 런타임 스키마를 정의한다. FE 연동 보완은 schemas.md 8·8.1장(record-input, draft 버전, canResolve, blocked·멱등·오류)을 포함한다.
 - [X] T009 [P] apps/api/src/adapters/sqlite/schema.sql과 apps/api/src/adapters/sqlite/database.ts에 data-model.md의 users/patients/members/hospitals/visits/block_sets/visit_blocks/questions/notes/transcripts/prescriptions/observations/alerts/jobs/share_logs/uploads 구조·외래키·UNIQUE(visitId,section,version)·UNIQUE(blockSetId,kind)·바인딩·트랜잭션을 구현한다.
@@ -87,7 +87,7 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 - [X] T017 apps/api/src/shared/errors.ts와 apps/api/src/shared/logger.ts에 401/403/404/400/409/502 계약·requestId·안전한 오류를 구현하고 원문·토큰·내부경로·다른scope 개수를 노출하지 않는다. 선행: T008.
 - [X] T018 apps/api/src/adapters/ai/providers.ts, apps/api/src/adapters/ai/bedrock.ts, apps/api/src/adapters/ai/fixture.ts에 공통 LLMProvider·live/fixture 출처·모델 tool input 수집·서버 스키마 검사·최대1회 재시도를 구현한다. structured output 보장을 단정하지 않는다. fixture provider는 fixtures/expected/manifest.json 규칙(whenNoteIncludes·failOnAttempts)으로 응답을 고른다. 선행: T008, T017.
 - [X] T019 apps/api/src/modules/jobs/service.ts, apps/api/src/workers/runner.ts와 apps/api/src/handlers/jobs.ts에 "status=queued/running/succeeded/failed"·attempt·버전별중복·재시작running→failed·안전한resultVersion 조회를 구현한다. 선행: T009, T014, T017.
-- [ ] T020 apps/web/src/lib/api.ts와 apps/web/src/app/session.tsx에 JWT 연결·401 처리·환자별 캐시·로그아웃·범위변경 시 캐시 제거를 구현하고 브라우저 scope로 서버 권한을 결정하지 않는다. 선행: T013, T008, T002.
+- [X] T020 apps/web/src/lib/api.ts와 apps/web/src/app/session.tsx에 JWT 연결·401 처리·환자별 캐시·로그아웃·범위변경 시 캐시 제거를 구현하고 브라우저 scope로 서버 권한을 결정하지 않는다. 선행: T013, T008, T002.
 
 ## Phase 3: User Story 1 - 진료 맥락 이어받기 (Priority: P1)
 
