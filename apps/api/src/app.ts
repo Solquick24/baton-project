@@ -10,6 +10,10 @@ import { installSafeLogging, newRequestId, safeLoggerOptions } from './shared/lo
 import { JobsService } from './modules/jobs/service.js';
 import { JobRunner, type JobHandlers } from './workers/runner.js';
 import { registerJobs } from './handlers/jobs.js';
+import { registerVisits } from './handlers/visits.js';
+import { registerQuestions } from './handlers/questions.js';
+import { registerBriefing } from './handlers/briefing.js';
+import { previsitHandlers } from './ai/pipelines/index.js';
 import { FixtureLLM, FixtureTranscription } from './adapters/ai/fixture.js';
 import { BedrockLLM } from './adapters/ai/bedrock.js';
 import { validatedLLM, type LLMProvider, type TranscriptionProvider } from './adapters/ai/providers.js';
@@ -40,7 +44,7 @@ export async function buildApp(options: { config?: AppConfig; logger?: boolean; 
   // Live STT adapter belongs to T039; never silently claim it is available.
   const stt = options.stt ?? (config.sttMode === 'fixture' ? new FixtureTranscription(config.fixturesDir) : { async transcribe() { throw new Error('Live 전사는 T039 구현이 필요해요.'); } });
   const jobs = new JobsService(db);
-  const runner = new JobRunner(jobs, options.jobHandlers);
+  const runner = new JobRunner(jobs, { ...previsitHandlers(db, llm), ...options.jobHandlers });
   jobs.recoverRunning();
   app.decorate('baton', { db, llm, stt, jobs, runner });
   app.addHook('onReady', async () => { runner.start(); });
@@ -49,6 +53,9 @@ export async function buildApp(options: { config?: AppConfig; logger?: boolean; 
   installSafeLogging(app);
   registerAuth(app, db);
   registerJobs(app, jobs);
+  registerVisits(app, db, config.demoToday);
+  registerQuestions(app, db, jobs);
+  registerBriefing(app, db, jobs);
   app.get('/api/health', async () => healthResponseSchema.parse({ status: 'ok' }));
   return app;
 }

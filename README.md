@@ -2,10 +2,11 @@
 
 가족이 번갈아 동행해도 진료 맥락이 끊기지 않도록 진료 전·중·후 기록을 이어주는 프로젝트다.
 
-현재는 **Phase 1과 백엔드·공통 기반(T008–T019, T010 부분 구현), 프론트 첫 화면 흐름**이 구현된 상태다. 백엔드는 SQLite·기본 시드·JWT 로그인·현재 권한 검사·블록 repository·provider 스키마 검증·jobs 기반을 제공한다. 실제 API는 health·로그인·jobs 조회이며 프론트의 홈·질문·브리핑·읽기 타임라인·화면 설정 시연은 개발용 응답을 사용한다. T020의 실제 API 통합과 후속 생성·공유 기능은 아직 미완료다. 이 구현에서는 AWS 자원 생성·IAM 변경·배포를 하지 않았다. 앞선 AWS 확인 결과는 [AWS 준비 기록](docs/aws-setup.md)에 정리했다.
+현재는 **Phase 1, 백엔드·공통 기반(T008–T019), Phase 3 백엔드(T021–T025), 프론트 첫 화면 흐름**이 구현된 상태다. 실제 API에서 환자 목록·홈·타임라인·진료 조회·질문 등록/통합·브리핑 생성/조회를 제공하며, T010의 `--pregenerate`는 실제 fixture provider와 같은 생성·검증·저장 파이프라인을 사용한다. 프론트 화면 시연은 기존 개발용 응답을 사용한다. T020·T026–T029 실제 API 통합 검증과 후속 진료 정리·공유는 미완료이므로 Phase 2·3 전체 완료가 아니다. 이번 구현은 fixture로 검증했으며 AWS 자원 생성·IAM 변경·배포를 하지 않았다. 앞선 Bedrock 접근 실패는 [AWS 준비 기록](docs/aws-setup.md)에 정리했다.
 
 - [Phase 1 체크포인트와 실제 검증 결과](docs/phase1-checkpoint.md)
 - [백엔드 기반 체크포인트와 T020 인수인계](docs/backend-foundation-checkpoint.md)
+- [Phase 3 백엔드 체크포인트와 실제 API 인수인계](docs/phase3-backend-checkpoint.md)
 
 ## 문서
 

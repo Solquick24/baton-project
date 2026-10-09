@@ -58,7 +58,7 @@ describe('local API assembly', () => {
   it('does not expose internal routes, request paths or local configuration', async () => {
     const app = await buildApp();
     try {
-      const response = await app.inject('/api/patients/p_01/home?secret=private');
+      const response = await app.inject('/api/__internal/config?secret=private');
       expect(response.statusCode).toBe(404);
       const body = response.json();
       expect(body.error.code).toBe('not_found');

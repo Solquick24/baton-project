@@ -1,0 +1,26 @@
+{
+  "mode": "fixture",
+  "database": "separate temporary file",
+  "jobs": [
+    {
+      "kind": "briefing",
+      "status": "succeeded",
+      "mode": "fixture",
+      "resultVersion": 1,
+      "resultState": "ready"
+    },
+    {
+      "kind": "merge_questions",
+      "status": "succeeded",
+      "mode": "fixture",
+      "resultVersion": 1,
+      "resultState": "ready"
+    }
+  ],
+  "companionChanges": 2,
+  "companionQuestions": 3,
+  "scheduleQuestionsAndBriefing": 404,
+  "get10AdditionalProviderCalls": 0,
+  "developmentDatabaseHashesUnchanged": true,
+  "recordAutoPublished": false
+}
