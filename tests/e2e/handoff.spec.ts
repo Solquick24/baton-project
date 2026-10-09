@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { auth, login, reset, visit } from './helpers';
+
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('baton.onboarding', JSON.stringify({ version: 1, completedAt: Date.now(), lastVisitedAt: Date.now() })));
+});
 test.beforeEach(async ({ request }) => reset(request));
 
 test('B generates questions 3 → merged 2 plus AI 1 → briefing using real jobs without full leakage', async ({ page, request }) => {

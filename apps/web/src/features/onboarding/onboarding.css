@@ -1,0 +1,44 @@
+.onboarding-dialog { width:min(100%,520px); height:100dvh; max-width:100%; max-height:100dvh; margin:auto; padding:0; border:0; color:var(--ink); background:var(--paper); overflow:auto; overscroll-behavior:contain; }
+.onboarding-dialog::backdrop { background:rgb(0 0 0 / .62); }
+.onboarding-layout { display:flex; flex-direction:column; height:100%; padding:calc(12px + env(safe-area-inset-top)) 24px calc(20px + env(safe-area-inset-bottom)); }
+.onboarding-top { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+.onboarding-top .wordmark { color:var(--teal); margin-right:auto; }
+.onboarding-top button { border:0; font-size:.8rem; color:var(--muted); padding-inline:8px; }
+.onboarding-slide { flex:1; min-height:0; overflow-y:auto; padding:24px 0 12px; touch-action:pan-y pinch-zoom; }
+.onboarding-step { display:flex; gap:12px; align-items:center; color:var(--teal); font-weight:700; font-size:.85rem; margin:0 0 12px; }
+.onboarding-step span { color:var(--muted); font-weight:500; }
+.onboarding-slide h1 { font-size:1.45rem; line-height:1.4; margin:0 0 14px; word-break:keep-all; overflow-wrap:anywhere; }
+.onboarding-slide h1:focus { outline:none; }
+.onboarding-slide h1 em { color:var(--teal); font-style:normal; }
+.onboarding-slide > p:not(.onboarding-step) { font-size:.92rem; line-height:1.65; margin:0; }
+.onboarding-visual { display:grid; place-items:center; margin:20px 0; }
+.onboarding-picture { width:100%; max-width:340px; height:auto; }
+.onboarding-example { width:min(100%,300px); border:var(--line) solid var(--border); border-radius:24px; position:relative; overflow:hidden; background:var(--paper); }
+.onboarding-example-top { display:flex; justify-content:space-between; align-items:center; padding:16px; font-size:.8rem; }
+.onboarding-example-top span { font-size:.65rem; color:var(--muted); }
+.onboarding-example-body { padding:0 16px 12px; }
+.onboarding-example-body p { margin:0 0 12px; }
+.onboarding-example-lines { display:grid; gap:8px; padding:12px 0; }
+.onboarding-example-lines span { display:block; height:8px; background:var(--border); border-radius:8px; }
+.onboarding-example-lines span:last-child { width:65%; }
+.onboarding-example-card { padding:14px 10px; border:var(--line) solid var(--border); border-radius:10px; font-size:.75rem; margin-bottom:12px; }
+.onboarding-spotlight { position:relative; z-index:1; display:flex; justify-content:space-between; align-items:center; gap:8px; min-height:52px; padding:12px; background:var(--teal); color:white; font-size:.8rem; font-weight:700; border-radius:12px; border:2px solid white; box-shadow:0 0 0 400px rgb(0 0 0 / .56); }
+.onboarding-example-nav { text-align:center; padding:12px; border-top:var(--line) solid var(--border); font-size:.7rem; }
+.onboarding-slide .onboarding-hint { padding:12px 14px; border-radius:12px; background:var(--tint); color:var(--teal); font-weight:600; }
+.onboarding-slide .onboarding-example-note { margin-top:10px !important; color:var(--muted); font-size:.75rem !important; }
+.onboarding-footer { flex-shrink:0; margin-top:12px; }
+.onboarding-progress { display:flex; justify-content:center; }
+.onboarding-progress button { border:0; border-radius:0; min-width:48px; padding:10px; }
+.onboarding-progress span { width:8px; height:8px; border-radius:99px; background:var(--muted); }
+.onboarding-progress button[aria-current] span { width:24px; background:var(--teal); }
+.onboarding-swipe { text-align:center; font-size:.72rem; color:var(--muted); margin:0 0 16px; }
+.onboarding-actions { display:flex; gap:12px; }
+.onboarding-actions > .primary { flex:1; justify-content:space-between; min-height:56px; padding-inline:20px; }
+.onboarding-actions > button:not(.primary) { min-width:72px; }
+.onboarding-reminder { max-width:520px; margin:auto; padding:16px 20px; border-bottom:var(--line) solid var(--border); background:var(--tint); }
+.onboarding-reminder p { margin:0 0 8px; }
+.onboarding-reminder > div { display:flex; flex-wrap:wrap; gap:8px; }
+:root[data-contrast="true"] .onboarding-dialog { border:3px solid black; }
+:root[data-contrast="true"] .onboarding-hint { border:3px solid black; }
+:root[data-contrast="true"] .onboarding-spotlight { border:3px solid black; }
+@media (max-width:374px) { .onboarding-layout { padding-inline:16px; } }
