@@ -26,6 +26,7 @@
 헌장 원칙 I~V > spec.md > schemas.md·screens.md·seed-story.md > plan.md·data-model.md·api.md > tasks.md > 최종 기획안.
 
 - 헌장의 '기본 기술 방향'(Cognito·Lambda·DynamoDB·S3)은 이번 데모에서 plan.md의 승인 예외(로컬 Fastify·SQLite·시드 JWT, AI만 AWS)로 대체됐다. 그 부분은 plan.md를 따른다.
+- 확정되지 않은 사항을 결정의 근거로 사용하지 않는다.
 - 문서끼리 맞지 않거나 문서에 없는 결정이 필요하면 **더 좁게 공개하는 쪽**(정보가 덜 나가는 쪽)을 고르고, `docs/decisions.md` 맨 아래 '구현 중 결정' 표에 한 줄을 남긴다. 명세 파일 자체는 고치지 않는다.
 
 ## 4. 이번 구현 범위
@@ -114,7 +115,7 @@
 ## 9. 작업 방식
 
 - Phase 순서대로 진행하고 Phase 체크포인트(tasks.md 각 Phase의 Independent Test)를 통과하면 그 작업을 `- [X]`로 표시한다. 통과 못 한 작업은 체크하지 않는다.
-- Phase가 끝날 때마다 `npm run typecheck`와 `npm run test`를 돌리고 커밋한다(메시지 예: `feat(us1): stored briefing for companion`).
+- Phase가 끝날 때마다 `npm run typecheck`와 `npm run test`를 돌리고 커밋한다. 메시지는 팀이 확정한 [커밋 컨벤션](docs/commit-convention.md)을 따른다(예: `Feat: 동행 범위의 저장된 브리핑 조회 추가`).
 - 공통 계약(`packages/contracts`)·`schema.sql`·루트 `package.json`/lockfile 변경은 한 번에 한 작업자만. 병렬 작업 중이면 먼저 merge한다.
 - 시드·fixture JSON을 바꿔야 하면 `fixtures/expected/validation.json`과 seed-story.md 기대값도 같이 고친다.
 - UI는 screens.md의 testid를 그대로 붙인다(e2e가 의존).

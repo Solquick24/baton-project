@@ -16,6 +16,7 @@
 - [최신 Codex 준비 자료와 기존 레포 비교](docs/codex-ready-review.md)
 - [이전 기획안](docs/archive/baton_planning_2026-10-09_04-15-10_KST.md) ( 자료 히스토리, 구현 근거 아님)
 - [구현 에이전트 안내 AGENTS.md](AGENTS.md)
+- [팀 커밋 컨벤션](docs/commit-convention.md)
 - [계약 스키마](specs/001-baton-mvp/contracts/schemas.md) · [화면 정의](specs/001-baton-mvp/screens.md) · [시드 스토리](specs/001-baton-mvp/seed-story.md)
 - [샘플 데이터셋 v2.1 연결·검증·다음 단계](docs/dataset-integration.md)
 - [MVP 명세](specs/001-baton-mvp/spec.md)
