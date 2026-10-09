@@ -8,7 +8,7 @@ description: "최종 기획안 기반 로컬 MVP 구현 작업"
 **Created**: 2026-10-09
 **Prerequisites**: plan.md·spec.md와 현재 사용자 결정: 로컬 서버·SQLite·시드 로그인, AI만 AWS, 검토 후 공유.
 **Tests**: 명세 SC와 헌장이 요구하는 권한·근거·저장 블록·공유·E2E 검증을 포함한다. 기능 코드는 아직 없다.
-**Organization**: 사용자 이야기별 독립 시연·검증 단위로 나눈다. 모든 체크는 아직 미수행이다.
+**Organization**: 사용자 이야기별 독립 시연·검증 단위로 나눈다. Phase 1(T001–T007) 실행 기반을 구현·검증했다. 이후 작업은 미수행이다.
 
 ## 해커톤 실행 범위 (2026-10-09 보완)
 
@@ -23,6 +23,25 @@ description: "최종 기획안 기반 로컬 MVP 구현 작업"
 [seed-story.md](seed-story.md)(시드 이야기·범위별 기대값). 시드·fixture JSON은 `fixtures/`에 이미 있다.
 작업 설명과 이 문서들이 다르면 보완 문서를 따른다(AGENTS.md 3장).
 
+## UI PDF 연결 (2026-10-09)
+
+[팀 제공 PDF](../../docs/references/baton-ui-wireframe-selection.pdf) 25쪽의 연결·조정은 [반영 기록](../../docs/wireframe-integration.md)과 screens.md를 따른다. 아래 참조는 기존 작업의 UI 구현·검증 기준을 보완한다. 새 기능·작업 완료를 뜻하지 않으며, 작업 ID·선행·Tier는 유지한다.
+
+| 작업 | PDF 참조 | 적용·검증 사항 |
+|---|---|---|
+| T002, T048 | 공통 | 390px 한 열·흰 둥근 카드·청록 버튼·남색 과 칩·노란 확인 안내, 고대비·큰 글씨·하단 여백 |
+| T026 | 1·3·4·5쪽(01·02·03·04) | 로그인·다음 진료·범위별 홈·내 기록 빈 상태. 6쪽 환자 복약 홈은 제외 |
+| T027 | 9쪽(08) | 작성자 질문 카드·옅은 청록 통합 패널·통합 2개 + AI 추가 1개, 근거 full 전용 |
+| T028, T029 | 10쪽(09) | 질문 카드를 변경 바로 뒤로. B의 보통 글씨 390×844 첫 화면에 변경·질문 3개, full 원문 버튼 부재 |
+| T033, T049 | 설정은 PDF 없음; 7쪽 모양 참고 | 기존 설정·범위 관리·공유 기록 유지. 초대·공유 중단 실동작 추가 없음 |
+| T034, T036 | 21·23·24쪽(21·23·23-1) | 세로 선·점·공유본 카드, 단일 과 필터·금지 블록 부재·변경 후 이전 캐시 제거. 쉬운 요약은 카드 안 펼치기 |
+| T045, T047 | 15·18쪽(15·18) | 녹음 대신 파일 업로드·진행 상태, 검토 후 명시적 공유. 정리 완료만으로 가족 공개·성공 배너 없음 |
+| T046 | 19쪽(19) | full 전용 메모/약봉투 카드·노란 차이 안내·처리 3가지, 모바일에서는 세로 배치 |
+| T050 | 11·12쪽(10·11) | 정적 위치·약도·시드의 층별 5단계·참고 경험, 계산된 경로 없음 |
+| T051 | 구현한 핵심 화면 | 아주 큰 글씨·고대비·키보드·하단 버튼에서 내용 잘림·겹침 없음. 긴 PDF 높이를 고정하지 않음 |
+
+Tier C는 PDF 연결표만 제공하며 이번 문서 반영 요청으로 착수하지 않는다. spec·API·시드·fixture의 현재 기대값을 유지한다.
+
 ## Format: `[ID] [P?] [Story] Description`
 
 [P]는 같은 단계의 서로 다른 파일에서 실행 가능한 작업이다. Setup/Foundation 및 명시된 선행은 먼저 완료한다.
@@ -32,7 +51,7 @@ description: "최종 기획안 기반 로컬 MVP 구현 작업"
 
 apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용한다.
 현재 폴더·workspace 뼈대는 이미 만들어졌으므로 재생성 작업은 넣지 않았다.
-아래는 코드 작성 계획이며 이번 문서 작업에서 구현 완료로 체크하지 않는다.
+작업은 실제 검증 후에만 체크한다. Phase 1 결과·seed 명령의 T010 선행 조건·Bedrock 접근 거부는 docs/phase1-checkpoint.md에 기록했다.
 
 ## Phase 1: Setup (Shared Infrastructure)
 
@@ -40,13 +59,13 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 
 **Independent Test / Checkpoint**: web/api/contracts 실제 타입 검사·빌드와 SQLite 바인딩 로딩, 로컬 web/API 시작 확인.
 
-- [ ] T001 package.json, apps/web/package.json, apps/api/package.json, packages/contracts/package.json과 package-lock.json에 React/Vite/TypeScript/Fastify5/JWT/better-sqlite3/Zod/AWS SDK/Vitest/Playwright를 호환성 확인 후 고정하고 SQLite 네이티브 바인딩을 점검한다.
-- [ ] T002 apps/web/index.html, apps/web/src/main.tsx, apps/web/vite.config.ts와 apps/web/src/app/App.tsx에 로컬 프론트 진입점·API 프록시·라우팅 기반을 추가한다. 선행: T001.
-- [ ] T003 apps/api/src/app.ts, apps/api/src/server.ts에 Fastify 조립·로컬 시작·안전한 종료를 추가하고 apps/api/package.json에 실제 dev/build 명령을 정의한다. 선행: T001.
-- [ ] T004 apps/api/src/shared/config.ts에 환경 변수 로딩(`process.loadEnvFile`)·필수값 검증·apps/api 기준 상대 경로 해석을 구현한다. `.env.example` 두 개와 `.gitignore`(apps/api/data/)는 2026-10-09 보완에서 이미 로컬 구조로 교체했다. 선행: T001.
-- [ ] T005 package.json, packages/contracts/package.json, packages/contracts/src/index.ts, tsconfig.base.json과 워크스페이스 tsconfig에 실제 dev/seed/typecheck/build/test/test:e2e·계약 export를 추가하고 입력 없는 가짜 성공 명령을 사용하지 않는다. 선행: T002, T003.
-- [ ] T006 apps/api/vitest.config.ts, playwright.config.ts에 API inject·단위검증·로컬 E2E 도구를 설정하고 테스트는 fixture 모드에서 비용 없이 실행되게 한다. 선행: T005.
-- [ ] T007 scripts/check-ai-access.ts와 docs/decisions.md에 제공 계정의 서울 Bedrock 후보 모델·Transcribe·기존 staging 버킷 접근과 샘플 호출 결과를 기록한다. 새 AWS 자원을 배포하지 않고 실패 시 fixture로 시연함을 명시한다. 선행: T004.
+- [X] T001 package.json, apps/web/package.json, apps/api/package.json, packages/contracts/package.json과 package-lock.json에 React/Vite/TypeScript/Fastify5/JWT/better-sqlite3/Zod/AWS SDK/Vitest/Playwright를 호환성 확인 후 고정하고 SQLite 네이티브 바인딩을 점검한다.
+- [X] T002 apps/web/index.html, apps/web/src/main.tsx, apps/web/vite.config.ts와 apps/web/src/app/App.tsx에 로컬 프론트 진입점·API 프록시·라우팅 기반을 추가한다. 선행: T001.
+- [X] T003 apps/api/src/app.ts, apps/api/src/server.ts에 Fastify 조립·로컬 시작·안전한 종료를 추가하고 apps/api/package.json에 실제 dev/build 명령을 정의한다. 선행: T001.
+- [X] T004 apps/api/src/shared/config.ts에 환경 변수 로딩(`process.loadEnvFile`)·필수값 검증·apps/api 기준 상대 경로 해석을 구현한다. `.env.example` 두 개와 `.gitignore`(apps/api/data/)는 2026-10-09 보완에서 이미 로컬 구조로 교체했다. 선행: T001.
+- [X] T005 package.json, packages/contracts/package.json, packages/contracts/src/index.ts, tsconfig.base.json과 워크스페이스 tsconfig에 실제 dev/seed/typecheck/build/test/test:e2e·계약 export를 추가하고 입력 없는 가짜 성공 명령을 사용하지 않는다. 선행: T002, T003.
+- [X] T006 apps/api/vitest.config.ts, playwright.config.ts에 API inject·단위검증·로컬 E2E 도구를 설정하고 테스트는 fixture 모드에서 비용 없이 실행되게 한다. 선행: T005.
+- [X] T007 scripts/check-ai-access.ts와 docs/decisions.md에 제공 계정의 서울 Bedrock 후보 모델·Transcribe·기존 staging 버킷 접근과 샘플 호출 결과를 기록한다. 새 AWS 자원을 배포하지 않고 실패 시 fixture로 시연함을 명시한다. 선행: T004.
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -54,7 +73,7 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 
 **Independent Test / Checkpoint**: 4계정 로그인, 금지 kind 미조회, 원문·위임 권한 거부, 내부 생성 입력과 외부 조회 경로 분리 검증.
 
-- [ ] T008 [P] packages/contracts/src/core.ts와 packages/contracts/src/blocks.ts에 "role=patient/lead/guardian", "scope=schedule/companion/full", "kind=schedule/companion/full", "mode=live/fixture" 및 meta·id/needsCheck·full sourceRefs의 엄격한 런타임 스키마를 정의한다.
+- [ ] T008 [P] packages/contracts/src/core.ts와 packages/contracts/src/blocks.ts에 "role=patient/lead/guardian", "scope=schedule/companion/full", "kind=schedule/companion/full", "mode=live/fixture" 및 meta·id/needsCheck·full sourceRefs의 엄격한 런타임 스키마를 정의한다. FE 연동 보완은 schemas.md 8·8.1장(record-input, draft 버전, canResolve, blocked·멱등·오류)을 포함한다.
 - [ ] T009 [P] apps/api/src/adapters/sqlite/schema.sql과 apps/api/src/adapters/sqlite/database.ts에 data-model.md의 users/patients/members/hospitals/visits/block_sets/visit_blocks/questions/notes/transcripts/prescriptions/observations/alerts/jobs/share_logs/uploads 구조·외래키·UNIQUE(visitId,section,version)·UNIQUE(blockSetId,kind)·바인딩·트랜잭션을 구현한다.
 - [ ] T010 scripts/seed.ts에 이미 작성된 fixtures/seed/*.json(accounts·patient·hospital·visits·records·questions·observations·prescriptions)을 읽어 DB를 다시 만들고, demoPassword를 scrypt 해시로만 저장하고, alerts 코드 비교를 실행해 fixtures/expected/alerts.json과 같은 Alert를 만든다. `--pregenerate`는 fixture provider로 v_im_03 질문 통합·브리핑을 생성한다. 테스트용 `seedDatabase(db, opts)` 함수로도 export한다. 선행: T009, T008.
 - [ ] T011 [P] apps/api/tests/auth.test.ts에 JWT 변조·만료·issuer/audience·비구성원·위임false·현재 관계 재조회·scope 토큰 고정 금지 테스트를 먼저 작성한다.

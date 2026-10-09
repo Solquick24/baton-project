@@ -1,6 +1,6 @@
 # API workspace
 
-로컬 TypeScript/Fastify API의 자리다. 소스·의존성·DB는 아직 없고 설정 뼈대만 있다.
+Phase 1의 Fastify 서버·설정 검증이 구현됐다. `npm run dev --workspace @baton/api` 또는 `npm run start --workspace @baton/api`로 시작하며, `GET /api/health`만 제공한다. `apps/api/.env`의 JWT_SECRET은 32자 이상이어야 한다. DB·인증 handler·아래 기능 모듈은 Phase 2 이후 대상이다.
 
 - handlers: HTTP routes; 요청 검증→인증·관계·행동 권한→기능 모듈→허용 블록 응답.
 - modules: members·visits·questions·briefing·summaries·alerts·jobs.

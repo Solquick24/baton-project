@@ -5,7 +5,7 @@
 ## 1. 지금 상태와 목표
 
 - 바통은 가족이 번갈아 진료에 동행해도 맥락이 끊기지 않게 하는 모바일 웹 MVP다. **해커톤 당일(약 5시간·4명) 로컬 시연용**이다.
-- 지금 저장소에는 명세·설계·시드 자료·빈 폴더만 있다. 앱 코드는 없다.
+- Phase 1(T001–T007)의 로컬 실행·설정·검증 기반이 구현됐다. API는 health만 제공하고 웹은 시작 화면만 있다. DB·로그인·사용자 기능·AI provider는 Phase 2 이후 대상이다. 현재 검증 결과는 docs/phase1-checkpoint.md를 읽는다.
 - 목표: `specs/001-baton-mvp/tasks.md`의 **Tier A 작업**을 끝내 두 시연 경로(이어받기·범위 변경)를 로컬에서 2회 연속 완주하는 것.
 
 ## 2. 읽는 순서
@@ -13,6 +13,7 @@
 1. `specs/001-baton-mvp/spec.md` — 요구사항(FR·SC)과 범위별 허용표
 2. `specs/001-baton-mvp/contracts/schemas.md` — 블록·응답·작업·검증기의 **정확한 형태**
 3. `specs/001-baton-mvp/screens.md` — 화면 번호·경로·범위별 표시·testid
+   - 실제 화면 배치는 `docs/references/baton-ui-wireframe-selection.pdf`와 `docs/wireframe-integration.md`를 함께 본다. PDF 쪽 번호와 화면 번호는 다르며, PDF가 기능·권한 계약이나 Tier C 구현 범위를 확대하지 않는다.
 4. `specs/001-baton-mvp/seed-story.md` — 시드 인물·이야기·범위별 기대값
 5. `specs/001-baton-mvp/plan.md`, `data-model.md`, `contracts/api.md`, `research.md`
 6. `specs/001-baton-mvp/tasks.md` — 작업 순서와 Tier
@@ -115,6 +116,7 @@
 ## 9. 작업 방식
 
 - 새 작업·커밋·push는 `devlop`에서 진행하고, 검증한 변경을 `main`에 병합한다. 세부 순서는 [브랜치 작업 방식](docs/branch-workflow.md)을 따른다.
+- 코드·문서·환경 설정 변경에 같은 흐름을 적용한다. 실제 `.env`·인증 정보는 5장 10번에 따라 로컬에 두고, 공유할 환경 설정은 `.env.example`에 반영한다.
 - Phase 순서대로 진행하고 Phase 체크포인트(tasks.md 각 Phase의 Independent Test)를 통과하면 그 작업을 `- [X]`로 표시한다. 통과 못 한 작업은 체크하지 않는다.
 - Phase가 끝날 때마다 `npm run typecheck`와 `npm run test`를 돌리고 커밋한다. 메시지는 팀이 확정한 [커밋 컨벤션](docs/commit-convention.md)을 따른다(예: `Feat: 동행 범위의 저장된 브리핑 조회 추가`).
 - 공통 계약(`packages/contracts`)·`schema.sql`·루트 `package.json`/lockfile 변경은 한 번에 한 작업자만. 병렬 작업 중이면 먼저 merge한다.

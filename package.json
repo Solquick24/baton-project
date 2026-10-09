@@ -2,7 +2,25 @@
   "name": "baton-prework",
   "version": "0.0.0",
   "private": true,
-  "description": "Baton MVP specification and configuration-only scaffold",
+  "description": "Baton local MVP",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently --kill-others --names api,web \"npm run dev --workspace @baton/api\" \"npm run dev --workspace @baton/web\"",
+    "seed": "tsx scripts/seed.ts",
+    "check:ai": "tsx scripts/check-ai-access.ts",
+    "typecheck": "npm run typecheck --workspaces && tsc --noEmit -p tsconfig.tools.json",
+    "build": "npm run typecheck && npm run build --workspace @baton/web",
+    "test": "npm run test --workspace @baton/api",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0",
+    "@types/node": "22.20.5",
+    "concurrently": "10.0.6",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vitest": "5.0.3"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"
