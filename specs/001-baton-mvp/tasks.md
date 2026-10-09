@@ -8,7 +8,7 @@ description: "최종 기획안 기반 로컬 MVP 구현 작업"
 **Created**: 2026-10-09
 **Prerequisites**: plan.md·spec.md와 현재 사용자 결정: 로컬 서버·SQLite·시드 로그인, AI만 AWS, 검토 후 공유.
 **Tests**: 명세 SC와 헌장이 요구하는 권한·근거·저장 블록·공유·E2E 검증을 포함한다.
-**Organization**: 사용자 이야기별 독립 시연·검증 단위로 나눈다. Phase 1(T001–T007), Phase 2(T008–T020) 기반과 T021–T025 백엔드를 구현·검증했다. T010의 --pregenerate도 검증했다. T026–T029 실제 프론트 화면 수용 검증과 후속 작업은 미완료다. Phase 3 전체 완료가 아니다.
+**Organization**: 사용자 이야기별 독립 시연·검증 단위로 나눈다. Phase 1(T001–T007), Phase 2(T008–T020) 기반과 T021–T025 백엔드를 구현·검증했다. T010의 --pregenerate도 검증했다. T026–T029·T033–T036·T045–T047의 실제 API 화면 통합 검증은 이슈 #32 작업 브랜치에서 완료했다. 최신 결과와 미검증 외부 AI/후속 범위는 [통합 체크포인트](../../docs/api-integration-checkpoint.md)를 따른다. T048~T051은 이번 통합으로 완료 처리하지 않는다.
 
 ## 해커톤 실행 범위 (2026-10-09 보완)
 
@@ -73,7 +73,7 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 
 **Independent Test / Checkpoint**: 4계정 로그인, 금지 kind 미조회, 원문·위임 권한 거부, 내부 생성 입력과 외부 조회 경로 분리 검증.
 
-백엔드 기반 검증과 당시 T020 인수인계는 [backend-foundation-checkpoint.md](../../docs/backend-foundation-checkpoint.md)에 기록했다. 이후 T010의 --pregenerate를 T023·T024와 연결한 실제 검증은 [phase3-backend-checkpoint.md](../../docs/phase3-backend-checkpoint.md), T020 실제 API 세션 검증은 [frontend-session-checkpoint.md](../../docs/frontend-session-checkpoint.md)에 기록했다. T020까지 완료했으며 사용자 요청으로 Task 단위에서 중지한다.
+백엔드 기반 검증과 당시 T020 인수인계는 [backend-foundation-checkpoint.md](../../docs/backend-foundation-checkpoint.md)에 기록했다. 이후 T010의 --pregenerate를 T023·T024와 연결한 실제 검증은 [phase3-backend-checkpoint.md](../../docs/phase3-backend-checkpoint.md), T020 실제 API 세션 검증은 [frontend-session-checkpoint.md](../../docs/frontend-session-checkpoint.md)에 기록했다. T020 당시 Task 단위 중지 기록을 보존한다. 후속 실제 화면 통합 검증은 [통합 체크포인트](../../docs/api-integration-checkpoint.md)를 따른다.
 
 - [X] T008 [P] packages/contracts/src/core.ts와 packages/contracts/src/blocks.ts에 "role=patient/lead/guardian", "scope=schedule/companion/full", "kind=schedule/companion/full", "mode=live/fixture" 및 meta·id/needsCheck·full sourceRefs의 엄격한 런타임 스키마를 정의한다. FE 연동 보완은 schemas.md 8·8.1장(record-input, draft 버전, canResolve, blocked·멱등·오류)을 포함한다.
 - [X] T009 [P] apps/api/src/adapters/sqlite/schema.sql과 apps/api/src/adapters/sqlite/database.ts에 data-model.md의 users/patients/members/hospitals/visits/block_sets/visit_blocks/questions/notes/transcripts/prescriptions/observations/alerts/jobs/share_logs/uploads 구조·외래키·UNIQUE(visitId,section,version)·UNIQUE(blockSetId,kind)·바인딩·트랜잭션을 구현한다.
@@ -100,10 +100,10 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 - [X] T023 [US1] apps/api/src/ai/prompts/merge-questions.ts와 apps/api/src/ai/pipelines/merge-questions.ts에 원 질문 3개→통합 2개+근거 추가 1개, questions 섹션 블록 세트(companion.mergedQuestions·full.basisRefs) 저장과 ready 시 visits.questionsVersion 갱신을 구현한다. fixture 기대값: fixtures/expected/merge-questions/v_im_03.json. 선행: T022.
 - [X] T024 [US1] apps/api/src/ai/prompts/briefing.ts, apps/api/src/ai/pipelines/briefing.ts, apps/api/src/modules/briefing/service.ts와 apps/api/src/handlers/briefing.ts에 같은 과의 공유본 blocks·관찰 메모·열린 alerts·통합 질문으로 briefing 섹션 블록 세트(companion 변경/질문·full 이유/watch/tests/prep/sourceRefs) 생성·버전 포인터·stale 표시·허용 조회를 구현한다. fixture 기대값: fixtures/expected/briefing/v_im_03.json. 선행: T023.
 - [X] T025 [US1] apps/api/src/modules/visits/query.ts와 apps/api/src/handlers/visits.ts에 /me/patients·/home·/timeline·/visits 조회를 공통 assembler로 연결하고 schedule의 확인 항목 개수/질문/원문과 companion의 ALERT 상세를 제외한다. 선행: T015, T021.
-- [ ] T026 [US1] apps/web/src/features/auth/LoginPage.tsx와 apps/web/src/features/home/HomePage.tsx에 4계정 로그인·기록 주인 칩·내 기록의 빈 화면·범위에 따른 홈·지난 내과 기록을 구현한다. 선행: T025.
-- [ ] T027 [US1] apps/web/src/features/questions/QuestionsPage.tsx에 질문등록·작성자·통합관계·AI 추가·needsCheck를 표시하고 근거는 full에서만 연결한다. 선행: T022, T023.
-- [ ] T028 [US1] apps/web/src/features/briefing/BriefingPage.tsx와 apps/web/src/components/SourceViewer.tsx에 B의 변경/질문 중심, A의 전체 내용과 저장된 full.sourceRefs 인용을 표시하고 full이 없으면 원문 버튼 자체를 만들지 않는다. 원문 파일 연결은 T032 완료 후 붙인다. 선행: T024.
-- [ ] T029 [US1] tests/e2e/handoff.spec.ts에 B의 첫 동행 30초읽기·질문3개·내과격리·원문 부재·A의 저장 근거 인용 조회·GET10회 AI 0회 수용 시나리오를 검증한다. 파일 다운로드 권한 검증은 US2에서 수행한다. 선행: T026, T027, T028.
+- [X] T026 [US1] apps/web/src/features/auth/LoginPage.tsx와 apps/web/src/features/home/HomePage.tsx에 4계정 로그인·기록 주인 칩·내 기록의 빈 화면·범위에 따른 홈·지난 내과 기록을 구현한다. 선행: T025.
+- [X] T027 [US1] apps/web/src/features/questions/QuestionsPage.tsx에 질문등록·작성자·통합관계·AI 추가·needsCheck를 표시하고 근거는 full에서만 연결한다. 선행: T022, T023.
+- [X] T028 [US1] apps/web/src/features/briefing/BriefingPage.tsx와 apps/web/src/components/SourceViewer.tsx에 B의 변경/질문 중심, A의 전체 내용과 저장된 full.sourceRefs 인용을 표시하고 full이 없으면 원문 버튼 자체를 만들지 않는다. 원문 파일 연결은 T032 완료 후 붙인다. 선행: T024.
+- [X] T029 [US1] tests/e2e/handoff.spec.ts에 B의 첫 동행 30초읽기·질문3개·내과격리·원문 부재·A의 저장 근거 인용 조회·GET10회 AI 0회 수용 시나리오를 검증한다. 파일 다운로드 권한 검증은 US2에서 수행한다. 선행: T026, T027, T028.
 
 ## Phase 4: User Story 2 - 공개 범위 관리 (Priority: P1)
 
@@ -111,15 +111,15 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 
 **Independent Test / Checkpoint**: 생성 기능 없이 시드 공유본과4계정으로 세 scope·위임·원문·로그를 독립 검증.
 
-T030~T032 백엔드의 실제 검증 결과는 [phase4-backend-checkpoint.md](../../docs/phase4-backend-checkpoint.md)에 기록했다. T033~T036 프론트·캐시·E2E는 미완료이며 Phase 4 전체 완료가 아니다. 사용자 검토 후 커밋·게시 및 devlop 반영 승인을 받았으며 실제 반영 결과는 [이슈 #29](https://github.com/Solquick24/baton-project/issues/29)에 기록한다.
+T030~T032 백엔드의 실제 검증 결과는 [phase4-backend-checkpoint.md](../../docs/phase4-backend-checkpoint.md)에 기록했다. 당시 T033~T036 프론트·캐시·E2E는 미완료였다. 이후 이슈 #32에서 실제 API 화면 통합/캐시/E2E를 검증했으며 [통합 체크포인트](../../docs/api-integration-checkpoint.md)를 따른다. 사용자 검토 후 커밋·게시 및 devlop 반영 승인을 받았으며 실제 반영 결과는 [이슈 #29](https://github.com/Solquick24/baton-project/issues/29)에 기록한다.
 
 - [X] T030 [P] [US2] apps/api/tests/members.test.ts와 apps/api/tests/source-access.test.ts에 B의 무단 변경 403·위임 false인 A의 변경 403·scope 반영·원문·인용 full 전용·로그 비노출·kind SELECT spy를 먼저 작성한다.
 - [X] T031 [US2] apps/api/src/modules/members/service.ts와 apps/api/src/handlers/members.ts에 GET members/PUT scope/GET members/{uid}/share-log/GET share-log, "action=start/scope_change/stop/publish" 중 1단계 scope_change 기록(start·publish 시드 기록 조회 포함)과 현재/새값·actor·time 트랜잭션을 구현한다. 같은 값 변경은 로그를 남기지 않는다. 선행: T030.
 - [X] T032 [US2] apps/api/src/adapters/local/files.ts와 apps/api/src/handlers/sources.ts에 full 전용 인증 스트림·환자·진료 소속·경로 탈출 거부·내부 경로 비노출을 구현한다. 공개 static은 사용하지 않는다. 선행: T030.
-- [ ] T033 [US2] apps/web/src/features/settings/SharingPage.tsx에 25-2의 세 단계 항목표·민감표시·환자·위임 대표 관리·공유 기록·일반 보호자 범위명 비노출을 구현한다. 선행: T031.
-- [ ] T034 [US2] apps/web/src/features/timeline/TimelinePage.tsx에 schedule 공통 정보, companion 약 변경/주의/쉬운요약/질문, full내용을 저장 블록으로 표시하고 이유/진단/수치/원문은 full에만 둔다. 선행: T025.
-- [ ] T035 [US2] apps/web/src/app/session.tsx와 apps/web/src/lib/api.ts에 범위변경의 다음조회 반영·이전캐시 제거를 완성하고 GET·scope변경에 AI를 호출하지 않도록 연결한다. 선행: T033, T034.
-- [ ] T036 [US2] tests/e2e/scope.spec.ts에 환자→B세 scope변경·C의 일정만 화면·직접 API 호출 403·금지 키 부재·scope 3회 AI 0회·로그조회 수용검증을 추가한다. 선행: T035, T032.
+- [X] T033 [US2] apps/web/src/features/settings/SharingPage.tsx에 25-2의 세 단계 항목표·민감표시·환자·위임 대표 관리·공유 기록·일반 보호자 범위명 비노출을 구현한다. 선행: T031.
+- [X] T034 [US2] apps/web/src/features/timeline/TimelinePage.tsx에 schedule 공통 정보, companion 약 변경/주의/쉬운요약/질문, full내용을 저장 블록으로 표시하고 이유/진단/수치/원문은 full에만 둔다. 선행: T025.
+- [X] T035 [US2] apps/web/src/app/session.tsx와 apps/web/src/lib/api.ts에 범위변경의 다음조회 반영·이전캐시 제거를 완성하고 GET·scope변경에 AI를 호출하지 않도록 연결한다. 선행: T033, T034.
+- [X] T036 [US2] tests/e2e/scope.spec.ts에 환자→B세 scope변경·C의 일정만 화면·직접 API 호출 403·금지 키 부재·scope 3회 AI 0회·로그조회 수용검증을 추가한다. 선행: T035, T032.
 
 ## Phase 5: User Story 3 - 진료 정리·검토·공유 (Priority: P1)
 
@@ -127,7 +127,7 @@ T030~T032 백엔드의 실제 검증 결과는 [phase4-backend-checkpoint.md](..
 
 **Independent Test / Checkpoint**: US1/US2 생성 기능 없이 가상 입력·fixture provider로 정리→검토→공유·A의 불일치를 독립 검증.
 
-사용자 승인으로 Phase 순차 진행의 예외를 적용했다. 이후 T031/T032와 OpenAI가 devlop에 병합돼 기존 Phase 5 브랜치에 보존 병합하고 백엔드 T037~T044를 제품 API 직접 호출로 검증했다. [Phase 5 최신 체크포인트](../../docs/phase5-backend-checkpoint.md)와 [실제 API 인수인계](../../docs/phase5-api-handoff.md)를 따른다. 과거 공유 테스트 skip 3건은 해제했고 API 244건 통과/skip 0이다. T045~T047 화면 통합과 외부 AI 실제 호출은 미검증이며 Phase 5 전체 완료가 아니다.
+사용자 승인으로 Phase 순차 진행의 예외를 적용했다. 이후 T031/T032와 OpenAI가 devlop에 병합돼 기존 Phase 5 브랜치에 보존 병합하고 백엔드 T037~T044를 제품 API 직접 호출로 검증했다. [Phase 5 최신 체크포인트](../../docs/phase5-backend-checkpoint.md)와 [실제 API 인수인계](../../docs/phase5-api-handoff.md)를 따른다. 과거 공유 테스트 skip 3건은 해제했고 API 244건 통과/skip 0이다. 당시 T045~T047 화면 통합과 외부 AI 실제 호출은 미검증이었다. 이후 이슈 #32에서 T045~T047 실제 API 화면 통합을 검증했다. 외부 AI 실제 호출은 여전히 미실시이며 [통합 체크포인트](../../docs/api-integration-checkpoint.md)를 따른다.
 
 - [X] T037 [P] [US3] apps/api/tests/summary-safety.test.ts에 schedule/companion의 진단명·수치·사유 혼입·quote/sourceRef 유출·알 수 없는 field·근거 없음·fixture 동일 검증을 먼저 작성한다.
 - [X] T038 [P] [US3] apps/api/tests/sharing.test.ts와 apps/api/tests/alerts.test.ts에 ready/blocked/failed·버전충돌·확정 전 가족 비공개·중복 공유·일반 확인 항목과 민감 보류 구분·ALERTfull 전용을 먼저 검증한다.
@@ -137,9 +137,9 @@ T030~T032 백엔드의 실제 검증 결과는 [phase4-backend-checkpoint.md](..
 - [X] T042 [US3] apps/api/src/modules/summaries/service.ts와 apps/api/src/handlers/summaries.ts에 메모 입력 버전·정리 job·세 블록동일 version 트랜잭션·검토본 생성·작성자·관리자의 자기 scope 검토를 구현한다. 선행: T041, T039.
 - [X] T043 [US3] apps/api/src/modules/summaries/share.ts와 apps/api/src/handlers/share.ts에 POST share의 draft/inputVersion·현행 권한·검증 ready·idempotencyKey 검사와 recordPublishedVersion·publish 로그·status=done 원자 저장을 구현하고 자동 공유하지 않는다. 선행: T042, T038, T031.
 - [X] T044 [US3] apps/api/src/modules/alerts/service.ts와 apps/api/src/handlers/alerts.ts에 시드 관찰·처방과 정리 결과 medDetails·처방의 필드별 코드 비교(schemas.md 5장)·두 full 근거·edit_note(새 revision 저장 후 재비교)/reupload(안내만)/confirm_hospital·"status=open/awaiting_confirmation/resolved"를 구현하고 병원 확인 예정은 resolved로 바꾸지 않는다. 기대값: fixtures/expected/alerts.json. 선행: T038.
-- [ ] T045 [US3] apps/web/src/features/visit/VisitPage.tsx와 apps/web/src/features/visit/ReviewPage.tsx에 업로드·메모·job진행/실패/fixture표시·자기 허용 블록 검토·공유하기·blocked 안내를 구현한다. 선행: T043, T039.
-- [ ] T046 [US3] apps/web/src/features/alerts/AlertsPage.tsx에 환자·A의 full 불일치·원문·처리 내역을 표시하고 companion에는 상세 화면·개수를 제공하지 않는다. 선행: T044.
-- [ ] T047 [US3] tests/e2e/review-share.spec.ts에 B의 정리 → 공유 전 A의 신규 정리 비공개·C의 기존 일정 유지 → 공유 확정 → 허용 블록, A의 불일치·혼입 blocked 우회 실패·재정리 시 기존 공유본 보존·실패·중복 재시도를 검증한다. 선행: T045, T046.
+- [X] T045 [US3] apps/web/src/features/visit/VisitPage.tsx와 apps/web/src/features/visit/ReviewPage.tsx에 업로드·메모·job진행/실패/fixture표시·자기 허용 블록 검토·공유하기·blocked 안내를 구현한다. 선행: T043, T039.
+- [X] T046 [US3] apps/web/src/features/alerts/AlertsPage.tsx에 환자·A의 full 불일치·원문·처리 내역을 표시하고 companion에는 상세 화면·개수를 제공하지 않는다. 선행: T044.
+- [X] T047 [US3] tests/e2e/review-share.spec.ts에 B의 정리 → 공유 전 A의 신규 정리 비공개·C의 기존 일정 유지 → 공유 확정 → 허용 블록, A의 불일치·혼입 blocked 우회 실패·재정리 시 기존 공유본 보존·실패·중복 재시도를 검증한다. 선행: T045, T046.
 
 ## Phase 6: User Story 4 - 접근성·정적 안내 (Priority: P1)
 

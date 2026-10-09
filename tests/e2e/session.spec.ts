@@ -82,7 +82,7 @@ test('patient change hides old content and cancels in-flight reads before the ne
   await login(page, 'a');
   let release!: () => void;
   const held = new Promise<void>(resolve => { release = resolve; });
-  await page.route('**/api/patients/p_missing/home?*', async route => {
+  await page.route('**/api/patients/p_missing/home*', async route => {
     await held;
     try { await route.continue(); } catch { /* navigation aborted this request */ }
   });

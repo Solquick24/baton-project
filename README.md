@@ -2,15 +2,17 @@
 
 가족이 번갈아 동행해도 진료 맥락이 끊기지 않도록 진료 전·중·후 기록을 이어주는 프로젝트다.
 
-현재는 **Phase 1·백엔드 기반(T008–T020), Phase 3·4 백엔드, Phase 5 백엔드(T037~T044), 프론트 첫 화면 흐름**이 구현된 상태다. 실제 API에서 환자/진료·질문·브리핑·범위/로그·원문·업로드·전사·메모·정리·검토 후 공유·불일치를 제공한다. T010의 `--pregenerate`는 실제 fixture provider와 같은 생성·검증·저장 파이프라인을 사용한다. T020의 실제 JWT 세션·요청 취소·캐시 정리는 실제 API로 검증했다. T026~T029·T033~T036·T045~T047 화면 통합은 미완료이므로 해당 Phase 전체 완료가 아니다. 백엔드는 fixture/모의 응답·직접 API로 검증했고 외부 AI 실제 호출·AWS 자원 생성·IAM 변경·배포는 이번에 하지 않았다. 앞선 Bedrock 접근 실패는 [AWS 준비 기록](docs/aws-setup.md)에 정리했다.
+현재 작업 브랜치에서는 **기존 Phase 3·4·5 백엔드와 프론트의 실제 API 연결**을 검증했다. 로그인·홈·질문 통합·브리핑·범위 관리·진료 입력·정리·검토·공유·불일치 처리를 로컬 API로 사용한다. API 245건, 실제 API 브라우저 25건, 기존 preview 14건과 전체 타입 검사·빌드가 통과했다. OpenAI 키·모델이 없어 실제 외부 호출은 미실시이며 STT는 fixture로 검증했다. T048~T051·Tier C 전체 완료를 뜻하지 않는다. 이슈 #32의 커밋 체크포인트 이후 사용자가 devlop 대상 PR 생성·병합을 요청했다. 실제 반영 단계는 이슈/PR 기록을 확인한다. main 반영은 이번 요청에서 제외한다.
+
+- [최신 API 통합 결과·실행 방법·OpenAI/STT 구분·남은 설정](docs/api-integration-checkpoint.md)
 
 - [Phase 1 체크포인트와 실제 검증 결과](docs/phase1-checkpoint.md)
 - [백엔드 기반 체크포인트와 T020 인수인계](docs/backend-foundation-checkpoint.md)
 - [T020 실제 API 세션 체크포인트](docs/frontend-session-checkpoint.md)
 - [Phase 3 백엔드 체크포인트와 실제 API 인수인계](docs/phase3-backend-checkpoint.md)
-- [Phase 4 백엔드 T030~T032 검증·인수인계](docs/phase4-backend-checkpoint.md): 범위 변경·공유 로그·full 원문 스트림을 구현·검증하고 사용자 검토·게시 승인을 받았다. [이슈 #29](https://github.com/Solquick24/baton-project/issues/29)에서 `devlop` 반영 결과를 확인한다. T033~T036과 Phase 4 전체 통합은 미완료다.
+- [Phase 4 백엔드 T030~T032 검증·인수인계](docs/phase4-backend-checkpoint.md): 범위 변경·공유 로그·full 원문 스트림을 구현·검증하고 사용자 검토·게시 승인을 받았다. [이슈 #29](https://github.com/Solquick24/baton-project/issues/29)에서 `devlop` 반영 결과를 확인한다. 당시 미완료였던 T033~T036의 후속 통합은 최신 이슈 #32 체크포인트를 따른다.
 
-- [Phase 5 백엔드 T037~T044 최신 검증](docs/phase5-backend-checkpoint.md) · [실제 API 요청/응답·오류·버전·폴링·파일·캐시 인수인계](docs/phase5-api-handoff.md). 프론트 통합과 외부 AI 실제 성공은 미검증이다.
+- [Phase 5 백엔드 T037~T044 최신 검증](docs/phase5-backend-checkpoint.md) · [실제 API 요청/응답·오류·버전·폴링·파일·캐시 인수인계](docs/phase5-api-handoff.md). 당시 미완료였던 프론트 통합의 후속 결과는 이슈 #32를 따른다. 외부 AI 실제 성공은 여전히 미검증이다.
 
 ## 문서
 
@@ -68,7 +70,7 @@ npm run dev
 ```
 
 웹은 http://127.0.0.1:5173, API health는 http://127.0.0.1:3001/api/health다.
-브라우저의 /api 요청은 Vite가 로컬 API로 프록시한다. 실제 로그인·환자/진료 조회·질문/브리핑 API는 기본 시드 투입 후 사용할 수 있다. 기존 프론트의 실제 API 통합은 별도 검증이 남아 있으며 화면 시연에는 아래 개발용 모드를 사용할 수 있다.
+브라우저의 /api 요청은 Vite가 로컬 API로 프록시한다. 실제 로그인·환자/진료 조회·질문/브리핑 API는 기본 시드 투입 후 사용할 수 있다. 이번 작업 브랜치의 실제 API 통합 결과는 위 체크포인트를 따른다. 아래 개발용 모드는 기존 진료 전 화면의 별도 시연용이다.
 기본 LLM/STT 모드는 fixture다. 기본 시연·테스트·빌드는 외부 AI를 호출하지 않는다. 사용자 결정으로 텍스트의 live 기본 provider는 OpenAI Responses(`LLM_PROVIDER=openai`)이며 Bedrock도 선택 가능하다. [설정·검증·남은 live 확인](docs/openai-provider-checkpoint.md)을 참고한다. 전사 provider는 변경하지 않는다.
 
 ```bash
