@@ -115,14 +115,17 @@
 
 ## 9. 작업 방식
 
-- 새 작업·커밋·push는 `devlop`에서 진행하고, 검증한 변경을 `main`에 병합한다. 세부 순서는 [브랜치 작업 방식](docs/branch-workflow.md)을 따른다.
+- 새 작업은 GitHub 이슈를 만들고 최신 `origin/devlop`에서 이슈별 작업 브랜치로 진행한다. 작업 브랜치를 push한 뒤 `devlop` 대상으로 PR을 만들고 리뷰·검증 후 병합한다. `main` 반영은 검증한 `devlop → main` PR로 한다. 세부 순서는 [브랜치 작업 방식](docs/branch-workflow.md)을 따른다.
 - 코드·문서·환경 설정 변경에 같은 흐름을 적용한다. 실제 `.env`·인증 정보는 5장 10번에 따라 로컬에 두고, 공유할 환경 설정은 `.env.example`에 반영한다.
 - Phase 순서대로 진행하고 Phase 체크포인트(tasks.md 각 Phase의 Independent Test)를 통과하면 그 작업을 `- [X]`로 표시한다. 통과 못 한 작업은 체크하지 않는다.
 - Phase가 끝날 때마다 `npm run typecheck`와 `npm run test`를 돌리고 커밋한다. 메시지는 팀이 확정한 [커밋 컨벤션](docs/commit-convention.md)을 따른다(예: `Feat: 동행 범위의 저장된 브리핑 조회 추가`).
 - 공통 계약(`packages/contracts`)·`schema.sql`·루트 `package.json`/lockfile 변경은 한 번에 한 작업자만. 병렬 작업 중이면 먼저 merge한다.
 - 시드·fixture JSON을 바꿔야 하면 `fixtures/expected/validation.json`과 seed-story.md 기대값도 같이 고친다.
 - UI는 screens.md의 testid를 그대로 붙인다(e2e가 의존).
+- 변경 요약·실제 검증·계약/문서 링크·남은 한계·후속 작업을 채팅뿐 아니라 관련 이슈와 PR 본문 또는 댓글에 기록한다. PR 제목과 본문은 최종 변경 범위에 맞춰 갱신한다.
+- devlop/main 병합 뒤 이슈·PR에 반영 결과와 PR/커밋 링크를 갱신하고 저장된 본문·병합 상태를 다시 조회해 확인한다. 푸시·PR 생성·각 브랜치 병합을 구분하며 이슈 완료 조건을 충족했을 때만 닫는다.
+- GitHub 작업 양식은 [.github/ISSUE_TEMPLATE/task.yml](.github/ISSUE_TEMPLATE/task.yml)·[.github/pull_request_template.md](.github/pull_request_template.md)를 따른다. CLI로 생성할 때도 같은 항목을 채우며, 본문은 실제 줄바꿈을 보존한 파일을 --body-file로 전달한다.
 
 ## 10. 완료 보고
 
-작업을 마치면 다음을 짧게 보고한다: 완료한 작업 ID, 실행한 명령과 결과(통과·실패 수), live/fixture 중 실제로 쓴 모드, 미완료·건너뛴 작업(Tier C 포함), 구현 중 결정(decisions.md에 남긴 것). 실제로 측정하지 않은 수치는 쓰지 않는다.
+작업을 마치면 다음을 짧게 보고한다: 완료한 작업 ID, 실행한 명령과 결과(통과·실패 수), live/fixture 중 실제로 쓴 모드, 미완료·건너뛴 작업(Tier C 포함), 구현 중 결정(decisions.md에 남긴 것). 실제로 측정하지 않은 수치는 쓰지 않는다. 관련 이슈·PR 링크와 실제 반영 단계도 보고한다. 완료 요약은 최종 응답 전 이슈·PR에도 기록하고 저장 여부를 확인한다.
