@@ -12,6 +12,6 @@
 - tests: 실제 계약·권한·블록 미조회·AI 입력·공유 보류 검증의 자리.
 
 앱 저장·로그인은로컬, AI만AWS. 원문은full 전용이고 로컬파일은 공개static에 두지 않는다.
-POST share 이전 결과를 자동 공유하지 않는다. GET와scope변경은AI를 부르지 않는다.
-기존.env.example의Cognito/DynamoDB/S3영구저장 값은 이전 예시이며 Setup에서 로컬값으로 교체한다.
+진료 전 questions·briefing은 검증 ready 결과를 허용 범위에 바로 제공한다. 진료 후 record는 POST share 확정 후에만 가족에게 공개한다. GET와 scope 변경은 AI를 부르지 않는다.
+.env.example은 로컬 SQLite·업로드 경로와 fixture/live 모드·기존 Transcribe staging 버킷 설정을 제공한다. 실제 .env·DB·업로드는 Git에서 제외한다.
 구현목록: [tasks.md](../../specs/001-baton-mvp/tasks.md).

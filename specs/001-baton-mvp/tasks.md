@@ -10,6 +10,19 @@ description: "최종 기획안 기반 로컬 MVP 구현 작업"
 **Tests**: 명세 SC와 헌장이 요구하는 권한·근거·저장 블록·공유·E2E 검증을 포함한다. 기능 코드는 아직 없다.
 **Organization**: 사용자 이야기별 독립 시연·검증 단위로 나눈다. 모든 체크는 아직 미수행이다.
 
+## 해커톤 실행 범위 (2026-10-09 보완)
+
+| Tier | 작업 | 기준 |
+|---|---|---|
+| A — 필수 | T001–T049 | 두 시연 경로(이어받기·범위 변경)와 접근성 설정. 순서대로 |
+| B — A 완료 후 | T050, T051, T065(축소판), T066 | 정적 병원 안내·접근성 e2e·평가·복구 검증 |
+| 항상 마지막 | T067, T068 | 실제 결과·한계 기록 |
+| C — 요청 시에만 | T052–T064 | 2단계·화면만. 시간이 남고 사람이 지시할 때만. 하지 않으면 미완료로 둔다 |
+
+보완 문서: [contracts/schemas.md](contracts/schemas.md)(정확한 JSON 형태), [screens.md](screens.md)(화면 번호·경로·testid),
+[seed-story.md](seed-story.md)(시드 이야기·범위별 기대값). 시드·fixture JSON은 `fixtures/`에 이미 있다.
+작업 설명과 이 문서들이 다르면 보완 문서를 따른다(AGENTS.md 3장).
+
 ## Format: `[ID] [P?] [Story] Description`
 
 [P]는 같은 단계의 서로 다른 파일에서 실행 가능한 작업이다. Setup/Foundation 및 명시된 선행은 먼저 완료한다.
@@ -30,7 +43,7 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 - [ ] T001 package.json, apps/web/package.json, apps/api/package.json, packages/contracts/package.json과 package-lock.json에 React/Vite/TypeScript/Fastify5/JWT/better-sqlite3/Zod/AWS SDK/Vitest/Playwright를 호환성 확인 후 고정하고 SQLite 네이티브 바인딩을 점검한다.
 - [ ] T002 apps/web/index.html, apps/web/src/main.tsx, apps/web/vite.config.ts와 apps/web/src/app/App.tsx에 로컬 프론트 진입점·API 프록시·라우팅 기반을 추가한다. 선행: T001.
 - [ ] T003 apps/api/src/app.ts, apps/api/src/server.ts에 Fastify 조립·로컬 시작·안전한 종료를 추가하고 apps/api/package.json에 실제 dev/build 명령을 정의한다. 선행: T001.
-- [ ] T004 apps/api/src/shared/config.ts, apps/api/.env.example, apps/web/.env.example, .gitignore에 JWT_SECRET/SQLITE_PATH/UPLOAD_DIR/AWS_REGION/BEDROCK_MODEL_ID/TRANSCRIBE_STAGING_BUCKET·VITE_API_BASE_URL과 data/uploads 제외를 정의한다. 기존 Cognito 예시는 교체한다. 선행: T001.
+- [ ] T004 apps/api/src/shared/config.ts에 환경 변수 로딩(`process.loadEnvFile`)·필수값 검증·apps/api 기준 상대 경로 해석을 구현한다. `.env.example` 두 개와 `.gitignore`(apps/api/data/)는 2026-10-09 보완에서 이미 로컬 구조로 교체했다. 선행: T001.
 - [ ] T005 package.json, packages/contracts/package.json, packages/contracts/src/index.ts, tsconfig.base.json과 워크스페이스 tsconfig에 실제 dev/seed/typecheck/build/test/test:e2e·계약 export를 추가하고 입력 없는 가짜 성공 명령을 사용하지 않는다. 선행: T002, T003.
 - [ ] T006 apps/api/vitest.config.ts, playwright.config.ts에 API inject·단위검증·로컬 E2E 도구를 설정하고 테스트는 fixture 모드에서 비용 없이 실행되게 한다. 선행: T005.
 - [ ] T007 scripts/check-ai-access.ts와 docs/decisions.md에 제공 계정의 서울 Bedrock 후보 모델·Transcribe·기존 staging 버킷 접근과 샘플 호출 결과를 기록한다. 새 AWS 자원을 배포하지 않고 실패 시 fixture로 시연함을 명시한다. 선행: T004.
@@ -42,8 +55,8 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 **Independent Test / Checkpoint**: 4계정 로그인, 금지 kind 미조회, 원문·위임 권한 거부, 내부 생성 입력과 외부 조회 경로 분리 검증.
 
 - [ ] T008 [P] packages/contracts/src/core.ts와 packages/contracts/src/blocks.ts에 "role=patient/lead/guardian", "scope=schedule/companion/full", "kind=schedule/companion/full", "mode=live/fixture" 및 meta·id/needsCheck·full sourceRefs의 엄격한 런타임 스키마를 정의한다.
-- [ ] T009 [P] apps/api/src/adapters/sqlite/schema.sql과 apps/api/src/adapters/sqlite/database.ts에 data-model.md의 users/patients/members/visits/visit_blocks/questions/observations/alerts/jobs/share_logs/uploads 구조·외래키·unique(patientId,visitId,version,kind)·바인딩·트랜잭션을 구현한다.
-- [ ] T010 fixtures/seed/accounts.json, fixtures/seed/patient.json, fixtures/seed/visits.json, fixtures/expected/blocks.json과 scripts/seed.ts에 환자+A(full)+B(companion)+C(schedule), "delegated 기본 false", B의 첫 동행·관찰·다른과·full가상진단/수치·과거공유본을 넣고 비밀번호 원문 대신 hash를 저장한다. 선행: T009, T008.
+- [ ] T009 [P] apps/api/src/adapters/sqlite/schema.sql과 apps/api/src/adapters/sqlite/database.ts에 data-model.md의 users/patients/members/hospitals/visits/block_sets/visit_blocks/questions/notes/transcripts/prescriptions/observations/alerts/jobs/share_logs/uploads 구조·외래키·UNIQUE(visitId,section,version)·UNIQUE(blockSetId,kind)·바인딩·트랜잭션을 구현한다.
+- [ ] T010 scripts/seed.ts에 이미 작성된 fixtures/seed/*.json(accounts·patient·hospital·visits·records·questions·observations·prescriptions)을 읽어 DB를 다시 만들고, demoPassword를 scrypt 해시로만 저장하고, alerts 코드 비교를 실행해 fixtures/expected/alerts.json과 같은 Alert를 만든다. `--pregenerate`는 fixture provider로 v_im_03 질문 통합·브리핑을 생성한다. 테스트용 `seedDatabase(db, opts)` 함수로도 export한다. 선행: T009, T008.
 - [ ] T011 [P] apps/api/tests/auth.test.ts에 JWT 변조·만료·issuer/audience·비구성원·위임false·현재 관계 재조회·scope 토큰 고정 금지 테스트를 먼저 작성한다.
 - [ ] T012 [P] apps/api/tests/block-policy.test.ts에 scope→kind 합집합·미정full 기본·금지 블록 미조회·응답 키 부재·일반 가족 scope 비노출·외부/내부repository 분리 테스트를 먼저 작성한다.
 - [ ] T013 apps/api/src/auth/session.ts와 apps/api/src/handlers/auth.ts에 시드 passwordHash 검증·서명 JWT·POST /auth/login을 구현하고 유저 식별만 토큰 인증 문맥으로 신뢰한다. 선행: T011, T010.
@@ -51,7 +64,7 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 - [ ] T015 apps/api/src/adapters/sqlite/visit-repository.ts와 apps/api/src/shared/response-assembler.ts에 허용 kind만 SELECT·화이트리스트 조립·draft/publishedVersion 선택을 구현한다. 전체 payload 읽기 후 삭제는 쓰지 않는다. 선행: T009, T014.
 - [ ] T016 apps/api/src/adapters/sqlite/generation-repository.ts에 patientId/dept/생성목적 검사와 비공개 메모 제외를 구현하고 일반 가족 조회에서는 이 원본 경로를 사용하지 않는다. 선행: T009, T014.
 - [ ] T017 apps/api/src/shared/errors.ts와 apps/api/src/shared/logger.ts에 401/403/404/400/409/502 계약·requestId·안전한 오류를 구현하고 원문·토큰·내부경로·다른scope 개수를 노출하지 않는다. 선행: T008.
-- [ ] T018 apps/api/src/adapters/ai/providers.ts, apps/api/src/adapters/ai/bedrock.ts, apps/api/src/adapters/ai/fixture.ts에 공통 LLMProvider·live/fixture 출처·모델 tool input 수집·서버 스키마 검사·최대1회 재시도를 구현한다. structured output 보장을 단정하지 않는다. 선행: T008, T017.
+- [ ] T018 apps/api/src/adapters/ai/providers.ts, apps/api/src/adapters/ai/bedrock.ts, apps/api/src/adapters/ai/fixture.ts에 공통 LLMProvider·live/fixture 출처·모델 tool input 수집·서버 스키마 검사·최대1회 재시도를 구현한다. structured output 보장을 단정하지 않는다. fixture provider는 fixtures/expected/manifest.json 규칙(whenNoteIncludes·failOnAttempts)으로 응답을 고른다. 선행: T008, T017.
 - [ ] T019 apps/api/src/modules/jobs/service.ts, apps/api/src/workers/runner.ts와 apps/api/src/handlers/jobs.ts에 "status=queued/running/succeeded/failed"·attempt·버전별중복·재시작running→failed·안전한resultVersion 조회를 구현한다. 선행: T009, T014, T017.
 - [ ] T020 apps/web/src/lib/api.ts와 apps/web/src/app/session.tsx에 JWT 연결·401 처리·환자별 캐시·로그아웃·범위변경 시 캐시 제거를 구현하고 브라우저 scope로 서버 권한을 결정하지 않는다. 선행: T013, T008, T002.
 
@@ -63,8 +76,8 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 
 - [ ] T021 [P] [US1] apps/api/tests/briefing.test.ts와 apps/api/tests/questions.test.ts에 내과/정형외과 격리·원 질문 관계·companion 원문/이유 부재·조회 AI 0회·미확인 값null/needsCheck=true를 검증하는 테스트를 먼저 작성한다.
 - [ ] T022 [US1] apps/api/src/modules/questions/service.ts와 apps/api/src/handlers/questions.ts에 질문별 행 저장·목록·통합 결과·권한·공개 문자열 검증을 구현한다. 선행: T021.
-- [ ] T023 [US1] apps/api/src/ai/prompts/merge-questions.ts와 apps/api/src/ai/pipelines/merge-questions.ts에 원 질문 3개→통합 2개+근거 추가 1개, companion.mergedQuestions와 full.basisRefs 저장을 구현한다. 선행: T022.
-- [ ] T024 [US1] apps/api/src/ai/prompts/briefing.ts, apps/api/src/ai/pipelines/briefing.ts, apps/api/src/modules/briefing/service.ts와 apps/api/src/handlers/briefing.ts에 같은 과의 blocks로 companion 변경/질문·full 이유/watch/prep/sourceRefs 생성·버전캐시·허용조회만 구현한다. 선행: T023.
+- [ ] T023 [US1] apps/api/src/ai/prompts/merge-questions.ts와 apps/api/src/ai/pipelines/merge-questions.ts에 원 질문 3개→통합 2개+근거 추가 1개, questions 섹션 블록 세트(companion.mergedQuestions·full.basisRefs) 저장과 ready 시 visits.questionsVersion 갱신을 구현한다. fixture 기대값: fixtures/expected/merge-questions/v_im_03.json. 선행: T022.
+- [ ] T024 [US1] apps/api/src/ai/prompts/briefing.ts, apps/api/src/ai/pipelines/briefing.ts, apps/api/src/modules/briefing/service.ts와 apps/api/src/handlers/briefing.ts에 같은 과의 공유본 blocks·관찰 메모·열린 alerts·통합 질문으로 briefing 섹션 블록 세트(companion 변경/질문·full 이유/watch/tests/prep/sourceRefs) 생성·버전 포인터·stale 표시·허용 조회를 구현한다. fixture 기대값: fixtures/expected/briefing/v_im_03.json. 선행: T023.
 - [ ] T025 [US1] apps/api/src/modules/visits/query.ts와 apps/api/src/handlers/visits.ts에 /me/patients·/home·/timeline·/visits 조회를 공통 assembler로 연결하고 schedule의 확인 항목 개수/질문/원문과 companion의 ALERT 상세를 제외한다. 선행: T015, T021.
 - [ ] T026 [US1] apps/web/src/features/auth/LoginPage.tsx와 apps/web/src/features/home/HomePage.tsx에 4계정 로그인·기록 주인 칩·내 기록의 빈 화면·범위에 따른 홈·지난 내과 기록을 구현한다. 선행: T025.
 - [ ] T027 [US1] apps/web/src/features/questions/QuestionsPage.tsx에 질문등록·작성자·통합관계·AI 추가·needsCheck를 표시하고 근거는 full에서만 연결한다. 선행: T022, T023.
@@ -78,7 +91,7 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 **Independent Test / Checkpoint**: 생성 기능 없이 시드 공유본과4계정으로 세 scope·위임·원문·로그를 독립 검증.
 
 - [ ] T030 [P] [US2] apps/api/tests/members.test.ts와 apps/api/tests/source-access.test.ts에 B의 무단 변경 403·위임 false인 A의 변경 403·scope 반영·원문·인용 full 전용·로그 비노출·kind SELECT spy를 먼저 작성한다.
-- [ ] T031 [US2] apps/api/src/modules/members/service.ts와 apps/api/src/handlers/members.ts에 GET members/PUT scope/GET share-log, "action=start/scope_change/stop" 중 1단계 start/scope_change와 현재/새값·actor·time 트랜잭션을 구현한다. 선행: T030.
+- [ ] T031 [US2] apps/api/src/modules/members/service.ts와 apps/api/src/handlers/members.ts에 GET members/PUT scope/GET members/{uid}/share-log/GET share-log, "action=start/scope_change/stop/publish" 중 1단계 scope_change 기록(start·publish 시드 기록 조회 포함)과 현재/새값·actor·time 트랜잭션을 구현한다. 같은 값 변경은 로그를 남기지 않는다. 선행: T030.
 - [ ] T032 [US2] apps/api/src/adapters/local/files.ts와 apps/api/src/handlers/sources.ts에 full 전용 인증 스트림·환자·진료 소속·경로 탈출 거부·내부 경로 비노출을 구현한다. 공개 static은 사용하지 않는다. 선행: T030.
 - [ ] T033 [US2] apps/web/src/features/settings/SharingPage.tsx에 25-2의 세 단계 항목표·민감표시·환자·위임 대표 관리·공유 기록·일반 보호자 범위명 비노출을 구현한다. 선행: T031.
 - [ ] T034 [US2] apps/web/src/features/timeline/TimelinePage.tsx에 schedule 공통 정보, companion 약 변경/주의/쉬운요약/질문, full내용을 저장 블록으로 표시하고 이유/진단/수치/원문은 full에만 둔다. 선행: T025.
@@ -93,12 +106,12 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 
 - [ ] T037 [P] [US3] apps/api/tests/summary-safety.test.ts에 schedule/companion의 진단명·수치·사유 혼입·quote/sourceRef 유출·알 수 없는 field·근거 없음·fixture 동일 검증을 먼저 작성한다.
 - [ ] T038 [P] [US3] apps/api/tests/sharing.test.ts와 apps/api/tests/alerts.test.ts에 ready/blocked/failed·버전충돌·확정 전 가족 비공개·중복 공유·일반 확인 항목과 민감 보류 구분·ALERTfull 전용을 먼저 검증한다.
-- [ ] T039 [US3] apps/api/src/adapters/ai/transcribe.ts와 apps/api/src/handlers/audio.ts에 가상 multipart 업로드·형식·크기 검사·patient·visit 소속·recordingAllowed·기존 S3 임시 staging·완료 결과 회수·로컬 저장·fixture 전사 fallback을 구현한다. 선행: T032.
-- [ ] T040 [US3] apps/api/src/ai/prompts/structure.ts와 apps/api/src/ai/pipelines/structure.ts에 schedule.nextSchedule·companion.medChanges/easySummary·full 진단/수치/설명/사유/답변/근거를 한 번에 생성하고 비중복·null/needsCheck=true를 검증한다. 선행: T037.
+- [ ] T039 [US3] apps/api/src/adapters/ai/transcribe.ts와 apps/api/src/handlers/audio.ts에 가상 multipart 업로드·형식·크기 검사·patient·visit 소속·recordingAllowed·기존 S3 임시 staging·완료 결과 회수·transcripts 저장·recordInputVersion 증가·fixture 전사(fixtures/expected/transcribe/v_im_03.json) fallback을 구현하고 POST notes도 이 작업에서 구현한다. 선행: T032.
+- [ ] T040 [US3] apps/api/src/ai/prompts/structure.ts와 apps/api/src/ai/pipelines/structure.ts에 schedule.nextSchedule·companion.medChanges/easySummary·full 진단/수치/설명/사유/medDetails/답변/근거를 한 번에 생성하고 비중복·null/needsCheck=true를 검증한다. 저장 직전 transcripts 행을 full.transcript로 복사한다. fixture 기대값: fixtures/expected/structure/*.json, 검증 기대값: fixtures/expected/validation.json. 선행: T037.
 - [ ] T041 [US3] apps/api/src/ai/safety/block-leak-check.ts와 apps/api/src/ai/safety/output-validator.ts에 낮은 블록·질문·오류의 정규화 문자열 혼입 검사·의료 판단 금지·불명확 값 검사·blocked 상태를 구현하고 재서술을 완전 차단한다고 주장하지 않는다. 선행: T040.
 - [ ] T042 [US3] apps/api/src/modules/summaries/service.ts와 apps/api/src/handlers/summaries.ts에 메모 입력 버전·정리 job·세 블록동일 version 트랜잭션·검토본 생성·작성자·관리자의 자기 scope 검토를 구현한다. 선행: T041, T039.
-- [ ] T043 [US3] apps/api/src/modules/summaries/share.ts와 apps/api/src/handlers/share.ts에 POST share의 draft/inputVersion·현행 권한·검증 ready·idempotencyKey 검사와 publishedVersion/start 로그 원자 저장을 구현하고 자동 공유하지 않는다. 선행: T042, T038, T031.
-- [ ] T044 [US3] apps/api/src/modules/alerts/service.ts와 apps/api/src/handlers/alerts.ts에 시드 관찰·처방의 필드별 코드 비교·두 full 근거·edit_note/reupload/confirm_hospital·"status=open/awaiting_confirmation/resolved"를 구현하고 병원 확인 예정은 resolved로 바꾸지 않는다. 선행: T038.
+- [ ] T043 [US3] apps/api/src/modules/summaries/share.ts와 apps/api/src/handlers/share.ts에 POST share의 draft/inputVersion·현행 권한·검증 ready·idempotencyKey 검사와 recordPublishedVersion·publish 로그·status=done 원자 저장을 구현하고 자동 공유하지 않는다. 선행: T042, T038, T031.
+- [ ] T044 [US3] apps/api/src/modules/alerts/service.ts와 apps/api/src/handlers/alerts.ts에 시드 관찰·처방과 정리 결과 medDetails·처방의 필드별 코드 비교(schemas.md 5장)·두 full 근거·edit_note(새 revision 저장 후 재비교)/reupload(안내만)/confirm_hospital·"status=open/awaiting_confirmation/resolved"를 구현하고 병원 확인 예정은 resolved로 바꾸지 않는다. 기대값: fixtures/expected/alerts.json. 선행: T038.
 - [ ] T045 [US3] apps/web/src/features/visit/VisitPage.tsx와 apps/web/src/features/visit/ReviewPage.tsx에 업로드·메모·job진행/실패/fixture표시·자기 허용 블록 검토·공유하기·blocked 안내를 구현한다. 선행: T043, T039.
 - [ ] T046 [US3] apps/web/src/features/alerts/AlertsPage.tsx에 환자·A의 full 불일치·원문·처리 내역을 표시하고 companion에는 상세 화면·개수를 제공하지 않는다. 선행: T044.
 - [ ] T047 [US3] tests/e2e/review-share.spec.ts에 B의 정리 → 공유 전 A의 신규 정리 비공개·C의 기존 일정 유지 → 공유 확정 → 허용 블록, A의 불일치·혼입 blocked 우회 실패·재정리 시 기존 공유본 보존·실패·중복 재시도를 검증한다. 선행: T045, T046.
@@ -111,7 +124,7 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 
 - [ ] T048 [P] [US4] apps/web/src/styles/tokens.css와 apps/web/src/app/display-settings.tsx에 normal/large/extra-large·highContrast 브라우저저장·흰배경/검은글자/진한청록/검은테두리·큰터치영역을 구현한다.
 - [ ] T049 [US4] apps/web/src/features/settings/SettingsPage.tsx에 글씨·고대비·로그아웃과 공개 범위 관리 진입을 구현하고 설정을 전역 레이아웃에 적용한다. 선행: T048.
-- [ ] T050 [P] [US4] apps/web/public/hospital/map.svg, apps/web/public/hospital/floor.svg와 apps/web/src/features/home/HospitalPage.tsx에 가상 위치·약도·주소·전화·안내 순서·참고 더미 경험을 구현한다. 외부 지도 SDK 선택은 계정 조건 확인 후 추가하고 길찾기는 없다.
+- [ ] T050 [P] [US4] apps/web/public/hospital/map.svg, apps/web/public/hospital/floor.svg와 apps/web/src/features/home/HospitalPage.tsx에 가상 위치·약도·주소·전화·안내 순서·참고 더미 경험을 구현한다. 병원 값은 fixtures/seed/hospital.json, 지도도 정적 SVG로 그리고 외부 지도 SDK는 쓰지 않는다. 길찾기는 없다.
 - [ ] T051 [US4] tests/e2e/accessibility.spec.ts에 390px·가장 큰 글씨·고대비의 주요 내용·버튼 잘림·같은 브라우저 재접속 설정 유지·동적 길찾기 부재를 확인한다. 선행: T049, T050.
 
 ## Phase 7: User Story 5 - Optional Phase 2 (Priority: P2)
@@ -147,7 +160,7 @@ apps/web, apps/api, packages/contracts, fixtures, scripts, tests/e2e를 사용�
 
 **Independent Test / Checkpoint**: US1~4의두경로2회완주·SC결과·평가분모·검사전후누출률을보고한다. 배포하지 않는다.
 
-- [ ] T065 [P] fixtures/documents/index.json, fixtures/expected/labels.json과 scripts/evaluate.ts에 약20모의자료의추출정확도/불일치탐지율/누출률·혼입검사전후·재서술실패·선택문서수정률의실제 분모를기록한다.
+- [ ] T065 [P] fixtures/documents/index.json, fixtures/expected/labels.json과 scripts/evaluate.ts에 약20모의자료의추출정확도/불일치탐지율/누출률·혼입검사전후·재서술실패·선택문서수정률의실제 분모를기록한다. **축소판(Tier B)**: 약 20장 모의 문서는 아직 없으므로 fixtures/expected/validation.json의 4건과 alerts.json 1건만으로 검사 전후 누출·불일치 탐지 결과를 실제 분모(n=4, n=1)로 기록하고, 20장 평가는 미수행으로 명시한다.
 - [ ] T066 apps/api/tests/recovery.test.ts와 tests/e2e/failure.spec.ts에서재시작running실패·fixture표시·중복작업/공유·scope변경후이전캐시·원문경로탈출·stale검토본공유거부를검증한다.
 - [ ] T067 docs/demo.md와 specs/001-baton-mvp/quickstart.md의B이어받기/A상세확인·환자범위변경경로를2회연속완주하고SC-001~010의실제결과를기록한다.
 - [ ] T068 README.md, docs/decisions.md와 specs/001-baton-mvp/tasks.md에실제 실행 명령·완료 작업·미선택 2단계·화면만/fixture·한계를반영하고자격 증명·SQLite·uploads의 Git 제외를 확인한다.
@@ -192,7 +205,7 @@ rootpackage/lockfile·공통계약·공통DBschema수정은한담당자가먼저
 2. US1저장브리핑→US2환자범위변경을먼저시연한다.
 3. US3의가상 음성→정리→검토 후 공유→환자/A의 불일치를연결한다.
 4. US4접근성을처음부터적용하고두경로를2회완주한다.
-5. US5선택2단계·US6화면만은시간이남으면진행한다. 배포는없다.
+5. US5 선택 2단계·US6 화면만(Tier C)은 핵심 완주 후 사람이 명시적으로 요청할 때만 진행한다. 배포는 없다.
 
 ### Incremental Delivery
 

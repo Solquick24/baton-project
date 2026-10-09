@@ -1,0 +1,77 @@
+{
+  "schedule": {},
+  "companion": {
+    "mergedQuestions": [
+      {
+        "id": "mq_01",
+        "text": "혈압약을 반 정으로 줄인 뒤 아침에 어지러운데 괜찮은지 여쭤보기",
+        "fromQuestionIds": [
+          "q_01",
+          "q_02"
+        ],
+        "addedByAI": false,
+        "needsCheck": false
+      },
+      {
+        "id": "mq_02",
+        "text": "피검사 결과는 언제 나오는지 여쭤보기",
+        "fromQuestionIds": [
+          "q_03"
+        ],
+        "addedByAI": false,
+        "needsCheck": false
+      },
+      {
+        "id": "mq_03",
+        "text": "혈압약을 아침과 저녁 중 언제 먹어야 하는지 확인하기",
+        "fromQuestionIds": [],
+        "addedByAI": true,
+        "needsCheck": false
+      }
+    ]
+  },
+  "full": {
+    "basisRefs": [
+      {
+        "itemId": "mq_01",
+        "source": {
+          "type": "question",
+          "questionId": "q_01"
+        },
+        "quote": "혈압약을 줄인 뒤로 아침에 어지러운데 괜찮은 건가요?"
+      },
+      {
+        "itemId": "mq_01",
+        "source": {
+          "type": "question",
+          "questionId": "q_02"
+        },
+        "quote": "어지럼증이 혈압약 때문인지 여쭤봐 주세요."
+      },
+      {
+        "itemId": "mq_02",
+        "source": {
+          "type": "question",
+          "questionId": "q_03"
+        },
+        "quote": "피검사 결과는 언제 나오나요?"
+      },
+      {
+        "itemId": "mq_03",
+        "source": {
+          "type": "observation",
+          "observationId": "ob_01"
+        },
+        "quote": "2/12 진료 뒤로 저녁 혈압약을 반 알로 줄여서 드리고 있어요."
+      },
+      {
+        "itemId": "mq_03",
+        "source": {
+          "type": "prescription",
+          "prescriptionId": "rx_im_02"
+        },
+        "quote": "바토디핀정 5mg 1일 1회 아침 식후 0.5정 (28일분)"
+      }
+    ]
+  }
+}

@@ -18,7 +18,7 @@ AI 생성은 schedule/companion/full의 비중복 블록을 한 번에 저장한
 
 **Primary Dependencies**: React·Vite, Fastify 5, @fastify/jwt, better-sqlite3,
 계약 검증 Zod, AWS SDK v3의 Bedrock Runtime·Transcribe·S3 클라이언트.
-의존성은 구현 시작 시 설치·호환성을 확인하고 lockfile에 고정한다.
+의존성은 AGENTS.md 6장의 고정 버전을 기준으로 구현 시작 시 설치·호환성을 확인하고 lockfile에 고정한다.
 
 **Storage**: 로컬 SQLite와 비공개 로컬 업로드 폴더.
 진료 메타데이터와 visit_blocks를 분리한다. DB 파일·업로드 폴더를 웹 정적 경로에 두지 않는다.
@@ -34,7 +34,7 @@ AWS는 Bedrock·Transcribe 호출에만 사용하고 서울 리전 in-region을 
 **Project Type**: npm workspaces(web/api/contracts)의 로컬 웹앱; 별도 AI 서비스 없음.
 
 **Performance Goals**: B의 30초 브리핑·두 시연 경로 2회 완주.
-긴 작업은 로컬 jobs 테이블·작업 ID·2~3초 폴링으로 처리하고 종료 상태에서 중단한다.
+AI 생성·전사는 항상 202 + jobId로 시작하고 로컬 jobs 테이블·2초 폴링으로 처리한다. 종료 상태에서 폴링을 중단한다.
 
 **Constraints**: 당일 약5시간·4명; 가상 자료만; no deployment;
 민감 정보 혼입이면 공유 보류; 원문·인용은 full; GET·scope 변경 AI 호출 금지.
@@ -55,7 +55,7 @@ AWS는 Bedrock·Transcribe 호출에만 사용하고 서울 리전 in-region을 
 | V. 비동기·검증 데모 | 로컬 jobs 유지, live/fixture 모드 표시·공유 전 검증 | PASS |
 | Cognito·Lambda·DynamoDB·S3 기본 방향 | 사용자 선택의 로컬 서버·SQLite·시드 인증 | 승인된 기술 예외 |
 
-헌장 v1.0.0은 유지한다. 원래 기획안은 역사 자료이고 이번 계획의 최신 근거는 최종본이다.
+헌장은 v1.1.0(2026-10-09 개정: 근거 문서·해소된 TODO 반영)이다. 원래 기획안은 `docs/archive/`의 역사 자료이고 이번 계획의 최신 근거는 최종본이다.
 예외는 이번 가상 데이터 로컬 해커톤 데모에 한정하고 실제 정보 처리·배포 검토 전에 재평가한다.
 원문 근거 저장 요구는 full.sourceRefs로 유지하며 낮은 scope에서 근거를 숨기는 것을 근거 미저장으로 해석하지 않는다.
 
@@ -70,10 +70,15 @@ specs/001-baton-mvp/
 ├── research.md
 ├── data-model.md
 ├── contracts/api.md
+├── contracts/schemas.md      # 2026-10-09 보완: 정확한 JSON 형태·검증기·작업 규칙
+├── screens.md                # 2026-10-09 보완: 화면 번호·경로·범위별 표시·testid
+├── seed-story.md             # 2026-10-09 보완: 시드 이야기·범위별 기대값·시연 순서
 ├── quickstart.md
 ├── checklists/requirements.md
 └── tasks.md
 ```
+
+에이전트 진입 안내는 저장소 루트의 `AGENTS.md`다.
 
 ### Source Code (repository root)
 
@@ -107,8 +112,8 @@ AWS adapters는 AI SDK에만 한정한다. DB·인증·파일 저장은 로컬 a
 2. Bedrock tool input으로 블록 구조를 유도하되 계약·근거·금지 출력·문자열 혼입을 서버에서 검증한다.
 3. 생성된 공통 메타와 세 kind 블록을 같은 version으로 트랜잭션 저장한다. 검증 실패 결과는 공유 후보가 아니다.
 4. 조회는 JWT의 userId로 현재 membership을 조회한 뒤 scope→kind 허용표로 SQL을 실행한다.
-5. 가족 조회는 publishedVersion, 작성자·관리자 검토는 draftVersion의 자기 허용 블록을 선택한다.
-6. POST share는 입력 버전·검증 상태·공유 권한을 다시 검사하고 publishedVersion·sharelog를 원자적으로 저장한다.
+5. questions·briefing은 검증 ready 결과를 허용 범위에 바로 제공한다. record의 가족 조회는 recordPublishedVersion, 작성자·관리자 검토는 recordDraftVersion의 자기 허용 블록을 선택한다. 진료 전 blocked 결과의 full 전용 열람은 schemas.md 3장을 따른다.
+6. POST share는 record의 입력 버전·검증 상태·공유 권한을 다시 검사하고 recordPublishedVersion·sharelog를 원자적으로 저장한다.
 7. scope 변경은 membership·sharelog를 트랜잭션 변경한다. 프론트는 이전 환자 응답 캐시를 비우고 재조회한다.
 
 일정만은 meta+schedule, 동행은 meta+schedule+companion, 전체 내용은 셋 모두다.
@@ -136,7 +141,7 @@ AWS adapters는 AI SDK에만 한정한다. DB·인증·파일 저장은 로컬 a
 | US2 | 범위 관리·공유 기록·동행/일정 화면 | 환자 변경→B/C 다음 조회, 일반 보호자403 |
 | US3 | 음성·메모·정리·누출 검사·검토·공유·full불일치 | 보류 우회 불가, 환자/A로 원문 확인 |
 | US4 | 접근성·정적 병원 | 가장 큰 글씨·흰 배경 고대비 |
-| US5/US6 | 선택2단계·고지 화면 | 핵심 완주 후 시간 남는 기능만 |
+| US5/US6 | 선택2단계·고지 화면(Tier C) | 핵심 완주 후 사람이 명시적으로 요청한 경우만 |
 | Final | 두 경로 리허설·모의 평가 | 검사 전후 누출률·실제 분모 기록 |
 
 4명 분담: 프론트(US1·US4), 로컬 API/DB/인증(Foundation·US2), AI/검증(US3), 시드/데모/평가.

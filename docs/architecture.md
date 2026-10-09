@@ -12,7 +12,9 @@ flowchart LR
     API --> Worker[로컬 작업 runner]
     Worker --> AWS[Bedrock·Transcribe]
     AWS --> Check[스키마·근거·문자열 혼입 검사]
-    Check --> Draft[검토본·공유 보류]
+    Check --> Section{섹션}
+    Section -->|questions·briefing ready| DB
+    Section -->|record| Draft[검토본·공유 보류]
     Draft --> Share[사용자 공유 확정]
     Share --> DB
 ```
@@ -22,9 +24,11 @@ flowchart LR
 - contracts: schedule/companion/full DTO·요청·오류·작업 상태·런타임 검증 스키마.
 - adapters: SQLite·로컬 files·AWS AI·fixture. 앱 저장·인증에는 AWS를 사용하지 않는다.
 - workers: 작업 ID·SQLite 상태·재시도·재시작 실패 처리. 클라우드 배포 없음.
-- fixtures: 4계정·관찰 메모·등급별 저장 결과·약20 모의 문서와 평가 라벨.
+- fixtures: 가족 4계정·테스트 비구성원 1계정·관찰 메모·저장 결과·AI 응답·혼입 샘플과 기대 라벨을 준비했다. 음성 파일·약20 모의 문서는 아직 없으며 T065는 축소 평가로 실제 분모를 기록한다.
 
-AI 생성은 세 블록을 함께 저장한다. 조회와 범위 변경은 허용 블록만 읽고 AI 호출은0회다.
+AI 생성은 questions·briefing·record 섹션별로 세 블록을 함께 저장한다.
+questions·briefing은 ready 결과를 허용 범위에 바로 제공하고 record만 검토 후 공유하기로 확정한다.
+조회와 범위 변경은 허용 블록만 읽고 AI 호출은0회다.
 companion에는 원문·인용·근거 위치·변경 이유가 없고, 상세 불일치는 full에만 있다.
 Transcribe 배치에는 기존 제공 S3 버킷의 임시 staging이 필요하며 영구 자료는 로컬에 둔다.
 

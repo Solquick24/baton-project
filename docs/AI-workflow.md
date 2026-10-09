@@ -4,13 +4,14 @@
 
 **상태**: 구현 전 설계 기록. 실제 AI 호출·기능·검증 결과는 아직 없다.
 
-**근거**: [AI 활용·Agent 도입 기준](AI.md), [명세](../specs/001-baton-mvp/spec.md), [계획](../specs/001-baton-mvp/plan.md), [데이터 모델](../specs/001-baton-mvp/data-model.md), [API 계약](../specs/001-baton-mvp/contracts/api.md)
+**근거**: [AI 활용·Agent 도입 기준](AI.md), [명세](../specs/001-baton-mvp/spec.md), [계획](../specs/001-baton-mvp/plan.md), [데이터 모델](../specs/001-baton-mvp/data-model.md), [API 계약](../specs/001-baton-mvp/contracts/api.md), [계약 스키마](../specs/001-baton-mvp/contracts/schemas.md)
 
 ## 1. 구성 방향
 
 현재 MVP는 서버가 수행 순서와 조건을 정하는 AI 워크플로로 구현한다.
 AI는 전사·추출·질문 통합·브리핑·요약을 맡고, 서버는 권한·입력 선택·검증·저장·공유 상태를 관리한다.
-공유 확정과 기록의 최종 확인은 권한 있는 사용자가 수행한다.
+진료 후 정리(record)의 공유 확정과 최종 확인은 권한 있는 사용자가 수행한다.
+진료 전 질문 통합·브리핑은 검증 ready일 때 별도 공유 단계 없이 허용 범위에 제공한다.
 
 AI Agent는 현재 필수 구성 요소가 아니다.
 상황에 따라 자료를 추가 탐색하고 수행 단계를 선택해야 하는 요구가 생길 때 검토할 확장 방향이다.
@@ -170,15 +171,15 @@ ready이면서 조건을 만족하는 결과만 공유본으로 확정하고 공
 
 | 작업 | 생성 요청 경로 | 결과 확인 |
 |---|---|---|
-| 질문 통합 | POST /visits/{vid}/questions/merge | 저장 결과 또는 필요 시 jobId |
-| 브리핑 | POST /visits/{vid}/briefing | 저장 결과 또는 필요 시 jobId |
+| 질문 통합 | POST /visits/{vid}/questions/merge | 202 jobId |
+| 브리핑 | POST /visits/{vid}/briefing | 202 jobId |
 | 전사 | POST /visits/{vid}/transcribe | 202 jobId |
 | 진료 정리 | POST /visits/{vid}/structure | 202 jobId |
 | 공유 확정 | POST /visits/{vid}/share | 서버 조건 확인 후 공유 상태 |
 
-환자 경로에는 /patients/{patientId}가 앞에 붙는다. 상세 계약은 근거 문서의 API 계약을 따른다.
+환자 경로에는 /api/patients/{patientId}가 앞에 붙는다. 작업 조회는 /api/jobs/{jobId}다. 상세 계약은 contracts/schemas.md를 따른다.
 긴 작업은 queued → running → succeeded/failed 상태를 갖고 GET /jobs/{jobId}로 조회한다.
-프론트는 계획상의 2~3초 간격으로 조회하고 종료 상태에서 폴링을 중단한다.
+프론트는 2초 간격으로 조회하고 종료 상태에서 폴링을 중단한다.
 서버 재시작 시 남은 running 작업은 failed로 전환해 재시도 경로를 제공한다.
 
 작업 성공은 처리 완료를 의미하며 공유 완료를 의미하지 않는다.
@@ -187,7 +188,7 @@ fixture 결과도 같은 검증을 거치고 실제 호출 결과와 구분한�
 
 ## 8. 선택 2단계와 Agent 확장
 
-직접 녹음·문서 사진 판독·기록 흐름 보기는 핵심 시연 완주 후 추가한다.
+직접 녹음·문서 사진 판독·기록 흐름 보기 등 Tier C 작업은 핵심 시연 완주 후 사람이 명시적으로 요청할 때만 추가한다.
 문서 판독은 원본·항목별 근거·직접 수정 이력을 저장하며, 쉬운 요약 전용 화면은 기존 결과를 재사용한다.
 
 향후 Agent는 ‘이번 진료 준비’ 목표에 따라 허용된 과거 자료를 추가 조회하고 질문·브리핑 초안을 만드는 역할로 검토한다.

@@ -1,0 +1,169 @@
+{
+  "schedule": {},
+  "companion": {
+    "briefing": {
+      "changes": [
+        {
+          "id": "bc_01",
+          "text": "혈압약(바토디핀정 5mg)을 아침 1정에서 아침 0.5정으로 줄였어요.",
+          "needsCheck": true
+        },
+        {
+          "id": "bc_02",
+          "text": "위장약(가상프라졸정 20mg)은 2월부터 드시지 않아요.",
+          "needsCheck": false
+        }
+      ],
+      "questions": [
+        "mq_01",
+        "mq_02",
+        "mq_03"
+      ]
+    }
+  },
+  "full": {
+    "briefing": {
+      "changeReasons": [
+        {
+          "id": "cr_01",
+          "changeId": "bc_01",
+          "text": "집에서 잰 혈압이 낮게 나와 줄인다고 함",
+          "needsCheck": false
+        },
+        {
+          "id": "cr_02",
+          "changeId": "bc_02",
+          "text": "속쓰림이 나아져 그만 먹어도 된다고 함",
+          "needsCheck": false
+        }
+      ],
+      "watch": [
+        {
+          "id": "bw_01",
+          "text": "아침에 일어날 때 가끔 어지러움(가족 관찰, 3월 2일)",
+          "needsCheck": false
+        },
+        {
+          "id": "bw_02",
+          "text": "혈압약 복용 시간: 가족 메모(저녁)와 약봉투(아침)가 다름",
+          "needsCheck": true
+        }
+      ],
+      "tests": [
+        {
+          "id": "bt_01",
+          "text": "피검사(2월 진료에서 다음 진료 때 하기로 함)",
+          "needsCheck": false
+        }
+      ],
+      "prep": [
+        {
+          "id": "bp_01",
+          "label": "금식 여부",
+          "text": null,
+          "needsCheck": true
+        },
+        {
+          "id": "bp_02",
+          "label": "집에서 잰 혈압 기록",
+          "text": "1월 진료에서 아침저녁 혈압을 적어 오라고 함",
+          "needsCheck": false
+        }
+      ]
+    },
+    "sourceRefs": [
+      {
+        "itemId": "bc_01",
+        "source": {
+          "type": "record",
+          "visitId": "v_im_02",
+          "version": 1,
+          "itemId": "mc_im02_1"
+        },
+        "quote": "집에서 재 오신 혈압이 낮게 나와서 바토디핀정은 아침에 반 알로 줄일게요."
+      },
+      {
+        "itemId": "bc_01",
+        "source": {
+          "type": "observation",
+          "observationId": "ob_01"
+        },
+        "quote": "2/12 진료 뒤로 저녁 혈압약을 반 알로 줄여서 드리고 있어요."
+      },
+      {
+        "itemId": "bc_02",
+        "source": {
+          "type": "record",
+          "visitId": "v_im_02",
+          "version": 1,
+          "itemId": "mc_im02_2"
+        },
+        "quote": "속쓰림이 나아졌으면 가상프라졸정은 이제 안 드셔도 돼요."
+      },
+      {
+        "itemId": "cr_01",
+        "source": {
+          "type": "record",
+          "visitId": "v_im_02",
+          "version": 1,
+          "itemId": "mr_im02_1"
+        },
+        "quote": "집에서 재 오신 혈압이 낮게 나와서 바토디핀정은 아침에 반 알로 줄일게요."
+      },
+      {
+        "itemId": "cr_02",
+        "source": {
+          "type": "record",
+          "visitId": "v_im_02",
+          "version": 1,
+          "itemId": "mr_im02_2"
+        },
+        "quote": "속쓰림이 나아졌으면 가상프라졸정은 이제 안 드셔도 돼요."
+      },
+      {
+        "itemId": "bw_01",
+        "source": {
+          "type": "observation",
+          "observationId": "ob_02"
+        },
+        "quote": "아침에 일어날 때 가끔 어지럽다고 하세요."
+      },
+      {
+        "itemId": "bw_02",
+        "source": {
+          "type": "observation",
+          "observationId": "ob_01"
+        },
+        "quote": "2/12 진료 뒤로 저녁 혈압약을 반 알로 줄여서 드리고 있어요."
+      },
+      {
+        "itemId": "bw_02",
+        "source": {
+          "type": "prescription",
+          "prescriptionId": "rx_im_02"
+        },
+        "quote": "바토디핀정 5mg 1일 1회 아침 식후 0.5정 (28일분)"
+      },
+      {
+        "itemId": "bt_01",
+        "source": {
+          "type": "record",
+          "visitId": "v_im_02",
+          "version": 1,
+          "itemId": "de_im02_2"
+        },
+        "quote": "다음 진료 때 피검사를 할 거예요. 3월 12일 오전 10시 반에 오세요."
+      },
+      {
+        "itemId": "bp_02",
+        "source": {
+          "type": "record",
+          "visitId": "v_im_01",
+          "version": 1,
+          "itemId": "es_im01_3"
+        },
+        "quote": "집에서 아침저녁으로 혈압을 재서 적어 오세요. 그 기록을 보고 다음에 용량을 정할게요. 다음 진료는 2월 12일 오전 10시 반이에요."
+      }
+    ]
+  }
+}

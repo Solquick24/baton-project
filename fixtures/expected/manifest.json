@@ -1,0 +1,43 @@
+{
+  "_note": "fixture LLM/STT provider의 응답 선택표. 위에서부터 처음 맞는 규칙을 쓴다. 맞는 규칙이 없으면 job failed(ai_unavailable).",
+  "pipelines": {
+    "transcribe": [
+      {
+        "visitId": "v_im_03",
+        "file": "transcribe/v_im_03.json"
+      }
+    ],
+    "merge_questions": [
+      {
+        "visitId": "v_im_03",
+        "file": "merge-questions/v_im_03.json"
+      }
+    ],
+    "briefing": [
+      {
+        "visitId": "v_im_03",
+        "file": "briefing/v_im_03.json"
+      }
+    ],
+    "structure": [
+      {
+        "visitId": "v_im_03",
+        "whenNoteIncludes": "혼입 시연",
+        "file": "structure/v_im_03.leak.json"
+      },
+      {
+        "visitId": "v_im_03",
+        "whenNoteIncludes": "실패 시연",
+        "failOnAttempts": [
+          1
+        ],
+        "errorCode": "ai_unavailable",
+        "file": "structure/v_im_03.json"
+      },
+      {
+        "visitId": "v_im_03",
+        "file": "structure/v_im_03.json"
+      }
+    ]
+  }
+}

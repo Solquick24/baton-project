@@ -1,0 +1,52 @@
+{
+  "_note": "npm run seed가 코드 비교로 만들어야 하는 Alert(id·시각 제외). 테스트는 이 값과 대조한다.",
+  "alerts": [
+    {
+      "patientId": "p_01",
+      "visitId": "v_im_02",
+      "dept": "내과",
+      "kind": "observation_vs_prescription",
+      "references": [
+        {
+          "type": "observation",
+          "id": "ob_01",
+          "quote": "2/12 진료 뒤로 저녁 혈압약을 반 알로 줄여서 드리고 있어요.",
+          "fact": {
+            "drugKey": "batodipine",
+            "drugName": "바토디핀정 5mg",
+            "dose": "0.5정",
+            "timing": [
+              "evening"
+            ]
+          }
+        },
+        {
+          "type": "prescription",
+          "id": "rx_im_02",
+          "quote": "바토디핀정 5mg 1일 1회 아침 식후 0.5정 (28일분)",
+          "fact": {
+            "drugKey": "batodipine",
+            "drugName": "바토디핀정 5mg",
+            "dose": "0.5정",
+            "timing": [
+              "morning"
+            ]
+          }
+        }
+      ],
+      "differences": [
+        {
+          "field": "timing",
+          "left": "저녁",
+          "right": "아침"
+        }
+      ],
+      "summary": "바토디핀정 5mg 복용 시간이 다릅니다(가족 메모: 저녁 / 약봉투: 아침)",
+      "status": "open"
+    }
+  ],
+  "afterStructure": {
+    "_note": "v_im_03 structure 후 medDetails와 rx_im_03을 비교하면 차이가 없어 새 Alert가 생기지 않아야 한다.",
+    "newAlerts": 0
+  }
+}

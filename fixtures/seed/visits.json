@@ -1,0 +1,69 @@
+{
+  "_note": "가상 데모 자료. 실존 인물·병원·약·질환이 아니다. 시연 기준일은 DEMO_TODAY=2026-03-12다.",
+  "visits": [
+    {
+      "id": "v_im_01",
+      "patientId": "p_01",
+      "dept": "내과",
+      "hospitalId": "h_01",
+      "date": "2026-01-15",
+      "time": "10:00",
+      "companionUserId": "u_a",
+      "status": "done",
+      "recordInputVersion": 1,
+      "recordDraftVersion": 1,
+      "recordPublishedVersion": 1,
+      "questionsInputVersion": 0,
+      "questionsVersion": null,
+      "briefingVersion": null
+    },
+    {
+      "id": "v_im_02",
+      "patientId": "p_01",
+      "dept": "내과",
+      "hospitalId": "h_01",
+      "date": "2026-02-12",
+      "time": "10:30",
+      "companionUserId": "u_a",
+      "status": "done",
+      "recordInputVersion": 1,
+      "recordDraftVersion": 1,
+      "recordPublishedVersion": 1,
+      "questionsInputVersion": 0,
+      "questionsVersion": null,
+      "briefingVersion": null
+    },
+    {
+      "id": "v_os_01",
+      "patientId": "p_01",
+      "dept": "정형외과",
+      "hospitalId": "h_01",
+      "date": "2026-02-20",
+      "time": "14:00",
+      "companionUserId": "u_a",
+      "status": "done",
+      "recordInputVersion": 1,
+      "recordDraftVersion": 1,
+      "recordPublishedVersion": 1,
+      "questionsInputVersion": 0,
+      "questionsVersion": null,
+      "briefingVersion": null
+    },
+    {
+      "id": "v_im_03",
+      "patientId": "p_01",
+      "dept": "내과",
+      "hospitalId": "h_01",
+      "date": "2026-03-12",
+      "time": "10:30",
+      "companionUserId": "u_b",
+      "status": "upcoming",
+      "recordInputVersion": 0,
+      "recordDraftVersion": null,
+      "recordPublishedVersion": null,
+      "questionsInputVersion": 3,
+      "questionsVersion": null,
+      "briefingVersion": null
+    }
+  ]
+}

@@ -11,14 +11,14 @@
 
 ## 저장 블록과 권한
 
-- **Decision**: meta와 visit_blocks(patientId,visitId,version,kind,payload)를 분리한다. scope는 schedule/companion/full, kind도 같은 세 값이다.
+- **Decision**: meta와 block_sets(patientId,visitId,section,version)·visit_blocks(blockSetId,kind,payload)를 분리한다. section은 questions/briefing/record다. scope는 schedule/companion/full, kind도 같은 세 값이다. 정확한 구조는 data-model.md·contracts/schemas.md를 따른다.
 - **Rationale**: 명시적 허용 kind 조회·화이트리스트 응답을 한 곳에 둔다. 원문·인용·근거는 full에만 있고 새 필드도 full 기본이다.
 - **Alternatives considered**: 전체 레코드를 읽고 필드를 제거하면 누락 가능성이 크다. DynamoDB ProjectionExpression도 물리적 격리·DB 자체 사용자 권한으로 볼 수 없다.
 - **Source**: 최종 기획안8.2·8.3; [DynamoDB projection](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ProjectionExpressions.html).
 
 ## 공유 시점과 시드
 
-- **Decision**: 사용자 검토 후 POST share, 4시드 계정, 관찰 메모 시드, B는companion으로 이어받고 불일치 상세는 환자/A가 확인.
+- **Decision**: 진료 후 record는 사용자 검토 후 POST share, 진료 전 questions·briefing은 검증 ready 시 허용 범위로 바로 제공한다(후자는 팀 검토 전 보완 기본안). 가족 시드 4계정과 테스트 비구성원 1계정, 관찰 메모 시드, B는 companion으로 이어받고 불일치 상세는 환자/A가 확인.
 - **Rationale**: 사용자가 수동 확정을 선택했고 final의 원문 full 제한을 두 시연 경로에서 유지한다.
 - **Alternatives considered**: 기존 자동 공유·B의 안전한 인용 제공은 이번 선택과 충돌해 제거한다.
 - **Source**: 사용자 답변, 최종 기획안12.1·12.2·12.13.

@@ -1,0 +1,60 @@
+{
+  "_note": "가상 데모 자료. 실존 인물·병원·약·질환이 아니다. 1단계 약봉투 값은 시드다(사진 판독은 2단계).",
+  "prescriptions": [
+    {
+      "id": "rx_im_02",
+      "patientId": "p_01",
+      "visitId": "v_im_02",
+      "uploadId": null,
+      "source": "seed",
+      "text": "바토디핀정 5mg 1일 1회 아침 식후 0.5정 (28일분)",
+      "items": [
+        {
+          "drugKey": "batodipine",
+          "drugName": "바토디핀정 5mg",
+          "dose": "0.5정",
+          "timing": [
+            "morning"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rx_im_03",
+      "patientId": "p_01",
+      "visitId": "v_im_03",
+      "uploadId": null,
+      "source": "seed",
+      "text": "바토디핀정 5mg 1일 1회 아침 식후 0.5정 (28일분)",
+      "items": [
+        {
+          "drugKey": "batodipine",
+          "drugName": "바토디핀정 5mg",
+          "dose": "0.5정",
+          "timing": [
+            "morning"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rx_os_01",
+      "patientId": "p_01",
+      "visitId": "v_os_01",
+      "uploadId": null,
+      "source": "seed",
+      "text": "가상록소정 60mg 1일 2회 아침·저녁 식후 1정 (3일분)",
+      "items": [
+        {
+          "drugKey": "virtualloxo",
+          "drugName": "가상록소정 60mg",
+          "dose": "1정",
+          "timing": [
+            "morning",
+            "evening"
+          ]
+        }
+      ]
+    }
+  ]
+}

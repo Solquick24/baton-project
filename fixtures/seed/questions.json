@@ -1,0 +1,32 @@
+{
+  "_note": "가상 데모 자료. 실존 인물·병원·약·질환이 아니다.",
+  "questions": [
+    {
+      "id": "q_01",
+      "patientId": "p_01",
+      "visitId": "v_im_03",
+      "authorId": "u_patient",
+      "text": "혈압약을 줄인 뒤로 아침에 어지러운데 괜찮은 건가요?",
+      "visibility": "companion",
+      "createdAt": "2026-03-05T20:10:00+09:00"
+    },
+    {
+      "id": "q_02",
+      "patientId": "p_01",
+      "visitId": "v_im_03",
+      "authorId": "u_a",
+      "text": "어지럼증이 혈압약 때문인지 여쭤봐 주세요.",
+      "visibility": "companion",
+      "createdAt": "2026-03-06T08:30:00+09:00"
+    },
+    {
+      "id": "q_03",
+      "patientId": "p_01",
+      "visitId": "v_im_03",
+      "authorId": "u_b",
+      "text": "피검사 결과는 언제 나오나요?",
+      "visibility": "companion",
+      "createdAt": "2026-03-10T21:00:00+09:00"
+    }
+  ]
+}

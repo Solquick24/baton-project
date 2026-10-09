@@ -1,0 +1,684 @@
+{
+  "_note": "가상 데모 자료. 실존 인물·병원·약·질환이 아니다. 과거 진료의 공유된 정리 결과(record 섹션 v1). seed는 block_sets·visit_blocks·transcripts에 그대로 넣는다.",
+  "blockSets": [
+    {
+      "visitId": "v_im_01",
+      "section": "record",
+      "version": 1,
+      "inputVersion": 1,
+      "state": "ready",
+      "mode": "fixture",
+      "createdBy": "u_a",
+      "createdAt": "2026-01-15T12:40:00+09:00",
+      "publishedAt": "2026-01-15T13:00:00+09:00",
+      "issues": [],
+      "blocks": {
+        "schedule": {
+          "nextSchedule": [
+            {
+              "id": "ns_im01_1",
+              "date": "2026-02-12",
+              "time": "10:30",
+              "dept": "내과",
+              "hospital": "한빛가상병원",
+              "needsCheck": false
+            }
+          ]
+        },
+        "companion": {
+          "medChanges": [
+            {
+              "id": "mc_im01_1",
+              "drug": "바토디핀정 5mg",
+              "change": "start",
+              "from": null,
+              "to": "아침 1정",
+              "caution": "일어날 때 천천히 움직이기",
+              "needsCheck": false
+            },
+            {
+              "id": "mc_im01_2",
+              "drug": "가상프라졸정 20mg",
+              "change": "start",
+              "from": null,
+              "to": "저녁 1정",
+              "caution": null,
+              "needsCheck": false
+            }
+          ],
+          "easySummary": [
+            {
+              "id": "es_im01_1",
+              "text": "혈압약을 아침에 1정씩 드시기 시작해요.",
+              "needsCheck": false
+            },
+            {
+              "id": "es_im01_2",
+              "text": "위장약을 저녁에 1정씩 드세요.",
+              "needsCheck": false
+            },
+            {
+              "id": "es_im01_3",
+              "text": "집에서 아침저녁으로 혈압을 재서 적어 오세요.",
+              "needsCheck": false
+            }
+          ]
+        },
+        "full": {
+          "diagnosis": [
+            {
+              "id": "dx_im01_1",
+              "text": "가상질환 K1",
+              "needsCheck": false
+            }
+          ],
+          "labResults": [
+            {
+              "id": "lab_im01_1",
+              "name": "가상지표 X",
+              "value": "7.4",
+              "unit": "%",
+              "needsCheck": false
+            }
+          ],
+          "doctorExplanation": [
+            {
+              "id": "de_im01_1",
+              "text": "집에서 잰 혈압 기록을 보고 다음 진료에서 용량을 정한다고 설명함",
+              "needsCheck": false
+            }
+          ],
+          "medReasons": [
+            {
+              "id": "mr_im01_1",
+              "medChangeId": "mc_im01_1",
+              "text": "가상질환 K1 관리를 위해 시작한다고 함",
+              "needsCheck": false
+            },
+            {
+              "id": "mr_im01_2",
+              "medChangeId": "mc_im01_2",
+              "text": "속쓰림이 있어 함께 처방한다고 함",
+              "needsCheck": false
+            }
+          ],
+          "medDetails": [
+            {
+              "drugKey": "batodipine",
+              "drugName": "바토디핀정 5mg",
+              "dose": "1정",
+              "timing": [
+                "morning"
+              ],
+              "medChangeId": "mc_im01_1"
+            },
+            {
+              "drugKey": "virtualprazole",
+              "drugName": "가상프라졸정 20mg",
+              "dose": "1정",
+              "timing": [
+                "evening"
+              ],
+              "medChangeId": "mc_im01_2"
+            }
+          ],
+          "answers": [],
+          "needsCheckDetails": [],
+          "sourceRefs": [
+            {
+              "itemId": "ns_im01_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im01_4"
+              },
+              "quote": "집에서 아침저녁으로 혈압을 재서 적어 오세요. 그 기록을 보고 다음에 용량을 정할게요. 다음 진료는 2월 12일 오전 10시 반이에요."
+            },
+            {
+              "itemId": "mc_im01_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im01_1"
+              },
+              "quote": "혈압약 바토디핀정 5밀리를 아침에 한 알씩 드시기 시작할게요."
+            },
+            {
+              "itemId": "mc_im01_2",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im01_3"
+              },
+              "quote": "속쓰림이 있다고 하셨으니 가상프라졸정 20밀리를 저녁에 한 알 드세요."
+            },
+            {
+              "itemId": "es_im01_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im01_1"
+              },
+              "quote": "혈압약 바토디핀정 5밀리를 아침에 한 알씩 드시기 시작할게요."
+            },
+            {
+              "itemId": "es_im01_2",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im01_3"
+              },
+              "quote": "속쓰림이 있다고 하셨으니 가상프라졸정 20밀리를 저녁에 한 알 드세요."
+            },
+            {
+              "itemId": "es_im01_3",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im01_4"
+              },
+              "quote": "집에서 아침저녁으로 혈압을 재서 적어 오세요. 그 기록을 보고 다음에 용량을 정할게요. 다음 진료는 2월 12일 오전 10시 반이에요."
+            },
+            {
+              "itemId": "dx_im01_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im01_2"
+              },
+              "quote": "가상질환 K1 관리를 위해서예요. 오늘 가상지표 X는 7.4퍼센트로 나왔어요."
+            },
+            {
+              "itemId": "lab_im01_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im01_2"
+              },
+              "quote": "가상질환 K1 관리를 위해서예요. 오늘 가상지표 X는 7.4퍼센트로 나왔어요."
+            },
+            {
+              "itemId": "de_im01_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im01_4"
+              },
+              "quote": "집에서 아침저녁으로 혈압을 재서 적어 오세요. 그 기록을 보고 다음에 용량을 정할게요. 다음 진료는 2월 12일 오전 10시 반이에요."
+            },
+            {
+              "itemId": "mr_im01_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im01_2"
+              },
+              "quote": "가상질환 K1 관리를 위해서예요. 오늘 가상지표 X는 7.4퍼센트로 나왔어요."
+            },
+            {
+              "itemId": "mr_im01_2",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im01_3"
+              },
+              "quote": "속쓰림이 있다고 하셨으니 가상프라졸정 20밀리를 저녁에 한 알 드세요."
+            }
+          ],
+          "transcript": {
+            "transcriptId": "tr_im01",
+            "uploadId": null,
+            "mode": "fixture",
+            "segments": [
+              {
+                "id": "ts_im01_1",
+                "startMs": 0,
+                "endMs": 6000,
+                "speaker": "의사",
+                "text": "혈압약 바토디핀정 5밀리를 아침에 한 알씩 드시기 시작할게요."
+              },
+              {
+                "id": "ts_im01_2",
+                "startMs": 6000,
+                "endMs": 13000,
+                "speaker": "의사",
+                "text": "가상질환 K1 관리를 위해서예요. 오늘 가상지표 X는 7.4퍼센트로 나왔어요."
+              },
+              {
+                "id": "ts_im01_3",
+                "startMs": 13000,
+                "endMs": 19000,
+                "speaker": "의사",
+                "text": "속쓰림이 있다고 하셨으니 가상프라졸정 20밀리를 저녁에 한 알 드세요."
+              },
+              {
+                "id": "ts_im01_4",
+                "startMs": 19000,
+                "endMs": 28000,
+                "speaker": "의사",
+                "text": "집에서 아침저녁으로 혈압을 재서 적어 오세요. 그 기록을 보고 다음에 용량을 정할게요. 다음 진료는 2월 12일 오전 10시 반이에요."
+              },
+              {
+                "id": "ts_im01_5",
+                "startMs": 28000,
+                "endMs": 31000,
+                "speaker": "보호자",
+                "text": "일어날 때 어지러우면 어떻게 하나요?"
+              },
+              {
+                "id": "ts_im01_6",
+                "startMs": 31000,
+                "endMs": 34000,
+                "speaker": "의사",
+                "text": "일어날 때는 천천히 움직이시면 돼요."
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "visitId": "v_im_02",
+      "section": "record",
+      "version": 1,
+      "inputVersion": 1,
+      "state": "ready",
+      "mode": "fixture",
+      "createdBy": "u_a",
+      "createdAt": "2026-02-12T13:10:00+09:00",
+      "publishedAt": "2026-02-12T13:30:00+09:00",
+      "issues": [],
+      "blocks": {
+        "schedule": {
+          "nextSchedule": [
+            {
+              "id": "ns_im02_1",
+              "date": "2026-03-12",
+              "time": "10:30",
+              "dept": "내과",
+              "hospital": "한빛가상병원",
+              "needsCheck": false
+            }
+          ]
+        },
+        "companion": {
+          "medChanges": [
+            {
+              "id": "mc_im02_1",
+              "drug": "바토디핀정 5mg",
+              "change": "dose",
+              "from": "아침 1정",
+              "to": "아침 0.5정",
+              "caution": null,
+              "needsCheck": false
+            },
+            {
+              "id": "mc_im02_2",
+              "drug": "가상프라졸정 20mg",
+              "change": "stop",
+              "from": "저녁 1정",
+              "to": null,
+              "caution": null,
+              "needsCheck": false
+            }
+          ],
+          "easySummary": [
+            {
+              "id": "es_im02_1",
+              "text": "혈압약을 아침 반 정으로 줄였어요.",
+              "needsCheck": false
+            },
+            {
+              "id": "es_im02_2",
+              "text": "위장약은 이제 드시지 않아요.",
+              "needsCheck": false
+            },
+            {
+              "id": "es_im02_3",
+              "text": "다음 진료는 3월 12일 오전 10시 30분이에요.",
+              "needsCheck": false
+            }
+          ]
+        },
+        "full": {
+          "diagnosis": [
+            {
+              "id": "dx_im02_1",
+              "text": "가상질환 K1",
+              "needsCheck": false
+            }
+          ],
+          "labResults": [
+            {
+              "id": "lab_im02_1",
+              "name": "가상지표 X",
+              "value": "7.2",
+              "unit": "%",
+              "needsCheck": false
+            }
+          ],
+          "doctorExplanation": [
+            {
+              "id": "de_im02_1",
+              "text": "집에서 잰 혈압이 낮게 나와 용량을 줄인다고 설명함",
+              "needsCheck": false
+            },
+            {
+              "id": "de_im02_2",
+              "text": "다음 진료 때 피검사를 한다고 함",
+              "needsCheck": false
+            }
+          ],
+          "medReasons": [
+            {
+              "id": "mr_im02_1",
+              "medChangeId": "mc_im02_1",
+              "text": "집에서 잰 혈압이 낮게 나와 줄인다고 함",
+              "needsCheck": false
+            },
+            {
+              "id": "mr_im02_2",
+              "medChangeId": "mc_im02_2",
+              "text": "속쓰림이 나아져 그만 먹어도 된다고 함",
+              "needsCheck": false
+            }
+          ],
+          "medDetails": [
+            {
+              "drugKey": "batodipine",
+              "drugName": "바토디핀정 5mg",
+              "dose": "0.5정",
+              "timing": [
+                "morning"
+              ],
+              "medChangeId": "mc_im02_1"
+            }
+          ],
+          "answers": [],
+          "needsCheckDetails": [],
+          "sourceRefs": [
+            {
+              "itemId": "ns_im02_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im02_4"
+              },
+              "quote": "다음 진료 때 피검사를 할 거예요. 3월 12일 오전 10시 반에 오세요."
+            },
+            {
+              "itemId": "mc_im02_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im02_1"
+              },
+              "quote": "집에서 재 오신 혈압이 낮게 나와서 바토디핀정은 아침에 반 알로 줄일게요."
+            },
+            {
+              "itemId": "mc_im02_2",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im02_2"
+              },
+              "quote": "속쓰림이 나아졌으면 가상프라졸정은 이제 안 드셔도 돼요."
+            },
+            {
+              "itemId": "es_im02_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im02_1"
+              },
+              "quote": "집에서 재 오신 혈압이 낮게 나와서 바토디핀정은 아침에 반 알로 줄일게요."
+            },
+            {
+              "itemId": "es_im02_2",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im02_2"
+              },
+              "quote": "속쓰림이 나아졌으면 가상프라졸정은 이제 안 드셔도 돼요."
+            },
+            {
+              "itemId": "es_im02_3",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im02_4"
+              },
+              "quote": "다음 진료 때 피검사를 할 거예요. 3월 12일 오전 10시 반에 오세요."
+            },
+            {
+              "itemId": "dx_im02_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im02_3"
+              },
+              "quote": "가상지표 X는 7.2퍼센트예요."
+            },
+            {
+              "itemId": "lab_im02_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im02_3"
+              },
+              "quote": "가상지표 X는 7.2퍼센트예요."
+            },
+            {
+              "itemId": "de_im02_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im02_1"
+              },
+              "quote": "집에서 재 오신 혈압이 낮게 나와서 바토디핀정은 아침에 반 알로 줄일게요."
+            },
+            {
+              "itemId": "de_im02_2",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im02_4"
+              },
+              "quote": "다음 진료 때 피검사를 할 거예요. 3월 12일 오전 10시 반에 오세요."
+            },
+            {
+              "itemId": "mr_im02_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im02_1"
+              },
+              "quote": "집에서 재 오신 혈압이 낮게 나와서 바토디핀정은 아침에 반 알로 줄일게요."
+            },
+            {
+              "itemId": "mr_im02_2",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_im02_2"
+              },
+              "quote": "속쓰림이 나아졌으면 가상프라졸정은 이제 안 드셔도 돼요."
+            }
+          ],
+          "transcript": {
+            "transcriptId": "tr_im02",
+            "uploadId": null,
+            "mode": "fixture",
+            "segments": [
+              {
+                "id": "ts_im02_1",
+                "startMs": 0,
+                "endMs": 7000,
+                "speaker": "의사",
+                "text": "집에서 재 오신 혈압이 낮게 나와서 바토디핀정은 아침에 반 알로 줄일게요."
+              },
+              {
+                "id": "ts_im02_2",
+                "startMs": 7000,
+                "endMs": 12000,
+                "speaker": "의사",
+                "text": "속쓰림이 나아졌으면 가상프라졸정은 이제 안 드셔도 돼요."
+              },
+              {
+                "id": "ts_im02_3",
+                "startMs": 12000,
+                "endMs": 15000,
+                "speaker": "의사",
+                "text": "가상지표 X는 7.2퍼센트예요."
+              },
+              {
+                "id": "ts_im02_4",
+                "startMs": 15000,
+                "endMs": 21000,
+                "speaker": "의사",
+                "text": "다음 진료 때 피검사를 할 거예요. 3월 12일 오전 10시 반에 오세요."
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "visitId": "v_os_01",
+      "section": "record",
+      "version": 1,
+      "inputVersion": 1,
+      "state": "ready",
+      "mode": "fixture",
+      "createdBy": "u_a",
+      "createdAt": "2026-02-20T16:40:00+09:00",
+      "publishedAt": "2026-02-20T17:00:00+09:00",
+      "issues": [],
+      "blocks": {
+        "schedule": {
+          "nextSchedule": []
+        },
+        "companion": {
+          "medChanges": [
+            {
+              "id": "mc_os01_1",
+              "drug": "가상록소정 60mg",
+              "change": "start",
+              "from": null,
+              "to": "아침·저녁 식후 1정씩 3일",
+              "caution": "식후에 드세요",
+              "needsCheck": false
+            }
+          ],
+          "easySummary": [
+            {
+              "id": "es_os01_1",
+              "text": "가상록소정을 3일 동안 아침저녁 식후에 드세요.",
+              "needsCheck": false
+            },
+            {
+              "id": "es_os01_2",
+              "text": "나아지지 않으면 다시 진료를 받으러 오세요.",
+              "needsCheck": false
+            }
+          ]
+        },
+        "full": {
+          "diagnosis": [
+            {
+              "id": "dx_os01_1",
+              "text": "가상질환 M2",
+              "needsCheck": false
+            }
+          ],
+          "labResults": [],
+          "doctorExplanation": [
+            {
+              "id": "de_os01_1",
+              "text": "영상 검사에서 큰 이상은 없다고 설명함",
+              "needsCheck": false
+            }
+          ],
+          "medReasons": [
+            {
+              "id": "mr_os01_1",
+              "medChangeId": "mc_os01_1",
+              "text": "통증을 줄이려고 3일만 처방한다고 함",
+              "needsCheck": false
+            }
+          ],
+          "medDetails": [
+            {
+              "drugKey": "virtualloxo",
+              "drugName": "가상록소정 60mg",
+              "dose": "1정",
+              "timing": [
+                "morning",
+                "evening"
+              ],
+              "medChangeId": "mc_os01_1"
+            }
+          ],
+          "answers": [],
+          "needsCheckDetails": [],
+          "sourceRefs": [
+            {
+              "itemId": "mc_os01_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_os01_2"
+              },
+              "quote": "통증 줄이게 가상록소정 60밀리를 아침저녁 식후에 3일만 드세요."
+            },
+            {
+              "itemId": "es_os01_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_os01_2"
+              },
+              "quote": "통증 줄이게 가상록소정 60밀리를 아침저녁 식후에 3일만 드세요."
+            },
+            {
+              "itemId": "es_os01_2",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_os01_3"
+              },
+              "quote": "나아지지 않으면 다시 오세요."
+            },
+            {
+              "itemId": "dx_os01_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_os01_1"
+              },
+              "quote": "가상질환 M2예요. 영상에서 큰 이상은 없어요."
+            },
+            {
+              "itemId": "de_os01_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_os01_1"
+              },
+              "quote": "가상질환 M2예요. 영상에서 큰 이상은 없어요."
+            },
+            {
+              "itemId": "mr_os01_1",
+              "source": {
+                "type": "transcript",
+                "segmentId": "ts_os01_2"
+              },
+              "quote": "통증 줄이게 가상록소정 60밀리를 아침저녁 식후에 3일만 드세요."
+            }
+          ],
+          "transcript": {
+            "transcriptId": "tr_os01",
+            "uploadId": null,
+            "mode": "fixture",
+            "segments": [
+              {
+                "id": "ts_os01_1",
+                "startMs": 0,
+                "endMs": 5000,
+                "speaker": "의사",
+                "text": "가상질환 M2예요. 영상에서 큰 이상은 없어요."
+              },
+              {
+                "id": "ts_os01_2",
+                "startMs": 5000,
+                "endMs": 11000,
+                "speaker": "의사",
+                "text": "통증 줄이게 가상록소정 60밀리를 아침저녁 식후에 3일만 드세요."
+              },
+              {
+                "id": "ts_os01_3",
+                "startMs": 11000,
+                "endMs": 14000,
+                "speaker": "의사",
+                "text": "나아지지 않으면 다시 오세요."
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

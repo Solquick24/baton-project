@@ -1,0 +1,45 @@
+{
+  "_note": "가상 데모 자료. 실존 인물·병원·약·질환이 아니다. 1단계에는 등록 화면이 없고 시드로 고정한다. fact는 AI가 메모를 처방 형태로 바꾼 결과를 미리 넣어 둔 값이다.",
+  "observations": [
+    {
+      "id": "ob_01",
+      "patientId": "p_01",
+      "dept": "내과",
+      "authorId": "u_a",
+      "date": "2026-02-20",
+      "text": "2/12 진료 뒤로 저녁 혈압약을 반 알로 줄여서 드리고 있어요.",
+      "fact": {
+        "drugKey": "batodipine",
+        "drugName": "바토디핀정 5mg",
+        "dose": "0.5정",
+        "timing": [
+          "evening"
+        ]
+      },
+      "revision": 1,
+      "supersedesId": null
+    },
+    {
+      "id": "ob_02",
+      "patientId": "p_01",
+      "dept": "내과",
+      "authorId": "u_a",
+      "date": "2026-03-02",
+      "text": "아침에 일어날 때 가끔 어지럽다고 하세요.",
+      "fact": null,
+      "revision": 1,
+      "supersedesId": null
+    },
+    {
+      "id": "ob_03",
+      "patientId": "p_01",
+      "dept": "정형외과",
+      "authorId": "u_a",
+      "date": "2026-02-25",
+      "text": "무릎 통증은 조금 나아졌어요.",
+      "fact": null,
+      "revision": 1,
+      "supersedesId": null
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "_note": "검증기 기대 결과(schemas.md 4장). issue는 검증기가 값을 고치거나 보류할 때만 생긴다. null+needsCheck=true는 정상이라 issue가 없다. 테스트·평가(T037, T065)에 사용.",
+  "cases": [
+    {
+      "file": "structure/v_im_03.json",
+      "expectedState": "ready",
+      "expectedIssues": []
+    },
+    {
+      "file": "structure/v_im_03.leak.json",
+      "expectedState": "blocked",
+      "expectedIssues": [
+        {
+          "blockKind": "companion",
+          "itemId": "es_im03_1",
+          "rule": "restricted_value"
+        }
+      ]
+    },
+    {
+      "file": "briefing/v_im_03.json",
+      "expectedState": "ready",
+      "expectedIssues": []
+    },
+    {
+      "file": "merge-questions/v_im_03.json",
+      "expectedState": "ready",
+      "expectedIssues": []
+    }
+  ]
+}

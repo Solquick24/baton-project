@@ -1,0 +1,215 @@
+{
+  "schedule": {
+    "nextSchedule": [
+      {
+        "id": "ns_im03_1",
+        "date": "2026-04-09",
+        "time": "10:00",
+        "dept": "내과",
+        "hospital": "한빛가상병원",
+        "needsCheck": false
+      }
+    ]
+  },
+  "companion": {
+    "medChanges": [
+      {
+        "id": "mc_im03_1",
+        "drug": "바토디핀정 5mg",
+        "change": "keep",
+        "from": "아침 0.5정",
+        "to": "아침 0.5정",
+        "caution": "일어날 때 천천히 일어나기",
+        "needsCheck": false
+      }
+    ],
+    "easySummary": [
+      {
+        "id": "es_im03_1",
+        "text": "혈압약은 지금처럼 아침에 반 정 드세요.",
+        "needsCheck": false
+      },
+      {
+        "id": "es_im03_2",
+        "text": "일어날 때는 천천히 일어나세요.",
+        "needsCheck": false
+      },
+      {
+        "id": "es_im03_3",
+        "text": "다음 진료는 4월 9일 오전 10시예요.",
+        "needsCheck": false
+      }
+    ]
+  },
+  "full": {
+    "diagnosis": [
+      {
+        "id": "dx_im03_1",
+        "text": "가상질환 K1",
+        "needsCheck": false
+      }
+    ],
+    "labResults": [
+      {
+        "id": "lab_im03_1",
+        "name": "가상지표 X",
+        "value": "7.2",
+        "unit": "%",
+        "needsCheck": false
+      }
+    ],
+    "doctorExplanation": [
+      {
+        "id": "de_im03_1",
+        "text": "용량을 줄이면 처음에 어지러울 수 있다고 설명함",
+        "needsCheck": false
+      },
+      {
+        "id": "de_im03_2",
+        "text": "오늘 채혈실에서 피검사를 하고 가라고 함",
+        "needsCheck": false
+      }
+    ],
+    "medReasons": [
+      {
+        "id": "mr_im03_1",
+        "medChangeId": "mc_im03_1",
+        "text": null,
+        "needsCheck": true
+      }
+    ],
+    "medDetails": [
+      {
+        "drugKey": "batodipine",
+        "drugName": "바토디핀정 5mg",
+        "dose": "0.5정",
+        "timing": [
+          "morning"
+        ],
+        "medChangeId": "mc_im03_1"
+      }
+    ],
+    "answers": [
+      {
+        "id": "an_im03_1",
+        "questionId": "mq_01",
+        "text": "용량을 줄이면 처음에 어지러울 수 있고, 일어날 때 천천히 일어나라고 함",
+        "needsCheck": false
+      },
+      {
+        "id": "an_im03_2",
+        "questionId": "mq_02",
+        "text": null,
+        "needsCheck": true
+      },
+      {
+        "id": "an_im03_3",
+        "questionId": "mq_03",
+        "text": "혈압약은 아침에 반 알 그대로 먹으라고 함",
+        "needsCheck": false
+      }
+    ],
+    "needsCheckDetails": [
+      {
+        "itemId": "mr_im03_1",
+        "reason": "no_source",
+        "alertId": null
+      },
+      {
+        "itemId": "an_im03_2",
+        "reason": "no_source",
+        "alertId": null
+      }
+    ],
+    "sourceRefs": [
+      {
+        "itemId": "ns_im03_1",
+        "source": {
+          "type": "transcript",
+          "segmentId": "ts_06"
+        },
+        "quote": "다음 진료는 4월 9일 오전 10시로 잡을게요."
+      },
+      {
+        "itemId": "mc_im03_1",
+        "source": {
+          "type": "transcript",
+          "segmentId": "ts_03"
+        },
+        "quote": "용량을 줄이면 처음에 어지러울 수 있어요. 일어날 때 천천히 일어나시고요. 혈압약은 아침에 반 알, 지금처럼 그대로 드세요."
+      },
+      {
+        "itemId": "es_im03_1",
+        "source": {
+          "type": "transcript",
+          "segmentId": "ts_03"
+        },
+        "quote": "용량을 줄이면 처음에 어지러울 수 있어요. 일어날 때 천천히 일어나시고요. 혈압약은 아침에 반 알, 지금처럼 그대로 드세요."
+      },
+      {
+        "itemId": "es_im03_2",
+        "source": {
+          "type": "transcript",
+          "segmentId": "ts_03"
+        },
+        "quote": "용량을 줄이면 처음에 어지러울 수 있어요. 일어날 때 천천히 일어나시고요. 혈압약은 아침에 반 알, 지금처럼 그대로 드세요."
+      },
+      {
+        "itemId": "es_im03_3",
+        "source": {
+          "type": "transcript",
+          "segmentId": "ts_06"
+        },
+        "quote": "다음 진료는 4월 9일 오전 10시로 잡을게요."
+      },
+      {
+        "itemId": "dx_im03_1",
+        "source": {
+          "type": "transcript",
+          "segmentId": "ts_04"
+        },
+        "quote": "가상질환 K1은 지금처럼 관리하시면 되고요, 지난번 가상지표 X는 7.2퍼센트였어요."
+      },
+      {
+        "itemId": "lab_im03_1",
+        "source": {
+          "type": "transcript",
+          "segmentId": "ts_04"
+        },
+        "quote": "가상질환 K1은 지금처럼 관리하시면 되고요, 지난번 가상지표 X는 7.2퍼센트였어요."
+      },
+      {
+        "itemId": "de_im03_1",
+        "source": {
+          "type": "transcript",
+          "segmentId": "ts_03"
+        },
+        "quote": "용량을 줄이면 처음에 어지러울 수 있어요. 일어날 때 천천히 일어나시고요. 혈압약은 아침에 반 알, 지금처럼 그대로 드세요."
+      },
+      {
+        "itemId": "de_im03_2",
+        "source": {
+          "type": "transcript",
+          "segmentId": "ts_05"
+        },
+        "quote": "오늘 피검사는 채혈실에서 하고 가세요."
+      },
+      {
+        "itemId": "an_im03_1",
+        "source": {
+          "type": "transcript",
+          "segmentId": "ts_03"
+        },
+        "quote": "용량을 줄이면 처음에 어지러울 수 있어요. 일어날 때 천천히 일어나시고요. 혈압약은 아침에 반 알, 지금처럼 그대로 드세요."
+      },
+      {
+        "itemId": "an_im03_3",
+        "source": {
+          "type": "transcript",
+          "segmentId": "ts_03"
+        },
+        "quote": "용량을 줄이면 처음에 어지러울 수 있어요. 일어날 때 천천히 일어나시고요. 혈압약은 아침에 반 알, 지금처럼 그대로 드세요."
+      }
+    ]
+  }
+}

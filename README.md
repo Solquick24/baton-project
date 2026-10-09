@@ -2,18 +2,22 @@
 
 가족이 번갈아 동행해도 진료 맥락이 끊기지 않도록 진료 전·중·후 기록을 이어주는 프로젝트다.
 
-현재는 **기획·명세·설계·설정 뼈대** 단계다. 앱·API·AI 기능·테스트·AWS 자원은 아직 구현하지 않았다.
+현재는 **기획·명세·설계·설정 뼈대와 가상 시드·AI 응답 자료 준비** 단계다. 앱·API·AI 기능·테스트·AWS 자원은 아직 구현하지 않았다.
 
 ## 문서
 
 - [대회 참가 규정과 제출 참고사항](docs/devday-guide.md)
 - [사전 작업과 가져온 자료 공개](docs/prework-disclosure.md)
 - [대회 저장소 마이그레이션 기록](docs/repository-migration.md)
-- [프로젝트 헌장](.specify/memory/constitution.md)
 - [제품 요구사항 문서(PRD)](docs/PRD.md)
 - [Track 2 제출안 본문 기록](docs/references/track2-submission.md)
+- [프로젝트 헌장](.specify/memory/constitution.md)
 - [최종 기획안](docs/baton_planning_최종.md) · [변경 검토](docs/planning-review.md)
-- [이전 기획안](docs/baton_planning_2026-10-09_04-15-10_KST.md)
+- [최신 Codex 준비 자료와 기존 레포 비교](docs/codex-ready-review.md)
+- [이전 기획안](docs/archive/baton_planning_2026-10-09_04-15-10_KST.md) (역사 자료, 구현 근거 아님)
+- [구현 에이전트 안내 AGENTS.md](AGENTS.md)
+- [계약 스키마](specs/001-baton-mvp/contracts/schemas.md) · [화면 정의](specs/001-baton-mvp/screens.md) · [시드 스토리](specs/001-baton-mvp/seed-story.md)
+- [샘플 데이터셋 v2.1 연결·검증·다음 단계](docs/dataset-integration.md)
 - [MVP 명세](specs/001-baton-mvp/spec.md)
 - [구현 계획](specs/001-baton-mvp/plan.md)
 - [구현 작업 목록](specs/001-baton-mvp/tasks.md)
@@ -56,7 +60,8 @@ React·TypeScript·Vite·AWS SDK·테스트 도구와 실제 dev/build/test 명�
 ## 다음 구현 단계
 
 생성한 `tasks.md`의 Setup/Foundation부터 해커톤 당일 구현한다.
-1단계 두 시연 경로를 완주한 뒤 선택2단계를 추가한다.
+Tier A(T001–T049)를 먼저 수행하고 Tier B와 마지막 결과 기록을 이어간다.
+선택 2단계·화면만인 Tier C(T052–T064)는 사람이 명시적으로 요청할 때만 진행한다.
 새 checkout에서는 다음 값을 지정해 Spec Kit가 main에서도 feature를 찾게 한다.
 
 ```bash
@@ -64,6 +69,17 @@ export SPECIFY_FEATURE_DIRECTORY=specs/001-baton-mvp
 ```
 
 `.specify/feature.json`은 checkout별 로컬 포인터여서 공유하지 않는다.
+
+### Codex로 구현 시작하기
+
+Codex는 루트의 `AGENTS.md`를 먼저 읽는다. 작업 범위(Tier A만)·고정 버전·절대 규칙이 거기 있다.
+`$speckit-implement`는 기본값이 "tasks.md 전부"라서, 범위를 같이 넘긴다. 예:
+
+```
+$speckit-implement AGENTS.md 4장의 Tier A만 수행한다. Phase 1(Setup)부터 순서대로 하고, 각 Phase 체크포인트를 통과하면 멈추고 결과를 보고한다. Tier C(T052–T064)는 하지 않는다.
+```
+
+4명이 나눠 작업할 때는 Phase 2(Foundation)의 T008·T009·T010을 한 사람이 먼저 끝내 main에 올린 뒤, plan.md의 분담(프론트·API/DB/인증·AI/검증·시드/데모)대로 각자 Codex에 해당 작업 ID만 지시한다.
 AWS 자격 증명·실제 `.env`·실제 배포 설정은 Git에 포함하지 않는다.
 브라우저의 `VITE_*` 변수에는 공개 가능한 식별자만 넣는다.
 데모에는 가상 환자·음성·문서만 사용한다.

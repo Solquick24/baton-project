@@ -1,71 +1,76 @@
-# API Contract Draft: 로컬 서버·등급별 블록·검토 후 공유
+# API Contract: 로컬 서버·등급별 블록·검토 후 공유
 
-아직 경로·스키마·handler는 구현하지 않았다. Fastify 로컬 API와 공유Zod계약을 계획한다.
+아직 경로·스키마·handler는 구현하지 않았다. Fastify 로컬 API와 공유 Zod 계약을 계획한다.
+**요청·응답 본문의 정확한 형태는 [schemas.md](schemas.md)가 기준이다.** 이 문서는 경로·권한 요약이다.
 
 ## Authentication and response rules
 
-- POST /auth/login은 시드 계정의 이메일·비밀번호를 확인하고 서명 JWT를 반환한다.
-- 서버는 서명·만료·허용알고리즘·issuer/audience를 검증한다. JWT의userId만 신뢰하고 scope/위임은DB에서 읽는다.
-- 환자 API앞에는 /patients/{patientId}, 예외는 /me/patients와 정적 병원 안내.
-- error.code/message/requestId 형식; 401인증,403권한,404허용범위의없음,400입력,409버전충돌,502외부처리오류.
-- 오류·작업응답에 원문·금지블록·내부경로·비밀설정을 넣지 않는다.
-- 모든 외부 응답은 공통assembler를 거친다. 알 수 없는블록·필드는기본거부.
-- schedule 응답: meta + schedule. companion: meta + schedule + companion. full: 셋모두.
-- meta는id/date/dept/hospital/companion만; 민감내용·다른가족scope·거부블록개수는없다.
-- sourceRefs/basisRefs/quote/전체파일/진단/수치/이유/답변/설명/ALERT상세는full전용.
+- 모든 경로는 `/api` 아래. Vite 개발 서버가 `/api`를 `http://localhost:3001`로 프록시한다.
+- POST /api/auth/login은 시드 계정의 이메일·비밀번호를 확인하고 서명 JWT를 반환한다.
+- 서버는 서명·만료·허용 알고리즘(HS256)·issuer(`baton-local`)/audience(`baton-web`)를 검증한다. JWT의 `sub`만 신뢰하고 role·scope·위임은 매 요청 DB에서 읽는다.
+- 환자 API 앞에는 `/patients/{patientId}`, 예외는 `/auth`, `/me/patients`, `/jobs`, `/hospitals`.
+- 오류 형식 `{ error: { code, reason?, message, requestId } }`. 401 인증, 403 권한(비구성원 포함), 404 없음 또는 허용 범위 밖, 400 입력, 409 버전 충돌·공유 보류, 502 외부 처리 오류.
+- 오류·작업 응답에 원문·금지 블록·내부 경로·비밀 설정을 넣지 않는다.
+- 모든 외부 응답은 공통 assembler를 거친다. 알 수 없는 블록·필드는 기본 거부.
+- schedule 응답: meta + schedule. companion: meta + schedule + companion. full: 셋 모두.
+- meta는 id/date/time/dept/hospital/companion/status만; 민감 내용·다른 가족 scope·거부 블록 개수·초안 존재는 없다.
+- sourceRefs/basisRefs/quote/원본 파일/진단/수치/이유/답변/설명/전사/메모 원문/ALERT 상세는 full 전용.
 
-## Routes
+## Routes (1단계)
 
-| Method | Path | 입력·결과 | 행동 권한 |
+| Method | Path | 입력 → 결과 | 행동 권한 |
 |---|---|---|---|
-| POST | /auth/login | email/password → accessToken | 시드계정 |
-| GET | /me/patients | 접근가능환자목록 | 인증 |
-| GET | /home?dept= | meta+허용블록·허용개수 | 현행scope |
-| GET | /timeline?dept= | publishedVersion의meta+허용블록 | 현행scope |
-| GET | /visits/{vid} | meta+허용블록, 작성자/관리자는검토본선택가능 | 현행scope+검토권한 |
-| POST | /visits/{vid}/questions | text → id, 공개용text는혼입검증 | companion/full |
-| GET | /visits/{vid}/questions | companion.mergedQuestions, full인경우basisRefs | companion/full |
-| POST | /visits/{vid}/questions/merge | inputVersion → 결과블록또는jobId | companion/full |
-| POST | /visits/{vid}/briefing | inputVersion → 저장블록또는jobId | companion/full |
-| GET | /visits/{vid}/briefing | 허용된briefing블록 | companion/full |
-| POST | /visits/{vid}/audio | multipart 가상파일 → uploadId | companion/full+recordingAllowed |
-| POST | /visits/{vid}/transcribe | uploadId,inputVersion → 202 jobId | companion/full |
-| POST | /visits/{vid}/notes | text,inputVersion → 새버전 | companion/full |
-| POST | /visits/{vid}/structure | inputVersion → 202 jobId | companion/full |
-| GET | /jobs/{jobId} | status/mode/resultVersion/안전한errorCode | 현재기능권한·scope;원문없음 |
-| POST | /visits/{vid}/share | draftVersion,inputVersion,idempotencyKey | 작성자또는환자/위임대표,검증ready |
-| GET | /sources/{sourceId} | full근거인용/원본다운로드 | full;소속검사 |
-| GET | /alerts | 불일치·확인상세 | full |
-| POST | /alerts/{aid}/resolve | edit_note/reupload/confirm_hospital | full;원본변경권한추가검사 |
-| GET | /members | 가족·scope | 환자/위임대표 |
-| PUT | /members/{uid}/scope | schedule/companion/full | 환자/위임대표 |
-| GET | /members/{uid}/share-log | 공유시작·범위변경기록 | 환자/위임대표 |
-| GET | /hospitals/{hid} | 가상위치·약도·더미경험 | 정적안내 |
+| POST | /auth/login | email/password → accessToken, user | 시드 계정 |
+| GET | /me/patients | self·linked 환자 목록 | 인증 |
+| GET | /patients/{pid}/home?dept= | meta + 허용 블록 + 허용 개수 | 구성원(현행 scope) |
+| GET | /patients/{pid}/timeline?dept= | 공유본의 meta + 허용 블록 | 구성원 |
+| GET | /patients/{pid}/visits/{vid}?view= | published(기본) 또는 draft 검토본 | 구성원 / draft는 작성자·범위 관리자 |
+| POST | /patients/{pid}/visits/{vid}/questions | text → id(혼입 시 visibility=full) | companion 이상 |
+| GET | /patients/{pid}/visits/{vid}/questions | 원 질문 + 통합 결과(허용 블록) | companion 이상, schedule은 404 |
+| POST | /patients/{pid}/visits/{vid}/questions/merge | inputVersion → 202 jobId | companion 이상 |
+| POST | /patients/{pid}/visits/{vid}/briefing | questionsVersion → 202 jobId | companion 이상 |
+| GET | /patients/{pid}/visits/{vid}/briefing | 허용 briefing 블록 + 통합 질문 | companion 이상, schedule은 404 |
+| POST | /patients/{pid}/visits/{vid}/audio | multipart 가상 파일 → uploadId | companion 이상 + recordingAllowed |
+| POST | /patients/{pid}/visits/{vid}/transcribe | uploadId → 202 jobId | companion 이상 |
+| POST | /patients/{pid}/visits/{vid}/notes | text → noteId, recordInputVersion | companion 이상 |
+| POST | /patients/{pid}/visits/{vid}/structure | inputVersion → 202 jobId | companion 이상 |
+| POST | /patients/{pid}/visits/{vid}/share | draftVersion, inputVersion, idempotencyKey → publishedVersion | 초안 작성자(현재 companion 이상) 또는 환자·위임 대표, state=ready |
+| GET | /jobs/{jobId} | status/mode/resultVersion/resultState/errorCode | 요청자 본인 또는 그 환자의 full 구성원 |
+| GET | /patients/{pid}/sources/{uploadId} | 원본 파일 스트림 | full; 환자·진료 소속 검사 |
+| GET | /patients/{pid}/alerts | 불일치·확인 상세 | full, 그 외 404 |
+| POST | /patients/{pid}/alerts/{aid}/resolve | edit_note/reupload/confirm_hospital | 환자·대표 보호자 |
+| GET | /patients/{pid}/members | 가족·scope | 환자·위임 대표 |
+| PUT | /patients/{pid}/members/{uid}/scope | schedule/companion/full | 환자·위임 대표 |
+| GET | /patients/{pid}/members/{uid}/share-log | 그 가족 대상 공유 시작·범위 변경 기록 | 환자·위임 대표 |
+| GET | /patients/{pid}/share-log | 환자 전체 기록(공유 확정 포함) | 환자·위임 대표 |
+| GET | /hospitals/{hid} | 가상 위치·약도·안내 순서·더미 경험 | 인증 |
 
-POST /audio-url 대신 직접업로드를사용한다. cloud presigned URL은API계약에없다.
-전사완료/정리완료의job결과는raw전사가아니라허용된resultVersion참조다.
-share는민감혼입blocked·입력버전불일치에서409로거부하고ready검토본만공개한다.
-source/download는작성자여도companion이면403이다.
+POST /audio-url 대신 직접 업로드를 사용한다. cloud presigned URL은 API 계약에 없다.
+AI 생성과 전사는 항상 202 + jobId로 시작한다. 재시도는 같은 요청을 다시 보내며 규칙은 schemas.md 6장.
+전사 완료·정리 완료의 job 결과는 raw 전사가 아니라 허용된 resultVersion 참조다.
+share는 blocked·입력 버전 불일치·ready 아님에서 409로 거부하고 ready 검토본만 공개한다. 같은 초안 재공유는 200 + alreadyPublished.
+source 다운로드는 작성자여도 companion이면 403이다.
 
 ## Generation and reading
 
-생성요청은정해진모든블록을만들고서버에서검증·저장한다. 반환은호출자의허용블록만.
-GET·scope변경은저장된블록선택만하고LLM/STT를호출하지않는다.
-새field는full에두고화이트리스트스키마에정의전까지낮은범위로반환하지않는다.
-low항목은id/needsCheck, full의sourceRefs[id]로원본을연결한다.
-근거가없으면값null·needsCheck=true. 프론트는full블록이있을때만원문버튼을그린다.
+생성 요청은 정해진 모든 블록을 만들고 서버에서 검증·저장한다. 반환은 호출자의 허용 블록만.
+GET·scope 변경은 저장된 블록 선택만 하고 LLM/STT를 호출하지 않는다.
+새 field는 full에 두고 화이트리스트 스키마에 정의 전까지 낮은 범위로 반환하지 않는다.
+low 항목은 id/needsCheck, full의 sourceRefs[itemId]로 원본을 연결한다.
+근거가 없으면 값 null·needsCheck=true. 프론트는 full 블록이 있을 때만 원문 버튼을 그린다.
 
 ## Review and published views
 
-일반가족조회는publishedVersion, 검토는작성자/관리자의draftVersion을사용한다.
-검토자가companion이어도full은반환하지않는다. 공유전companion문장을확인할수있다.
-보안검증은사용자의공유확인과독립적이며저장검증·현행권한검증을버튼으로우회할수없다.
-단순미해결불일치는확인표시를유지하며공유할수있고민감혼입은재생성/수정·재검증전공유불가다.
+일반 가족 조회는 recordPublishedVersion, 검토는 작성자·범위 관리자의 recordDraftVersion을 사용한다.
+질문 통합·브리핑은 공유 단계 없이 state=ready면 허용 범위로 바로 보인다(schemas.md 3장).
+검토자가 companion이어도 full은 반환하지 않는다. 공유 전 companion 문장을 확인할 수 있다.
+보안 검증은 사용자의 공유 확인과 독립적이며 저장 검증·현행 권한 검증을 버튼으로 우회할 수 없다.
+단순 미해결 불일치는 확인 표시를 유지하며 공유할 수 있고 민감 혼입은 재생성·재검증 전 공유 불가다.
 
 ## Optional phase 2
 
-DELETE /members/{uid} 공유중단, POST /docs 직접업로드, /docs/{did}/extract·PATCH수정,
-/private-notes 환자전용, /doctor-view 환자전용, PUT /settings 위임·녹음설정,
-/hospitals/{hid}/experiences 익명입력, /flows 같은과흐름을추가한다.
-별도easy-summary API는없고저장된companion.easySummary를화면24에서재사용한다.
-동의·초대·가입·일정등록은화면만이므로실제동작API를추가하지않는다.
+DELETE /members/{uid} 공유 중단, POST /docs 직접 업로드, /docs/{did}/extract·PATCH 수정,
+/private-notes 환자 전용, /doctor-view 환자 전용, PUT /settings 위임·녹음 설정,
+/hospitals/{hid}/experiences 익명 입력, /flows 같은 과 흐름을 추가한다.
+별도 easy-summary API는 없고 저장된 companion.easySummary를 화면 24에서 재사용한다.
+동의·초대·가입·일정 등록은 화면만이므로 실제 동작 API를 추가하지 않는다.

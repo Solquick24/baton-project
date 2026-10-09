@@ -1,0 +1,36 @@
+{
+  "_note": "가상 데모 자료. 실존 인물·병원·약·질환이 아니다. demoPassword는 로컬 시연용 가상 값이며 seed가 scrypt 해시로만 DB에 저장한다.",
+  "demoPassword": "baton-demo-2026",
+  "users": [
+    {
+      "id": "u_patient",
+      "email": "patient@baton.demo",
+      "name": "박하늘",
+      "testOnly": false
+    },
+    {
+      "id": "u_a",
+      "email": "a@baton.demo",
+      "name": "박지원",
+      "testOnly": false
+    },
+    {
+      "id": "u_b",
+      "email": "b@baton.demo",
+      "name": "박지후",
+      "testOnly": false
+    },
+    {
+      "id": "u_c",
+      "email": "c@baton.demo",
+      "name": "정다온",
+      "testOnly": false
+    },
+    {
+      "id": "u_x",
+      "email": "outsider@baton.demo",
+      "name": "한외부",
+      "testOnly": true
+    }
+  ]
+}

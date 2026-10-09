@@ -8,6 +8,13 @@
 !.env.example
 samconfig.toml
 
+# Local SQLite database and uploaded files
+apps/api/data/
+
+# Playwright output
+test-results/
+playwright-report/
+
 # Dependencies and generated output
 node_modules/
 dist/

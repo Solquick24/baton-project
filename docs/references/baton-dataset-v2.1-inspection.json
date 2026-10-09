@@ -1,0 +1,247 @@
+{
+  "archive_name": "Baton_Dataset_v2_1_FINAL_20261008.zip",
+  "archive_sha256": "48f161a126b72426fd0e4529860cc20a620022f52fa74b18cf48ed0296ed5706",
+  "dataset_version": "2.1.0",
+  "counts": {
+    "visits": 6,
+    "medication_order_rows": 19,
+    "medication_products": 4,
+    "family_questions": 24,
+    "family_observations": 10,
+    "family_memos": 4,
+    "images": 14,
+    "audio_files": 0,
+    "stt_scripts": 5
+  },
+  "parsed_files": {
+    "json": 38,
+    "jsonl": 9
+  },
+  "evaluation_inventory": {
+    "extraction": {
+      "path": "evaluation/extraction_cases.jsonl",
+      "count": 20,
+      "label_counts": {},
+      "case_ids": [
+        "EX01",
+        "EX02",
+        "EX03",
+        "EX04",
+        "EX05",
+        "EX06",
+        "EX07",
+        "EX08",
+        "EX09",
+        "EX10",
+        "EX11",
+        "EX12",
+        "EX13",
+        "EX14",
+        "EX15",
+        "EX16",
+        "EX17",
+        "EX18",
+        "EX19",
+        "EX20"
+      ]
+    },
+    "mismatch": {
+      "path": "evaluation/mismatch_cases.jsonl",
+      "count": 12,
+      "label_counts": {
+        "CONFLICT": 6,
+        "NO_CONFLICT": 3,
+        "REVIEW": 3
+      },
+      "case_ids": [
+        "MM01",
+        "MM02",
+        "MM03",
+        "MM04",
+        "MM05",
+        "MM06",
+        "MM07",
+        "MM08",
+        "MM09",
+        "MM10",
+        "MM11",
+        "MM12"
+      ]
+    },
+    "guardrail": {
+      "path": "evaluation/guardrail_cases.jsonl",
+      "count": 12,
+      "label_counts": {
+        "ALLOW": 6,
+        "BLOCK_OR_REDIRECT": 6
+      },
+      "case_ids": [
+        "GR01",
+        "GR02",
+        "GR03",
+        "GR04",
+        "GR05",
+        "GR06",
+        "GR07",
+        "GR08",
+        "GR09",
+        "GR10",
+        "GR11",
+        "GR12"
+      ]
+    },
+    "permission": {
+      "path": "evaluation/permission_cases.jsonl",
+      "count": 7,
+      "label_counts": {
+        "ALLOW": 4,
+        "DENY": 3
+      },
+      "case_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07"
+      ]
+    },
+    "image_ocr": {
+      "path": "evaluation/image_ocr_gold.jsonl",
+      "count": 14,
+      "label_counts": {}
+    }
+  },
+  "revised_image_ids": [
+    "GUIDE04",
+    "BAG01",
+    "BAG03"
+  ],
+  "bundled_validation_report": {
+    "passed": 33,
+    "failed": 0,
+    "checks": 33,
+    "limitation": "Original PNGs/recordings not present, so structural checks DO NOT validate visual pixels or audio."
+  },
+  "checks": [
+    {
+      "name": "zip_crc",
+      "result": "PASS"
+    },
+    {
+      "name": "unique_archive_paths",
+      "result": "PASS"
+    },
+    {
+      "name": "all_json_and_jsonl_parse",
+      "result": "PASS"
+    },
+    {
+      "name": "master_bundle_equal",
+      "result": "PASS"
+    },
+    {
+      "name": "dataset_version",
+      "result": "PASS"
+    },
+    {
+      "name": "synthetic_patient_declaration",
+      "result": "PASS"
+    },
+    {
+      "name": "master_counts_match_manifest",
+      "result": "PASS"
+    },
+    {
+      "name": "master_unique_ids",
+      "result": "PASS"
+    },
+    {
+      "name": "seed_exports_match_master",
+      "result": "PASS"
+    },
+    {
+      "name": "order_foreign_keys",
+      "result": "PASS"
+    },
+    {
+      "name": "image_count_and_document_links",
+      "result": "PASS"
+    },
+    {
+      "name": "image_checksum_links",
+      "result": "PASS"
+    },
+    {
+      "name": "image_hashes_and_sizes",
+      "result": "PASS"
+    },
+    {
+      "name": "png_signatures",
+      "result": "PASS"
+    },
+    {
+      "name": "extraction_case_count",
+      "result": "PASS"
+    },
+    {
+      "name": "extraction_unique_case_ids",
+      "result": "PASS"
+    },
+    {
+      "name": "mismatch_case_count",
+      "result": "PASS"
+    },
+    {
+      "name": "mismatch_unique_case_ids",
+      "result": "PASS"
+    },
+    {
+      "name": "guardrail_case_count",
+      "result": "PASS"
+    },
+    {
+      "name": "guardrail_unique_case_ids",
+      "result": "PASS"
+    },
+    {
+      "name": "permission_case_count",
+      "result": "PASS"
+    },
+    {
+      "name": "permission_unique_case_ids",
+      "result": "PASS"
+    },
+    {
+      "name": "image_ocr_case_count",
+      "result": "PASS"
+    },
+    {
+      "name": "audio_manifest_consistent",
+      "result": "PASS"
+    },
+    {
+      "name": "stt_script_count",
+      "result": "PASS"
+    }
+  ],
+  "passed": 25,
+  "failed": 0,
+  "integration": {
+    "status": "reference_only",
+    "active_fixture_source": "fixtures/seed and fixtures/expected",
+    "excluded": [
+      "real_mimic_reference_cases",
+      "official_drug_catalog",
+      "raw_mock_api",
+      "private_notes",
+      "question_groups_gold_from_model_input"
+    ]
+  },
+  "limitations": [
+    "No OCR or STT accuracy measured",
+    "No API authorization or AI output validation executed",
+    "Source labels require adaptation to current three-scope contracts"
+  ]
+}

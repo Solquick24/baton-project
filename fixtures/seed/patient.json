@@ -1,0 +1,121 @@
+{
+  "_note": "가상 데모 자료. 실존 인물·병원·약·질환이 아니다.",
+  "patients": [
+    {
+      "id": "p_01",
+      "name": "박하늘",
+      "userId": "u_patient",
+      "leadUserId": "u_a",
+      "delegated": false,
+      "recordingAllowed": true
+    }
+  ],
+  "members": [
+    {
+      "patientId": "p_01",
+      "userId": "u_patient",
+      "role": "patient",
+      "scope": "full",
+      "active": true,
+      "relation": "본인"
+    },
+    {
+      "patientId": "p_01",
+      "userId": "u_a",
+      "role": "lead",
+      "scope": "full",
+      "active": true,
+      "relation": "딸"
+    },
+    {
+      "patientId": "p_01",
+      "userId": "u_b",
+      "role": "guardian",
+      "scope": "companion",
+      "active": true,
+      "relation": "아들"
+    },
+    {
+      "patientId": "p_01",
+      "userId": "u_c",
+      "role": "guardian",
+      "scope": "schedule",
+      "active": true,
+      "relation": "손녀"
+    }
+  ],
+  "shareLogs": [
+    {
+      "id": "sl_01",
+      "patientId": "p_01",
+      "targetUserId": "u_a",
+      "actorId": "u_patient",
+      "action": "start",
+      "oldScope": null,
+      "newScope": "full",
+      "visitId": null,
+      "version": null,
+      "at": "2026-01-10T09:00:00+09:00"
+    },
+    {
+      "id": "sl_02",
+      "patientId": "p_01",
+      "targetUserId": "u_b",
+      "actorId": "u_patient",
+      "action": "start",
+      "oldScope": null,
+      "newScope": "companion",
+      "visitId": null,
+      "version": null,
+      "at": "2026-01-10T09:05:00+09:00"
+    },
+    {
+      "id": "sl_03",
+      "patientId": "p_01",
+      "targetUserId": "u_c",
+      "actorId": "u_patient",
+      "action": "start",
+      "oldScope": null,
+      "newScope": "schedule",
+      "visitId": null,
+      "version": null,
+      "at": "2026-01-10T09:10:00+09:00"
+    },
+    {
+      "id": "sl_04",
+      "patientId": "p_01",
+      "targetUserId": null,
+      "actorId": "u_a",
+      "action": "publish",
+      "oldScope": null,
+      "newScope": null,
+      "visitId": "v_im_01",
+      "version": 1,
+      "at": "2026-01-15T13:00:00+09:00"
+    },
+    {
+      "id": "sl_05",
+      "patientId": "p_01",
+      "targetUserId": null,
+      "actorId": "u_a",
+      "action": "publish",
+      "oldScope": null,
+      "newScope": null,
+      "visitId": "v_im_02",
+      "version": 1,
+      "at": "2026-02-12T13:30:00+09:00"
+    },
+    {
+      "id": "sl_06",
+      "patientId": "p_01",
+      "targetUserId": null,
+      "actorId": "u_a",
+      "action": "publish",
+      "oldScope": null,
+      "newScope": null,
+      "visitId": "v_os_01",
+      "version": 1,
+      "at": "2026-02-20T17:00:00+09:00"
+    }
+  ]
+}
