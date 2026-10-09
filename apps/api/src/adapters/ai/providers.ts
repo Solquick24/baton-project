@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { Readable } from 'node:stream';
 import { questionsBlocksSchema, briefingBlocksSchema, recordGeneratedBlocksSchema, type Section, type Mode, type JobError, type Transcript } from '@baton/contracts';
 import type { GenerationInput } from '../sqlite/generation-repository.js';
 
@@ -8,7 +9,9 @@ export type LLMRequest = { input: GenerationInput; attempt: number; instruction:
 export type LLMResult = { section: Section; mode: Mode; blocks: GeneratedBlocks };
 export interface LLMProvider { generate(request: LLMRequest): Promise<LLMResult> }
 export interface RawLLMProvider { mode: Mode; generateRaw(request: LLMRequest): Promise<unknown> }
-export interface TranscriptionProvider { transcribe(input: { patientId: string; visitId: string; attempt: number }): Promise<{ mode: Mode; segments: Transcript['segments'] }> }
+export type TranscriptionRequest = { patientId: string; visitId: string; attempt: number; jobId?: string; uploadId?: string;
+  audio?: { stream: Readable; mediaType: string; size: number } };
+export interface TranscriptionProvider { transcribe(input: TranscriptionRequest): Promise<{ mode: Mode; segments: Transcript['segments'] }> }
 export class ProviderError extends Error {
   constructor(readonly code: JobError) { super('AI 처리를 완료하지 못했어요.'); }
 }

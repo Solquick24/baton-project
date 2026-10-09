@@ -16,7 +16,9 @@ export async function openSourceFile(uploadDir: string, storagePath: string, exp
     if (process.platform !== 'win32' && !isAbsolute(storagePath) && win32.isAbsolute(storagePath)) throw new ApiError('not_found');
     const root = await realpath(uploadDir);
     const candidate = resolve(root, storagePath.replaceAll('\\', '/'));
-    if (!contained(root, candidate)) throw new ApiError('not_found');
+    // macOS /var is an alias of /private/var. Permit a registered absolute path
+    // under the configured root too, then enforce the canonical boundary below.
+    if (!contained(root, candidate) && !contained(resolve(uploadDir), candidate)) throw new ApiError('not_found');
     const actual = await realpath(candidate);
     if (!contained(root, actual)) throw new ApiError('not_found');
     handle = await open(actual, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));

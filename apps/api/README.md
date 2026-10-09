@@ -1,9 +1,9 @@
 # API workspace
 
-Fastify·SQLite·시드 JWT·현재 권한·provider/jobs 기반과 Phase 3 질문·브리핑·환자/진료 조회 API를 제공한다. `npm run seed` 뒤 API를 시작한다. 범위 변경·공유 로그·full 원문 스트림(T030~T032)은 로컬 검증 및 사용자 검토·게시 승인을 받았다. `apps/api/.env`의 JWT_SECRET은 32자 이상이어야 한다. 실제 API 목록은 [Phase 3 체크포인트](../../docs/phase3-backend-checkpoint.md)·[Phase 4 백엔드](../../docs/phase4-backend-checkpoint.md), 기반은 [백엔드 기록](../../docs/backend-foundation-checkpoint.md)을 참고한다. OpenAI 선택이 미병합 Phase 5 record/공유 API를 완성하지는 않는다.
+Fastify·SQLite·시드 JWT·현재 권한·provider/jobs 기반과 Phase 3 질문·브리핑·환자/진료 조회 API를 제공한다. `npm run seed` 뒤 API를 시작한다. Phase 4 범위·로그·full 원문과 Phase 5 업로드·전사·메모·정리·검토·공유·불일치 API도 구현했다. `apps/api/.env`의 JWT_SECRET은 32자 이상이어야 한다. 실제 경로는 [Phase 3](../../docs/phase3-backend-checkpoint.md)·[Phase 4](../../docs/phase4-backend-checkpoint.md)·[Phase 5 체크포인트](../../docs/phase5-backend-checkpoint.md)와 [요청/응답·폴링·인수인계](../../docs/phase5-api-handoff.md)를 참고한다. 백엔드 fixture 검증 완료이며 화면 통합과 외부 AI 실제 성공은 미검증이다.
 
 - handlers: HTTP routes; 요청 검증→인증·관계·행동 권한→기능 모듈→허용 블록 응답.
-- modules: members·visits·questions·briefing·summaries·alerts·jobs.
+- modules: members·visits·questions·briefing·records·alerts·jobs.
 - auth: JWT·매 요청 현재 관계·scope→kind 화이트리스트·위임·원문 검사.
 - adapters: SQLite·로컬 files·Bedrock·Transcribe·fixture 연결.
 - ai: 생성 입력의 환자·진료과·목적 제한, 세블록 출력·근거·혼입 검증.
@@ -26,4 +26,6 @@ Fastify·SQLite·시드 JWT·현재 권한·provider/jobs 기반과 Phase 3 질�
 LLM_PROVIDER=openai LLM_MODE=live LIVE_FALLBACK_TO_FIXTURE=false node --import tsx scripts/check-openai.ts
 ```
 
-성공 출력은 provider/model/mode=live/state=ready/persisted=false뿐이다. 설정 누락·거부·불완전·검증 실패는 exit 1이며 성공으로 표시하지 않는다. 이번 구현에서는 키·모델 미설정으로 실제 호출을 하지 않았다. `LLM_PROVIDER=bedrock`는 기존 Bedrock live 구현을 선택하며 STT_MODE와 독립적이다. 자세한 오류·재시도·미병합 record 의존성은 체크포인트를 확인한다.
+성공 출력은 provider/model/mode=live/state=ready/persisted=false뿐이다. 설정 누락·거부·불완전·검증 실패는 exit 1이며 성공으로 표시하지 않는다. 이번 구현에서는 실제 호출을 하지 않았다. `LLM_PROVIDER=bedrock`는 기존 Bedrock live 구현을 선택하며 STT_MODE와 독립적이다. 자세한 오류·재시도·공유 규칙은 Phase 5 체크포인트를 확인한다.
+
+전사는 기존 Amazon Transcribe를 유지한다. 기본 STT_MODE=fixture이며 키·AWS 없이 시연한다. live 선택 시 기존 TRANSCRIBE_STAGING_BUCKET과 계정 권한이 필요하고 새 자원/IAM은 만들지 않는다. LIVE_FALLBACK_TO_FIXTURE=false는 실패를 그대로 유지하며 true 대체 결과는 mode=fixture다. staging 객체·전사 job 정리를 시도하고 실패를 live 성공으로 표시하지 않는다. 이번 검사는 SDK 모의만 사용했으며 실제 버킷/전사/정리 권한·음성 인식 정확성은 미검증이다.
