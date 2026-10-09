@@ -60,16 +60,29 @@ export const briefingBlocksSchema = z.strictObject({ schedule: briefingScheduleS
 export const recordGeneratedBlocksSchema = z.strictObject({ schedule: recordScheduleSchema, companion: recordCompanionSchema, full: recordGeneratedFullSchema }).superRefine(uniqueIds);
 export const recordBlocksSchema = z.strictObject({ schedule: recordScheduleSchema, companion: recordCompanionSchema, full: recordFullSchema }).superRefine(uniqueIds);
 export const validationIssueSchema = z.strictObject({ blockKind: blockKindSchema, itemId: id, rule: z.enum(['schema', 'missing_source', 'restricted_value', 'medical_judgment']) });
-export const visitViewSchema = z.strictObject({ meta: visitMetaSchema, record: z.strictObject({
-  view: z.enum(['published', 'draft']), version: versionSchema, mode: modeSchema,
-  state: z.enum(['generating', 'ready', 'blocked', 'failed']).optional(), shareable: z.boolean().optional(), issues: z.array(validationIssueSchema).optional(),
-  blocks: z.strictObject({ schedule: recordScheduleSchema.optional(), companion: recordCompanionSchema.optional(), full: recordFullSchema.optional() }),
-}).optional() });
+export const recordReadBlocksSchema = z.strictObject({ schedule: recordScheduleSchema.optional(), companion: recordCompanionSchema.optional(), full: recordFullSchema.optional() });
+const recordViewBase = { version: versionSchema, mode: modeSchema, blocks: recordReadBlocksSchema };
+export const recordViewSchema = z.discriminatedUnion('view', [
+  z.strictObject({ ...recordViewBase, view: z.literal('published') }),
+  z.strictObject({ ...recordViewBase, view: z.literal('draft'), inputVersion: inputVersionSchema, stale: z.boolean(),
+    state: z.enum(['generating', 'ready', 'blocked', 'failed']), shareable: z.boolean(), issues: z.array(validationIssueSchema),
+  }),
+]).superRefine((record, ctx) => {
+  if (record.view === 'draft' && record.state === 'blocked' && (record.blocks.schedule || record.blocks.companion || record.shareable)) ctx.addIssue({ code: 'custom', message: '보류된 초안의 낮은 블록과 공유 가능 표시는 금지됩니다.' });
+  if (record.view === 'draft' && record.stale && record.shareable) ctx.addIssue({ code: 'custom', message: '오래된 초안은 공유할 수 없습니다.' });
+});
+export const visitViewSchema = z.strictObject({ meta: visitMetaSchema, record: recordViewSchema.optional() });
 export const seedRecordSchema = z.strictObject({ visitId: id, section: z.literal('record'), version: versionSchema, inputVersion: inputVersionSchema,
   state: z.literal('ready'), mode: z.literal('fixture'), createdBy: id, createdAt: dateTimeSchema, publishedAt: dateTimeSchema,
   issues: z.array(validationIssueSchema), blocks: recordBlocksSchema,
 });
-export type RecordBlocks = z.infer<typeof recordBlocksSchema>;
+export type StoredRecordBlocks = z.infer<typeof recordBlocksSchema>;
+export type RecordBlocks = z.infer<typeof recordReadBlocksSchema>;
+export type RecordView = z.infer<typeof recordViewSchema>;
+export type QuestionsCompanionBlock = z.infer<typeof questionsCompanionSchema>;
+export type QuestionsFullBlock = z.infer<typeof questionsFullSchema>;
+export type BriefingCompanionBlock = z.infer<typeof briefingCompanionSchema>;
+export type BriefingFullBlock = z.infer<typeof briefingFullSchema>;
 export type VisitView = z.infer<typeof visitViewSchema>;
 export type ValidationIssue = z.infer<typeof validationIssueSchema>;
 export type Transcript = z.infer<typeof transcriptSchema>;

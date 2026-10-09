@@ -5,7 +5,7 @@ import { requireMembership, assertAction } from '../../auth/permissions.js';
 import { allowedKinds } from '../../auth/block-policy.js';
 import { ApiError } from '../../shared/errors.js';
 
-export type StoredJob = Job & { patientId: string; requestedBy: string; inputVersion: number };
+export type StoredJob = Job & { patientId: string; requestedBy: string; inputVersion: number; uploadId: string | null };
 export type JobCompletion = { mode: Mode; resultVersion: number | null; resultState: 'ready' | 'blocked' | null };
 const sectionFor = { merge_questions: 'questions', briefing: 'briefing', structure: 'record' } as const;
 export class JobsService {
@@ -28,20 +28,27 @@ export class JobsService {
     if (current === null) throw new ApiError('conflict', 'not_ready');
     if (current !== job.inputVersion) throw new ApiError('conflict', 'stale_input');
   }
-  enqueue(userId: string, patientId: string, visitId: string, kind: JobKind, inputVersion: number): { jobId: string } {
+  enqueue(userId: string, patientId: string, visitId: string, kind: JobKind, inputVersion: number, uploadId?: string): { jobId: string } {
     jobKindSchema.parse(kind); inputVersionSchema.parse(inputVersion);
     const m = requireMembership(this.db, userId, patientId);
     assertAction(m, 'generate');
     if (kind === 'transcribe') assertAction(m, 'upload_audio');
     return this.db.transaction(() => {
-      this.assertCurrentInput({ patientId, visitId, kind, inputVersion });
-      const previous = this.db.prepare('SELECT * FROM jobs WHERE visitId=? AND patientId=? AND kind=? AND inputVersion=? ORDER BY attempt DESC LIMIT 1').get(visitId, patientId, kind, inputVersion) as StoredJob | undefined;
+      if (kind === 'transcribe') {
+        if (!uploadId) throw new ApiError('bad_request');
+        if (!this.db.prepare('SELECT id FROM uploads WHERE id=? AND visitId=? AND patientId=?').get(uploadId, visitId, patientId)) throw new ApiError('not_found');
+      } else if (uploadId !== undefined) throw new ApiError('bad_request');
+      const previous = (kind === 'transcribe'
+        ? this.db.prepare('SELECT * FROM jobs WHERE visitId=? AND patientId=? AND kind=? AND uploadId=? ORDER BY attempt DESC LIMIT 1').get(visitId, patientId, kind, uploadId)
+        : this.db.prepare('SELECT * FROM jobs WHERE visitId=? AND patientId=? AND kind=? AND inputVersion=? ORDER BY attempt DESC LIMIT 1').get(visitId, patientId, kind, inputVersion)) as StoredJob | undefined;
       if (previous && previous.status !== 'failed') {
+        if (kind !== 'transcribe') this.assertCurrentInput({ patientId, visitId, kind, inputVersion });
         this.get(userId, previous.id); // Does not expose another companion's jobId.
         return { jobId: previous.id };
       }
+      this.assertCurrentInput({ patientId, visitId, kind, inputVersion });
       const id = randomUUID(), now = new Date().toISOString();
-      this.db.prepare('INSERT INTO jobs (id,patientId,visitId,requestedBy,kind,inputVersion,status,attempt,createdAt,updatedAt) VALUES (?,?,?,?,?,?,?, ?,?,?)').run(id, patientId, visitId, userId, kind, inputVersion, 'queued', (previous?.attempt ?? 0) + 1, now, now);
+      this.db.prepare('INSERT INTO jobs (id,patientId,visitId,requestedBy,kind,inputVersion,uploadId,status,attempt,createdAt,updatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?)').run(id, patientId, visitId, userId, kind, inputVersion, uploadId ?? null, 'queued', (previous?.attempt ?? 0) + 1, now, now);
       return { jobId: id };
     })();
   }
@@ -58,6 +65,7 @@ export class JobsService {
   }
   assertRunnable(job: StoredJob) {
     assertAction(requireMembership(this.db, job.requestedBy, job.patientId), job.kind === 'transcribe' ? 'upload_audio' : 'generate');
+    if (job.kind === 'transcribe' && (!job.uploadId || !this.db.prepare('SELECT id FROM uploads WHERE id=? AND visitId=? AND patientId=?').get(job.uploadId, job.visitId, job.patientId))) throw new ApiError('not_found');
     this.assertCurrentInput(job);
   }
   complete(job: StoredJob, result: JobCompletion) {
@@ -66,7 +74,7 @@ export class JobsService {
       if (job.kind === 'transcribe') {
         // T039 worker must store the transcript and advance inputVersion once, atomically.
         this.assertCurrentInput({ ...job, inputVersion: job.inputVersion + 1 });
-        if (result.resultVersion !== null || result.resultState !== null || !this.db.prepare('SELECT id FROM transcripts WHERE patientId=? AND visitId=? AND mode=? AND createdAt>=?').get(job.patientId, job.visitId, result.mode, job.createdAt)) throw new Error('Missing transcription');
+        if (!job.uploadId || result.resultVersion !== null || result.resultState !== null || !this.db.prepare('SELECT id FROM transcripts WHERE patientId=? AND visitId=? AND uploadId=? AND mode=? AND createdAt>=?').get(job.patientId, job.visitId, job.uploadId, result.mode, job.createdAt)) throw new Error('Missing transcription');
       } else {
         this.assertCurrentInput(job);
         const set = this.db.prepare('SELECT version FROM block_sets WHERE patientId=? AND visitId=? AND section=? AND version=? AND inputVersion=? AND mode=? AND state=? AND createdBy=?').get(job.patientId, job.visitId, sectionFor[job.kind], result.resultVersion, job.inputVersion, result.mode, result.resultState, job.requestedBy);

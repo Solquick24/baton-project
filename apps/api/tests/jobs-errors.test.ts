@@ -8,6 +8,10 @@ import { ApiError } from '../src/shared/errors.js';
 import { safeLoggerOptions } from '../src/shared/logger.js';
 import { fixtureDatabase } from './helpers.js';
 
+function upload(db: ReturnType<typeof fixtureDatabase>, id: string, visitId = 'v_im_03') {
+  db.prepare('INSERT INTO uploads (id,patientId,visitId,uploaderId,storagePath,mediaType,size,createdAt) VALUES (?,?,?,?,?,?,?,?)').run(id, 'p_01', visitId, 'u_b', 'test-only-path', 'audio/wav', 1, new Date().toISOString());
+}
+
 it('deduplicates queued/running/success; retries failed attempt with a new id', async () => {
   const db = fixtureDatabase(), service = new JobsService(db);
   try {
@@ -114,19 +118,53 @@ it('prevents overlapping runner calls and catches an input change while awaiting
 it('reports transcription completion only after a stored transcript and one input-version increment', async () => {
   const db = fixtureDatabase(), jobs = new JobsService(db);
   try {
-    const id = jobs.enqueue('u_b', 'p_01', 'v_im_03', 'transcribe', 0).jobId;
+    upload(db, 'test-upload');
+    const id = jobs.enqueue('u_b', 'p_01', 'v_im_03', 'transcribe', 0, 'test-upload').jobId;
     const runner = new JobRunner(jobs, { transcribe: async () => {
       db.transaction(() => {
-        db.prepare('INSERT INTO transcripts VALUES (?,?,?,?,?,?,?)').run('test-tr', 'p_01', 'v_im_03', null, 'fixture', '[]', new Date().toISOString());
+        db.prepare('INSERT INTO transcripts VALUES (?,?,?,?,?,?,?)').run('test-tr', 'p_01', 'v_im_03', 'test-upload', 'fixture', '[]', new Date().toISOString());
         db.prepare("UPDATE visits SET recordInputVersion=1 WHERE id='v_im_03'").run();
       })();
       return { mode: 'fixture', resultVersion: null, resultState: null };
     } });
     await runner.runNext();
     expect(jobs.get('u_b', id)).toMatchObject({ status: 'succeeded', resultVersion: null, resultState: null, mode: 'fixture' });
+    expect(jobSchema.safeParse({ ...jobs.get('u_b', id), resultVersion: 1, resultState: 'ready' }).success).toBe(false);
+    expect(jobs.enqueue('u_b', 'p_01', 'v_im_03', 'transcribe', 1, 'test-upload')).toEqual({ jobId: id });
   } finally { db.close(); }
 });
-it.each([['unauthorized', 401], ['forbidden', 403], ['not_found', 404], ['bad_request', 400], ['conflict', 409], ['upstream_error', 502]] as const)('returns the strict %s error contract with server-generated requestId', async (code, status) => {
+it('deduplicates transcription by upload, validates ownership context and counts attempts across input versions', async () => {
+  const db = fixtureDatabase(), jobs = new JobsService(db);
+  try {
+    upload(db, 'audio-1'); upload(db, 'audio-2'); upload(db, 'wrong-visit', 'v_os_01');
+    expect(() => jobs.enqueue('u_b', 'p_01', 'v_im_03', 'transcribe', 0)).toThrow(ApiError);
+    expect(() => jobs.enqueue('u_b', 'p_01', 'v_im_03', 'transcribe', 0, 'wrong-visit')).toThrow(ApiError);
+    const first = jobs.enqueue('u_b', 'p_01', 'v_im_03', 'transcribe', 0, 'audio-1');
+    expect(jobs.enqueue('u_b', 'p_01', 'v_im_03', 'transcribe', 0, 'audio-1')).toEqual(first);
+    const second = jobs.enqueue('u_b', 'p_01', 'v_im_03', 'transcribe', 0, 'audio-2');
+    expect(second.jobId).not.toBe(first.jobId);
+    await new JobRunner(jobs, { transcribe: async () => { throw new ProviderError('stt_unavailable'); } }).runNext();
+    const failed = [first, second].find((job) => jobs.get('u_b', job.jobId).status === 'failed')!;
+    const uploadId = (db.prepare('SELECT uploadId FROM jobs WHERE id=?').get(failed.jobId) as { uploadId: string }).uploadId;
+    db.prepare("UPDATE visits SET recordInputVersion=1 WHERE id='v_im_03'").run();
+    const retry = jobs.enqueue('u_b', 'p_01', 'v_im_03', 'transcribe', 1, uploadId);
+    expect(jobs.get('u_b', retry.jobId).attempt).toBe(2);
+  } finally { db.close(); }
+});
+it('refuses transcription success for an unrelated upload even after the input increment', async () => {
+  const db = fixtureDatabase(), jobs = new JobsService(db);
+  try {
+    upload(db, 'wanted'); upload(db, 'unrelated');
+    const job = jobs.enqueue('u_b', 'p_01', 'v_im_03', 'transcribe', 0, 'wanted');
+    await new JobRunner(jobs, { transcribe: async () => {
+      db.prepare('INSERT INTO transcripts VALUES (?,?,?,?,?,?,?)').run('wrong-tr', 'p_01', 'v_im_03', 'unrelated', 'fixture', '[]', new Date().toISOString());
+      db.prepare("UPDATE visits SET recordInputVersion=1 WHERE id='v_im_03'").run();
+      return { mode: 'fixture', resultVersion: null, resultState: null };
+    } }).runNext();
+    expect(jobs.get('u_b', job.jobId)).toMatchObject({ status: 'failed', errorCode: 'internal', resultVersion: null });
+  } finally { db.close(); }
+});
+it.each([['unauthorized', 401], ['forbidden', 403], ['not_found', 404], ['bad_request', 400], ['conflict', 409], ['upstream_error', 502], ['internal_error', 500]] as const)('returns the strict %s error contract with server-generated requestId', async (code, status) => {
   const app = await buildApp();
   app.get('/probe/error', async () => { throw new ApiError(code); });
   try {
@@ -134,6 +172,14 @@ it.each([['unauthorized', 401], ['forbidden', 403], ['not_found', 404], ['bad_re
     expect(res.statusCode).toBe(status); const body = errorResponseSchema.parse(res.json());
     expect(body.error.requestId).not.toBe('attacker-secret');
     expect(res.body).not.toContain('secret');
+  } finally { await app.close(); }
+});
+it.each([['file_too_large', 413], ['unsupported_media_type', 415], ['unsupported_action', 400]] as const)('normalizes %s without disclosing raw upload errors', async (reason, status) => {
+  const app = await buildApp();
+  app.get('/probe/error', async () => { throw new ApiError('bad_request', reason); });
+  try {
+    const res = await app.inject('/probe/error'); expect(res.statusCode).toBe(status);
+    expect(errorResponseSchema.parse(res.json()).error).toMatchObject({ code: 'bad_request', reason });
   } finally { await app.close(); }
 });
 it('omits internal exceptions/paths/token/body from responses and logger serializers', async () => {

@@ -24,4 +24,4 @@ export function assembleRecordBlocks(rows: Array<{ kind: BlockKind; payload: str
 export function assembleVisit(meta: unknown, record?: NonNullable<VisitView['record']>): VisitView {
   return stored(visitViewSchema, { meta: stored(visitMetaSchema, meta), ...(record ? { record } : {}) });
 }
-export const parseIssues = (rows: Array<{ value: string }>) => rows.map((row) => validationIssueSchema.parse(JSON.parse(row.value)));
+export const parseIssues = (rows: Array<{ value: string }>) => rows.map((row) => stored(validationIssueSchema, JSON.parse(row.value)));

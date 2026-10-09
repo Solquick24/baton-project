@@ -28,14 +28,15 @@ export function readVisit(db: BatonDatabase, userId: string, patientId: string, 
   if (view === 'draft' && !canShareDraft(member, set.createdBy)) throw new ApiError('forbidden');
   if (view === 'published' && set.state !== 'ready') throw new ApiError('not_found');
   if (set.state === 'failed' || set.state === 'generating') throw new ApiError('not_found');
-  const kinds = allowedKinds(member.scope);
+  const baseKinds = allowedKinds(member.scope);
+  const kinds = set.state === 'blocked' ? baseKinds.filter((kind) => kind === 'full') : baseKinds;
   const placeholders = kinds.map(() => '?').join(',');
-  const rows = db.prepare(`SELECT kind,payload FROM visit_blocks WHERE blockSetId=? AND kind IN (${placeholders}) ORDER BY CASE kind WHEN 'schedule' THEN 0 WHEN 'companion' THEN 1 ELSE 2 END`).all(set.id, ...kinds) as Array<{ kind: BlockKind; payload: string }>;
-  const record: NonNullable<VisitView['record']> = { view, version: set.version, mode: set.mode, blocks: assembleRecordBlocks(rows) };
-  if (view === 'draft') {
-    record.state = set.state;
-    record.shareable = set.state === 'ready' && set.inputVersion === v.recordInputVersion && canShareDraft(member, set.createdBy);
-    record.issues = parseIssues(db.prepare(`SELECT j.value FROM block_sets b,json_each(b.issues) j WHERE b.id=? AND json_extract(j.value,'$.blockKind') IN (${placeholders})`).all(set.id, ...kinds) as Array<{ value: string }>);
-  }
+  const rows = kinds.length ? db.prepare(`SELECT kind,payload FROM visit_blocks WHERE blockSetId=? AND kind IN (${placeholders}) ORDER BY CASE kind WHEN 'schedule' THEN 0 WHEN 'companion' THEN 1 ELSE 2 END`).all(set.id, ...kinds) as Array<{ kind: BlockKind; payload: string }> : [];
+  const base = { version: set.version, mode: set.mode, blocks: assembleRecordBlocks(rows) };
+  const record: NonNullable<VisitView['record']> = view === 'draft' ? {
+    ...base, view, inputVersion: set.inputVersion, stale: set.inputVersion !== v.recordInputVersion, state: set.state,
+    shareable: set.state === 'ready' && set.inputVersion === v.recordInputVersion && canShareDraft(member, set.createdBy),
+    issues: parseIssues(db.prepare(`SELECT j.value FROM block_sets b,json_each(b.issues) j WHERE b.id=? AND json_extract(j.value,'$.blockKind') IN (${baseKinds.map(() => '?').join(',')})`).all(set.id, ...baseKinds) as Array<{ value: string }>),
+  } : { ...base, view };
   return assembleVisit(meta, record);
 }

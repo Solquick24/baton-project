@@ -13,6 +13,7 @@
 1. `specs/001-baton-mvp/spec.md` — 요구사항(FR·SC)과 범위별 허용표
 2. `specs/001-baton-mvp/contracts/schemas.md` — 블록·응답·작업·검증기의 **정확한 형태**
 3. `specs/001-baton-mvp/screens.md` — 화면 번호·경로·범위별 표시·testid
+   - 실제 화면 배치는 `docs/references/baton-ui-wireframe-selection.pdf`와 `docs/wireframe-integration.md`를 함께 본다. PDF 쪽 번호와 화면 번호는 다르며, PDF가 기능·권한 계약이나 Tier C 구현 범위를 확대하지 않는다.
 4. `specs/001-baton-mvp/seed-story.md` — 시드 인물·이야기·범위별 기대값
 5. `specs/001-baton-mvp/plan.md`, `data-model.md`, `contracts/api.md`, `research.md`
 6. `specs/001-baton-mvp/tasks.md` — 작업 순서와 Tier

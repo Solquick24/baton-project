@@ -5,10 +5,17 @@ import { ApiError } from '../../shared/errors.js';
 
 const storedSchemas = { record: recordBlocksSchema, questions: questionsBlocksSchema, briefing: briefingBlocksSchema };
 function readInternalSet(db: BatonDatabase, patientId: string, visitId: string, section: Section, version: number) {
+  const set = db.prepare('SELECT state FROM block_sets WHERE patientId=? AND visitId=? AND section=? AND version=?').get(patientId, visitId, section, version) as { state: string } | undefined;
+  if (set?.state !== 'ready') {
+    if (section === 'questions') throw new ApiError('conflict', 'not_ready');
+    throw new Error('저장된 공유 자료를 확인해 주세요.');
+  }
   const rows = db.prepare(`SELECT vb.kind,vb.payload FROM visit_blocks vb JOIN block_sets bs ON bs.id=vb.blockSetId
     WHERE bs.patientId=? AND bs.visitId=? AND bs.section=? AND bs.version=? AND bs.state='ready'`).all(patientId, visitId, section, version) as Array<{ kind: string; payload: string }>;
   const blocks = Object.fromEntries(rows.map((r) => [r.kind, JSON.parse(r.payload)]));
-  return storedSchemas[section].parse(blocks);
+  const parsed = storedSchemas[section].safeParse(blocks);
+  if (!parsed.success) throw new Error('저장된 생성 자료를 확인해 주세요.');
+  return parsed.data;
 }
 /** Internal generation input only. Never called by external read handlers/repository. */
 export function loadGenerationInput(db: BatonDatabase, userId: string, patientId: string, visitId: string, purpose: Section) {

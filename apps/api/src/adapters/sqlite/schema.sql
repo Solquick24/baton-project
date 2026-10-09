@@ -74,13 +74,23 @@ CREATE TABLE IF NOT EXISTS alerts (
 );
 CREATE TABLE IF NOT EXISTS jobs (
  id TEXT PRIMARY KEY, patientId TEXT NOT NULL REFERENCES patients(id), visitId TEXT NOT NULL, requestedBy TEXT NOT NULL REFERENCES users(id),
- kind TEXT NOT NULL CHECK(kind IN ('transcribe','merge_questions','briefing','structure')), inputVersion INTEGER NOT NULL CHECK(inputVersion>=0),
+ kind TEXT NOT NULL CHECK(kind IN ('transcribe','merge_questions','briefing','structure')), inputVersion INTEGER NOT NULL CHECK(inputVersion>=0), uploadId TEXT,
  status TEXT NOT NULL CHECK(status IN ('queued','running','succeeded','failed')), attempt INTEGER NOT NULL CHECK(attempt>0),
  mode TEXT CHECK(mode IN ('live','fixture')), resultVersion INTEGER CHECK(resultVersion>0), resultState TEXT CHECK(resultState IN ('ready','blocked')),
  errorCode TEXT CHECK(errorCode IN ('ai_unavailable','stt_unavailable','validation_failed','stale_input','internal')), createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL,
- UNIQUE(visitId,kind,inputVersion,attempt), FOREIGN KEY(visitId,patientId) REFERENCES visits(id,patientId)
+ CHECK(kind='transcribe' OR uploadId IS NULL), FOREIGN KEY(visitId,patientId) REFERENCES visits(id,patientId),
+ FOREIGN KEY(uploadId,visitId,patientId) REFERENCES uploads(id,visitId,patientId)
 );
-CREATE UNIQUE INDEX IF NOT EXISTS jobs_deduplicate ON jobs(visitId,kind,inputVersion) WHERE status IN ('queued','running','succeeded');
+CREATE UNIQUE INDEX IF NOT EXISTS jobs_generation_attempt ON jobs(visitId,kind,inputVersion,attempt) WHERE kind<>'transcribe';
+CREATE UNIQUE INDEX IF NOT EXISTS jobs_transcription_attempt ON jobs(visitId,kind,uploadId,attempt) WHERE kind='transcribe';
+CREATE UNIQUE INDEX IF NOT EXISTS jobs_generation_deduplicate ON jobs(visitId,kind,inputVersion) WHERE kind<>'transcribe' AND status IN ('queued','running','succeeded');
+CREATE UNIQUE INDEX IF NOT EXISTS jobs_transcription_deduplicate ON jobs(visitId,kind,uploadId) WHERE kind='transcribe' AND status IN ('queued','running','succeeded');
+CREATE TABLE IF NOT EXISTS share_requests (
+ patientId TEXT NOT NULL REFERENCES patients(id), actorId TEXT NOT NULL REFERENCES users(id), idempotencyKey TEXT NOT NULL,
+ visitId TEXT NOT NULL, draftVersion INTEGER NOT NULL CHECK(draftVersion>0), inputVersion INTEGER NOT NULL CHECK(inputVersion>=0),
+ publishedVersion INTEGER NOT NULL CHECK(publishedVersion>0), sharedAt TEXT NOT NULL,
+ PRIMARY KEY(patientId,actorId,idempotencyKey), FOREIGN KEY(visitId,patientId) REFERENCES visits(id,patientId)
+);
 CREATE TABLE IF NOT EXISTS share_logs (
  id TEXT PRIMARY KEY, patientId TEXT NOT NULL REFERENCES patients(id), targetUserId TEXT REFERENCES users(id), actorId TEXT NOT NULL REFERENCES users(id),
  action TEXT NOT NULL CHECK(action IN ('start','scope_change','stop','publish')), oldScope TEXT CHECK(oldScope IN ('schedule','companion','full')),

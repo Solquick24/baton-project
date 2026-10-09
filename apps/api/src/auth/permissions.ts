@@ -24,6 +24,9 @@ export function canManageScopes(m: Membership) {
 export function canShareDraft(m: Membership, createdBy: string) {
   return canManageScopes(m) || createdBy === m.userId && allowedKinds(m.scope).includes('companion');
 }
+export function canResolveAlerts(m: Membership) {
+  return allowedKinds(m.scope).includes('full') && (m.role === 'patient' && m.userId === m.patientUserId || m.role === 'lead' && m.userId === m.leadUserId);
+}
 export function assertAction(m: Membership, action: string) {
   const has = (kind: 'schedule' | 'companion' | 'full') => allowedKinds(m.scope).includes(kind);
   switch (action) {
@@ -31,6 +34,7 @@ export function assertAction(m: Membership, action: string) {
     case 'manage_scopes': case 'read_share_log': if (canManageScopes(m)) return; break;
     case 'read_source': if (has('full')) return; break;
     case 'read_alerts': if (has('full')) return; throw new ApiError('not_found');
+    case 'resolve_alerts': if (canResolveAlerts(m)) return; if (!has('full')) throw new ApiError('not_found'); break;
     case 'generate': case 'write_questions': case 'write_notes': if (has('companion')) return; break;
     case 'read_questions': case 'read_briefing': if (has('companion')) return; throw new ApiError('not_found');
     case 'upload_audio': if (!m.recordingAllowed) throw new ApiError('forbidden', 'recording_not_allowed'); if (has('companion')) return; break;

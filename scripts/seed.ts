@@ -53,7 +53,7 @@ export function seedDatabase(db: BatonDatabase, options: { fixturesDir: string; 
   const questions = load(dir, 'questions.json', root({ questions: z.array(question) })).questions;
   const passwords = new Map(accounts.users.map((u) => [u.id, hashPassword(accounts.demoPassword)]));
   return db.transaction(() => {
-    for (const table of ['visit_blocks', 'block_sets', 'jobs', 'share_logs', 'transcripts', 'prescriptions', 'questions', 'notes', 'alerts', 'observations', 'uploads', 'visits', 'members', 'patients', 'hospitals', 'users']) db.exec(`DELETE FROM ${table}`);
+    for (const table of ['visit_blocks', 'block_sets', 'jobs', 'share_requests', 'share_logs', 'transcripts', 'prescriptions', 'questions', 'notes', 'alerts', 'observations', 'uploads', 'visits', 'members', 'patients', 'hospitals', 'users']) db.exec(`DELETE FROM ${table}`);
     for (const u of accounts.users) insert(db, 'users', { ...u, passwordHash: passwords.get(u.id) });
     for (const h of hospitals.hospitals) insert(db, 'hospitals', h);
     for (const p of patients.patients) insert(db, 'patients', p);

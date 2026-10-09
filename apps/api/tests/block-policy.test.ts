@@ -21,6 +21,7 @@ it.each([['u_c', ['schedule']], ['u_b', ['schedule', 'companion']], ['u_a', ['sc
   const body = res.json();
   expect(Object.keys(body.record.blocks).sort()).toEqual([...(expected as string[])].sort());
   expect(Object.keys(body.meta).sort()).toEqual(['companion', 'date', 'dept', 'hospital', 'id', 'patientId', 'status', 'time']);
+  expect(Object.keys(body.record).sort()).toEqual(['blocks', 'mode', 'version', 'view']);
   expect(res.body).not.toMatch(/"(?:scope|hiddenCount|locked|passwordHash)"/);
   const selects = statements.filter((s) => /SELECT.*payload/i.test(s));
   expect(selects).toHaveLength(1);
@@ -62,11 +63,26 @@ it('uses published pointer and hides drafts from other family; stale and blocked
   expect((await read('u_a', 'v_im_02', 'draft')).statusCode).toBe(403);
   const own = await read('u_b', 'v_im_02', 'draft');
   expect(own.json().record.shareable).toBe(false);
-  expect(Object.keys(own.json().record.blocks)).toEqual(['schedule', 'companion']);
+  expect(own.json().record).toMatchObject({ view: 'draft', inputVersion: 1, stale: true, state: 'blocked' });
+  expect(Object.keys(own.json().record.blocks)).toEqual([]);
   expect(own.json().record.issues).toEqual([{ blockKind: 'companion', itemId: 'es_im02_1', rule: 'restricted_value' }]);
   expect(own.body).not.toContain('hidden-full-item');
-  expect((await read('u_patient', 'v_im_02', 'draft')).statusCode).toBe(200);
+  statements.length = 0;
+  const full = await read('u_patient', 'v_im_02', 'draft');
+  expect(full.statusCode).toBe(200);
+  expect(Object.keys(full.json().record.blocks)).toEqual(['full']);
+  const selected = statements.filter((sql) => /SELECT.*payload/i.test(sql));
+  expect(selected).toHaveLength(1);
+  expect(selected[0]).toContain("kind IN ('full')");
   expect(Object.keys((await read('u_c', 'v_im_03')).json())).toEqual(['meta']);
+});
+it('never selects lower payloads for a blocked companion draft', async () => {
+  db.prepare("UPDATE block_sets SET state='blocked',createdBy='u_b' WHERE id='seed_v_im_02_1'").run();
+  statements.length = 0;
+  const response = await read('u_b', 'v_im_02', 'draft');
+  expect(response.statusCode).toBe(200);
+  expect(Object.keys(response.json().record.blocks)).toEqual([]);
+  expect(statements.some((sql) => /SELECT.*payload/i.test(sql))).toBe(false);
 });
 it('defaults unspecified fields to full and denies invalid scope/kind', async () => {
   const { minimumKind, allowedKinds } = await import('../src/auth/block-policy.js');

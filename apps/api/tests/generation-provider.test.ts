@@ -76,6 +76,20 @@ it('briefing excludes future observations and keeps only same-department past so
     expect(input).not.toMatch(/future-sentinel|ob_03|v_os_01|rx_os_01|가상록소정/);
   } finally { db.close(); }
 });
+it('rejects blocked current questions before invoking the briefing provider over HTTP', async () => {
+  const db = fixtureDatabase();
+  const generate = vi.fn();
+  const app = await buildApp({ db, llm: { generate } });
+  app.post('/probe/briefing', async (req) => app.baton.llm.generate({ input: loadGenerationInput(db, await authenticate(req, db), 'p_01', 'v_im_03', 'briefing'), attempt: 1, instruction: '브리핑' }));
+  try {
+    db.prepare("INSERT INTO block_sets VALUES ('blocked-questions','p_01','v_im_03','questions',1,3,'blocked','fixture','u_b','2026-03-12T00:00:00Z','[]')").run();
+    db.prepare("UPDATE visits SET questionsVersion=1 WHERE id='v_im_03'").run();
+    const response = await app.inject({ method: 'POST', url: '/probe/briefing', headers: { authorization: `Bearer ${app.jwt.sign({ sub: 'u_b' })}` } });
+    expect(response.statusCode).toBe(409);
+    expect(response.json().error).toMatchObject({ code: 'conflict', reason: 'not_ready' });
+    expect(generate).not.toHaveBeenCalled();
+  } finally { await app.close(); db.close(); }
+});
 it('uses first matching manifest rule, persists actual mode, fails first job attempt without hidden retries', async () => {
   const provider = validatedLLM(new FixtureLLM(fixturesDir));
   const plain = await provider.generate(request());
