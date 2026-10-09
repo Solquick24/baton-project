@@ -11,7 +11,7 @@ function disclosureRules(value: unknown, restricted: readonly string[]) {
   return (['restricted_value', 'medical_judgment'] as const).filter((rule) => values.some((text) => rule === 'restricted_value' ? hasRestrictedValue(text, restricted) : hasMedicalJudgment(text)));
 }
 const key = (source: SourceRef['source']) => JSON.stringify(source);
-function sourceCatalog(input: GenerationInput) {
+export function sourceCatalog(input: GenerationInput) {
   const catalog = new Map<string, string[]>();
   for (const q of input.questions) catalog.set(key({ type: 'question', questionId: q.id }), [q.text]);
   if ('notes' in input) for (const n of input.notes) catalog.set(key({ type: 'note', noteId: n.id }), [n.text]);

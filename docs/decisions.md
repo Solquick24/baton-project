@@ -135,3 +135,4 @@ Phase 1 체크포인트 결과와 범위는 [phase1-checkpoint.md](phase1-checkp
 | 2026-10-09 | #32 종료 | API245·실제 API E2E25·preview14·전체 타입/빌드 통과 후 작업 브랜치에서 커밋하고 체크포인트 중지. 이번 변경 push/PR/병합 미실시 | 사용자 이번 요청의 커밋 체크포인트 종료가 일반 브랜치 지침의 후속 단계보다 우선. 최신 결과는 api-integration-checkpoint.md |
 
 | 2026-10-09 | #32 후속 PR·병합 승인 | 사용자가 devlop 대상 PR 생성·병합을 명시 요청. c231943 보존 후 최신 devlop de8b924를 c787a55로 병합, 문서 충돌은 최신 통합 결과·기존 T020/AI 설명 기록을 함께 보존 | 제품 코드·테스트 변경 없음. 최초 커밋 체크포인트 제한은 후속 승인으로 해제하며 main PR #35 병합·외부 AI 실제 호출은 범위에 포함하지 않음 |
+| 2026-10-09 | Phase 3 실제 OpenAI 연결·#37 | 사용자 요청으로 .env의 LLM_MODE=live·fallback=false, STT는 fixture 유지. 실제 질문 통합·브리핑의 job/응답/DB live·ready와 Chrome 표시 확인. 모델에 원 질문 참조·유일한 출력 ID·참조 대상을 명시하고 기존 sourceCatalog를 그대로 전달 | 초기 실제 생성은 검증 실패로 보존. 검증기·권한·스키마는 완화하지 않음. 초기 d525f2d 검증 후 게시 승인, 이슈 #37·fix/37-live-previsit-integration 생성. 최신 devlop 8318aab의 PR #36 API 통합과 T020 세션을 보존. 기록은 docs/phase3-live-checkpoint.md, 병합은 별도 리뷰 단계 |

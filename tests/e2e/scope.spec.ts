@@ -6,7 +6,7 @@ test('core scope management uses real PUT and refreshes the next guardian read w
   await login(page, 'patient');
   await page.getByRole('link', { name: '설정', exact: true }).click();
   await page.getByTestId('sharing-member-u_b').click();
-  const guardian = await context.browser()!.newContext({ baseURL: 'http://127.0.0.1:5174' });
+  const guardian = await context.browser()!.newContext({ baseURL: new URL(page.url()).origin });
   try {
     const b = await guardian.newPage(); await login(b, 'b');
     const initial = await (await request.get('/api/__test/ai-calls')).json();
