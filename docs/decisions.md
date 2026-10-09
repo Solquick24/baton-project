@@ -63,6 +63,7 @@ Codex가 추측하지 않고 바로 구현할 수 있도록 문서에 없던 결
 
 | 날짜 | 작업 | 결정 | 이유 |
 |---|---|---|---|
+| 2026-10-09 | FE 첫 이슈 #2(T001·T020·T026–T028·T048–T049 일부, 전체 작업 미완료) | Vite preview 모드에서만 서버 측 개발용 응답을 제공. 새 질문은 실제 검증기 연결 전 환자·A의 full 전용 저장으로 제한하고 B 등록은 거부. 기존 질문·브리핑은 pregenerate 예시로 조회하고, 입력 변경 후 일치하는 fixture가 없으면 실패. 실제 API 모드·빌드에는 어댑터·가상 비밀번호를 포함하지 않음 | 실제 API·DB·JWT·검증기가 없어 완료로 간주할 수 없음. 더 좁은 공개 원칙 적용. 구현·제한은 docs/frontend-plan.md와 apps/web/README.md에 기록 |
 | 2026-10-09 | 샘플 데이터셋 연결(T010·T037·T038·T065 참고, 작업 미완료) | v2.1 ZIP은 참고 자료로 분리하고 현행 가상 4계정·3범위·시드/fixture를 유지. 실제 약·MIMIC·raw mock·private notes는 직접 가져오지 않음. 14 PNG와 추출 20건을 구분 | 원본의 실제 제품·2범위·6진료가 현행 계약과 다름. 더 좁게 공개하는 원칙 적용. 연결표·25건 무결성 검사 결과는 docs/dataset-integration.md에 기록 |
 | 2026-10-09 | AWS 환경 재점검(T007 일부, 작업 미완료) | 최신 `0fe3573`의 기존 S3 재사용·LLM/STT fixture 기본값 적용. 앞선 사용자 승인으로 준비한 임시 버킷을 재사용하고 추가 AWS 자원은 생성하지 않음. Sonnet 5 Converse tool-use 접근 확인은 계정 제한으로 실패 | AGENTS.md·현행 .env.example의 범위 준수. 명세 파일은 원격 최신본을 유지. 실제 값은 Git 제외 .env·infra/local-ai.outputs.json, 상세는 docs/aws-setup.md에 기록 |
 | 2026-10-09 | UI PDF 반영(T026–T029·T033–T034·T036·T045–T051 참고, 작업 미완료) | 사용자 선택에 따라 25쪽 PDF를 화면 정의·계획에 반영. 배치·색감은 PDF를 참고하고, 브리핑 질문을 변경 다음으로 이동·직접 녹음을 가상 파일 업로드로 대체·검토 후 공유 문구 유지. 기존 권한·시드·Tier는 유지 | PDF에 full 전용 내용·후순위 기능·다른 예시 인물이 섞여 있음. 원본·쪽 연결·조정은 docs/wireframe-integration.md, 설정 25·25-2는 PDF 밖 기존 정의를 사용 |
@@ -86,3 +87,4 @@ Phase 1 체크포인트 결과와 범위는 [phase1-checkpoint.md](phase1-checkp
 | 2026-10-09 | T006 재사용·호환 확인 | 기존 Playwright의 DB를 메모리로 설정하고 기존 웹 코드는 그대로 검사 | 사용자 요청의 테스트 fixture·메모리 SQLite 조건 충족, T020 제외. 상세는 backend-foundation-checkpoint.md |
 | 2026-10-09 | T008·T009·T014–T019 최신 devlop 반영 | 구현을 81b862a로 보존한 뒤 1343afe 병합. api.ts에 FE 공통 계약, blocked draft는 낮은 블록 미조회, canResolve는 full 환자/지정 대표에 한정하고 위임과 분리, 전사는 uploadId별 중복, share_requests는 DB 기반만 추가 | 원격 최신 schemas.md 8·8.1 및 data-model 변경을 T008–T019 안에서 반영. 실제 record-input/메모/alerts/공유·생성 handler는 T021 이후라 구현하지 않음 |
 | 2026-10-09 | T009·T019 | 이전 jobs 테이블은 트랜잭션으로 새 구조에 행·상태를 복사. 기존 전사 uploadId는 null로 보존하고 실행을 거부하며 추정하지 않음 | 기존 로컬 작업 데이터 보존과 최신 생성/전사 중복 인덱스 분리. 실제 전사 저장은 T039 의존성 |
+| 2026-10-09 | PR #11 통합·T008 | devlop 6f92b51의 프론트와 백엔드 기반을 함께 보존. FE DTO 이름은 별칭으로 유지하고 VisitView·Job 등 중복 타입은 Zod 추론 타입으로 통일 | 자동 병합된 임시 published 전용 VisitView가 백엔드 draft 계약을 가리거나 Job 결과 상태를 넓히는 문제 방지. 실제 API 연결 완료 범위는 확대하지 않음 |
