@@ -4,7 +4,7 @@
 
 ## 해커톤
 
-DevDay Exchange Community Hackathon Seoul(2026-10-09, Track 2 AI for Human Life)에서 팀 페이스 메이커가 만든 프로젝트다. 개발 AI 도구는 OpenAI Codex만 사용했다.
+DevDay Exchange Community Hackathon Seoul(2026-10-09, Track 2 AI for Human Life)에서 팀 페이스 메이커가 만든 프로젝트다. 해커톤 기간 개발 AI 도구는 OpenAI Codex만 사용했다.
 
 후원: OpenAI · AWS · Monster
 
